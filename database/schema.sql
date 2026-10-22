@@ -1,0 +1,55 @@
+CREATE TABLE IF NOT EXISTS users (
+ id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT, full_name VARCHAR(120) NOT NULL,
+ email VARCHAR(190) NOT NULL UNIQUE, phone VARCHAR(30), password_hash VARCHAR(255) NOT NULL,
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS medications (
+ id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT, user_id BIGINT UNSIGNED NOT NULL,
+ name VARCHAR(160) NOT NULL, dosage VARCHAR(100) NOT NULL, quantity VARCHAR(100),
+ frequency VARCHAR(100) NOT NULL, instructions TEXT, start_date DATE NOT NULL, end_date DATE,
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+ FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE, INDEX idx_med_user_dates(user_id,start_date,end_date)
+);
+CREATE TABLE IF NOT EXISTS schedules (
+ id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT, medication_id BIGINT UNSIGNED NOT NULL,
+ user_id BIGINT UNSIGNED NOT NULL, dose_time TIME NOT NULL, active BOOLEAN NOT NULL DEFAULT TRUE,
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ FOREIGN KEY (medication_id) REFERENCES medications(id) ON DELETE CASCADE,
+ FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+ UNIQUE KEY uq_medication_dose_time(medication_id,dose_time), INDEX idx_schedule_user_active(user_id,active)
+);
+CREATE TABLE IF NOT EXISTS dose_events (
+ id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT, schedule_id BIGINT UNSIGNED NOT NULL,
+ medication_id BIGINT UNSIGNED NOT NULL, user_id BIGINT UNSIGNED NOT NULL,
+ scheduled_for DATETIME NOT NULL, status ENUM('taken','missed') NOT NULL,
+ recorded_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ FOREIGN KEY (schedule_id) REFERENCES schedules(id) ON DELETE CASCADE,
+ FOREIGN KEY (medication_id) REFERENCES medications(id) ON DELETE CASCADE,
+ FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+ UNIQUE KEY uq_dose_event(schedule_id,scheduled_for), INDEX idx_events_user_date(user_id,scheduled_for)
+);
+CREATE TABLE IF NOT EXISTS doctors (
+ id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT, user_id BIGINT UNSIGNED NOT NULL,
+ name VARCHAR(160) NOT NULL, specialization VARCHAR(160), clinic_name VARCHAR(200),
+ phone VARCHAR(30), email VARCHAR(190), availability VARCHAR(200), clinic_address TEXT,
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS appointment_requests (
+ id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT, doctor_id BIGINT UNSIGNED NOT NULL,
+ user_id BIGINT UNSIGNED NOT NULL, requested_date DATE, message TEXT,
+ status ENUM('requested','confirmed','cancelled') NOT NULL DEFAULT 'requested',
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ FOREIGN KEY (doctor_id) REFERENCES doctors(id) ON DELETE CASCADE,
+ FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS reminder_logs (
+ id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT, schedule_id BIGINT UNSIGNED NOT NULL,
+ user_id BIGINT UNSIGNED NOT NULL, scheduled_for DATETIME NOT NULL,
+ delivered_via ENUM('dashboard','email','sms','push') NOT NULL DEFAULT 'dashboard',
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ UNIQUE KEY uq_reminder_log(schedule_id,scheduled_for,delivered_via),
+ FOREIGN KEY (schedule_id) REFERENCES schedules(id) ON DELETE CASCADE,
+ FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);

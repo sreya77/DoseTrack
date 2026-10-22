@@ -1,0 +1,932 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d9488">
+  <title>DoseTrack | Connected Medication Care for Patients, Guardians & Caretakers</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+  <!-- ================= AUTHENTICATION / LANDING VIEW ================= -->
+  <div id="authView" class="auth-wrapper">
+    <!-- Brand Story Showcase -->
+    <section class="auth-hero">
+      <div class="auth-hero-top">
+        <div class="brand-pill">
+          <span class="brand-icon">✚</span>
+          <span class="brand-name">DoseTrack</span>
+          <span class="badge-sub">CARE SYSTEM</span>
+        </div>
+      </div>
+      
+      <div class="auth-hero-content">
+        <div class="hero-chip">CONNECTED CARE TRIANGLE</div>
+        <h1>Medication harmony for <em>Patient, Guardian & Caretaker.</em></h1>
+        <p>A unified, real-time platform keeping treatment schedules, dose verifications, vital signs, and family alerts synchronized across your entire care circle.</p>
+        
+        <div class="role-preview-cards">
+          <div class="role-mini-card">
+            <span class="role-dot dot-patient"></span>
+            <strong>Patients</strong>
+            <p>Clear, large daily schedule, 1-tap dose tracking, and instant SOS alert.</p>
+          </div>
+          <div class="role-mini-card">
+            <span class="role-dot dot-guardian"></span>
+            <strong>Guardians</strong>
+            <p>Remote adherence monitoring, gentle reminders, and peace of mind.</p>
+          </div>
+          <div class="role-mini-card">
+            <span class="role-dot dot-caretaker"></span>
+            <strong>Caretakers & Nurses</strong>
+            <p>Multi-patient rounds, dose administration sign-off, and vitals logging.</p>
+          </div>
+        </div>
+      </div>
+
+      <footer class="auth-hero-footer">
+        <span>🔒 Secure HIPAA-friendly data structure · MySQL 8 Verified · Ready to use</span>
+      </footer>
+    </section>
+
+    <!-- Sign In / Register Form Container -->
+    <section class="auth-panel">
+      <div class="auth-box">
+        <div class="mobile-brand">
+          <span class="brand-icon">✚</span> <strong>DoseTrack</strong>
+        </div>
+
+        <div class="auth-header">
+          <h2 id="authHeading">Welcome back</h2>
+          <p id="authSubheading">Sign in to your personalized care workspace.</p>
+        </div>
+
+        <!-- 1-Click Quick Demo Login Switcher -->
+        <div class="demo-quick-bar">
+          <span class="demo-label">1-CLICK DEMO ACCOUNTS:</span>
+          <div class="demo-buttons">
+            <button type="button" class="btn-demo demo-pt" id="btnDemoPatient" title="Login as Eleanor Vance (Patient)">
+              <span class="demo-avatar">👵</span>
+              <div class="demo-text">
+                <strong>Patient</strong>
+                <small>Eleanor Vance</small>
+              </div>
+            </button>
+            <button type="button" class="btn-demo demo-gd" id="btnDemoGuardian" title="Login as David Vance (Son & Guardian)">
+              <span class="demo-avatar">👨</span>
+              <div class="demo-text">
+                <strong>Guardian</strong>
+                <small>David Vance</small>
+              </div>
+            </button>
+            <button type="button" class="btn-demo demo-ct" id="btnDemoCaretaker" title="Login as Nurse Sarah (Caretaker)">
+              <span class="demo-avatar">👩‍⚕️</span>
+              <div class="demo-text">
+                <strong>Caretaker</strong>
+                <small>Nurse Sarah, RN</small>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <div class="divider"><span>OR ENTER CREDENTIALS</span></div>
+
+        <!-- Auth Form -->
+        <form id="authForm" novalidate>
+          <!-- Role selector for registration -->
+          <div id="roleSelectWrap" class="field-group hide">
+            <label class="field-label">Select Your Role *</label>
+            <div class="role-selector-tabs">
+              <label class="role-tab selected" data-role="patient">
+                <input type="radio" name="authRole" value="patient" checked>
+                <span class="role-emoji">👤</span>
+                <span class="role-title">Patient</span>
+                <small>Managing my health</small>
+              </label>
+              <label class="role-tab" data-role="guardian">
+                <input type="radio" name="authRole" value="guardian">
+                <span class="role-emoji">🛡️</span>
+                <span class="role-title">Guardian</span>
+                <small>Family member</small>
+              </label>
+              <label class="role-tab" data-role="caretaker">
+                <input type="radio" name="authRole" value="caretaker">
+                <span class="role-emoji">🩺</span>
+                <span class="role-title">Caretaker</span>
+                <small>Nurse / Provider</small>
+              </label>
+            </div>
+          </div>
+
+          <!-- Name (for registration) -->
+          <div id="nameWrap" class="field-group hide">
+            <label class="field-label" for="authName">Full Name *</label>
+            <input id="authName" type="text" placeholder="e.g. Eleanor Vance" autocomplete="name">
+          </div>
+
+          <!-- Email (Strictly unique per account) -->
+          <div class="field-group">
+            <label class="field-label" for="authEmail">Email Address (Unique Account ID) *</label>
+            <input id="authEmail" type="email" required placeholder="name@example.com" autocomplete="email">
+            <small class="field-hint">One email address is strictly bound to one single account.</small>
+          </div>
+
+          <!-- Phone (for registration) -->
+          <div id="phoneWrap" class="field-group hide">
+            <label class="field-label" for="authPhone">Phone Number (Optional)</label>
+            <input id="authPhone" type="tel" placeholder="(555) 000-0000" autocomplete="tel">
+          </div>
+
+          <!-- Patient Code to Link (For Guardian/Caretaker registration) -->
+          <div id="linkPatientWrap" class="field-group hide">
+            <label class="field-label" for="authLinkPatientCode">Patient Code to Connect (Optional)</label>
+            <input id="authLinkPatientCode" type="text" placeholder="e.g. DT-PT-1001" style="text-transform: uppercase;">
+            <small class="field-hint">Ask the patient for their 6-character code (Demo: DT-PT-1001).</small>
+          </div>
+
+          <!-- Relationship description (For Guardian/Caretaker registration) -->
+          <div id="relationshipWrap" class="field-group hide">
+            <label class="field-label" for="authRelationship">Relationship to Patient</label>
+            <input id="authRelationship" type="text" placeholder="e.g. Son, Daughter, Visiting Nurse, Assisted Living Caregiver">
+          </div>
+
+          <!-- Emergency Contact (For Patient registration) -->
+          <div id="emergencyContactWrap" class="field-group hide">
+            <label class="field-label" for="authEmergency">Emergency Contact Details</label>
+            <input id="authEmergency" type="text" placeholder="e.g. David Vance (Son) - (555) 876-5432">
+          </div>
+
+          <!-- Password -->
+          <div class="field-group">
+            <div class="label-row">
+              <label class="field-label" for="authPassword">Password *</label>
+              <span id="pwdHint" class="field-hint hide">Min. 8 characters</span>
+            </div>
+            <input id="authPassword" type="password" minlength="8" required placeholder="••••••••" autocomplete="current-password">
+          </div>
+
+          <p id="authError" class="form-error hide"></p>
+
+          <button id="authSubmitBtn" type="submit" class="btn btn-primary btn-block">
+            Sign In to Workspace →
+          </button>
+        </form>
+
+        <div class="auth-switch">
+          <span id="switchPrompt">Don't have an account yet?</span>
+          <button id="btnToggleAuthMode" type="button" class="btn-text">Create Account</button>
+        </div>
+
+        <div class="auth-footer-help">
+          <button type="button" class="btn-text-sm" id="btnResetDemoData">↺ Reset Demo Database to Factory State</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+
+  <!-- ================= MAIN CONNECTED APP WORKSPACE ================= -->
+  <div id="appView" class="app-container hide">
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar">
+      <div class="sidebar-brand">
+        <span class="brand-icon">✚</span>
+        <div>
+          <span class="brand-name">DoseTrack</span>
+          <div id="sidebarRolePill" class="role-badge role-patient">PATIENT</div>
+        </div>
+      </div>
+
+      <!-- Patient context badge for Guardian / Caretaker -->
+      <div id="activePatientBanner" class="active-patient-card hide">
+        <small>CURRENT PATIENT</small>
+        <div class="patient-card-inner">
+          <span id="activePtAvatar" class="avatar-sm">E</span>
+          <div class="pt-details">
+            <strong id="activePtName">Eleanor Vance</strong>
+            <span id="activePtCode" class="pt-code-chip">DT-PT-1001</span>
+          </div>
+        </div>
+        <button id="btnSwitchPatient" type="button" class="btn-switch-pt" title="Switch or Link Patient">⇄ Switch</button>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button data-page="dashboard" class="nav-btn active">
+          <span class="nav-icon">◫</span>
+          <span class="nav-text">Overview & Doses</span>
+        </button>
+
+        <button data-page="medications" class="nav-btn">
+          <span class="nav-icon">💊</span>
+          <span class="nav-text">Medications</span>
+        </button>
+
+        <!-- Caretaker rounds tab (visible only for caretaker) -->
+        <button data-page="rounds" id="navRounds" class="nav-btn hide">
+          <span class="nav-icon">📋</span>
+          <span class="nav-text">Medication Rounds</span>
+        </button>
+
+        <button data-page="vitals" class="nav-btn">
+          <span class="nav-icon">📊</span>
+          <span class="nav-text">Care Notes & Vitals</span>
+        </button>
+
+        <button data-page="history" class="nav-btn">
+          <span class="nav-icon">◷</span>
+          <span class="nav-text">Adherence History</span>
+        </button>
+
+        <button data-page="careteam" class="nav-btn">
+          <span class="nav-icon">👥</span>
+          <span id="navCareTeamText" class="nav-text">Care Circle</span>
+        </button>
+
+        <button data-page="doctors" class="nav-btn">
+          <span class="nav-icon">🩺</span>
+          <span class="nav-text">Doctors & Clinic</span>
+        </button>
+      </nav>
+
+      <!-- Sidebar Bottom -->
+      <div class="sidebar-bottom">
+        <div class="role-tip" id="sidebarRoleTip">
+          <strong>Daily Care Tip</strong>
+          <p id="roleTipText">Log doses as soon as you take them to keep your circle informed.</p>
+        </div>
+        <button id="btnLogout" class="btn-logout">
+          <span>↪</span> Sign Out
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="app-main">
+      <!-- Top Application Header -->
+      <header class="app-header">
+        <div class="header-left">
+          <small id="headerDateLabel">THURSDAY, OCTOBER 22</small>
+          <h2 id="headerTitle">Your Daily Overview</h2>
+        </div>
+
+        <div class="header-right">
+          <!-- Notification Bell -->
+          <div class="notif-wrapper">
+            <button id="btnNotif" class="btn-icon" title="View Alerts & Notifications">
+              🔔
+              <span id="notifBadge" class="notif-badge hide">0</span>
+            </button>
+            <!-- Dropdown Alert Center -->
+            <div id="notifDropdown" class="notif-dropdown hide">
+              <div class="notif-head">
+                <strong>Care Circle Alerts</strong>
+                <button type="button" id="btnMarkAllRead" class="btn-text-sm">Mark all read</button>
+              </div>
+              <div id="notifList" class="notif-items">
+                <div class="empty-notif">No new alerts.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- User Profile Display -->
+          <div class="user-profile-badge">
+            <div id="userAvatar" class="avatar-circle">P</div>
+            <div class="user-info-text">
+              <strong id="userFullName">Eleanor Vance</strong>
+              <span id="userRoleSub">Patient · DT-PT-1001</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Live Toast Alert -->
+      <div id="appToast" class="toast-popup hide"></div>
+
+      <!-- ================= PAGE 1: OVERVIEW / DASHBOARD ================= -->
+      <section id="pageDashboard" class="content-page">
+        <!-- Patient Banner with SOS -->
+        <div id="patientBanner" class="hero-banner patient-theme">
+          <div class="banner-text">
+            <div class="banner-badge">DAILY ROUTINE</div>
+            <h3 id="bannerGreeting">Good morning, Eleanor!</h3>
+            <p id="bannerSub">Here are your medications and care circle updates for today.</p>
+          </div>
+          <!-- SOS Button for Patient -->
+          <div class="banner-actions" id="bannerActions">
+            <button type="button" id="btnTriggerSOS" class="btn-sos" title="Alert all guardians and caretakers immediately">
+              <span class="sos-icon">🚨</span>
+              <div>
+                <strong>EMERGENCY SOS</strong>
+                <small>Alert all Care Circle members</small>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Guardian Banner -->
+        <div id="guardianBanner" class="hero-banner guardian-theme hide">
+          <div class="banner-text">
+            <div class="banner-badge">GUARDIAN MONITORING</div>
+            <h3>Monitoring Eleanor Vance</h3>
+            <p>Live adherence tracking, missed dose alerts, and caregiver reports.</p>
+          </div>
+          <div class="banner-actions">
+            <button type="button" id="btnSendNudge" class="btn btn-nudge">
+              💬 Send Gentle Reminder
+            </button>
+            <button type="button" id="btnAddMedForPatient" class="btn btn-secondary-white">
+              ＋ Add Medication
+            </button>
+          </div>
+        </div>
+
+        <!-- Caretaker Banner -->
+        <div id="caretakerBanner" class="hero-banner caretaker-theme hide">
+          <div class="banner-text">
+            <div class="banner-badge">NURSING & CARE ROUNDS</div>
+            <h3>Clinical Management Portal</h3>
+            <p>Administer scheduled medications, log vitals, and write patient care notes.</p>
+          </div>
+          <div class="banner-actions">
+            <button type="button" id="btnOpenVitalsDialog" class="btn btn-nudge">
+              📊 Log Vitals & Notes
+            </button>
+            <button type="button" id="btnViewAllRounds" class="btn btn-secondary-white">
+              📋 View Med Rounds
+            </button>
+          </div>
+        </div>
+
+        <!-- Top Stat Metrics -->
+        <div class="stat-grid">
+          <article class="stat-card">
+            <div class="stat-icon-wrap icon-teal">💊</div>
+            <div>
+              <small>ACTIVE MEDICINES</small>
+              <strong id="statActiveMeds">3</strong>
+              <span>Currently on treatment plan</span>
+            </div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-icon-wrap icon-indigo">✓</div>
+            <div>
+              <small>TODAY'S DOSES</small>
+              <strong id="statTodayStatus">2 / 4</strong>
+              <span id="statTodaySub">2 taken · 0 missed</span>
+            </div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-icon-wrap icon-blue">📈</div>
+            <div>
+              <small>30-DAY ADHERENCE</small>
+              <strong id="statAdherenceRate">92%</strong>
+              <span>Based on recorded events</span>
+            </div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-icon-wrap icon-amber">👥</div>
+            <div>
+              <small>CARE CIRCLE</small>
+              <strong id="statCareCircle">2 Members</strong>
+              <span id="statCircleSub">Connected Guardians & Nurses</span>
+            </div>
+          </article>
+        </div>
+
+        <!-- Two Columns: Today's Schedule & Health Vitals Snapshot -->
+        <div class="dashboard-columns">
+          <!-- Left: Today's Doses Schedule -->
+          <article class="panel-box">
+            <div class="panel-header">
+              <div>
+                <small>DAILY SCHEDULE</small>
+                <h3>Today's Medication Schedule</h3>
+              </div>
+              <div class="panel-header-actions">
+                <span id="dosesDateChip" class="chip-date">Today</span>
+              </div>
+            </div>
+
+            <div id="todayDosesList" class="dose-timeline">
+              <!-- Dynamically rendered dose items -->
+            </div>
+          </article>
+
+          <!-- Right: Patient Vitals & Quick Insights -->
+          <div class="panel-sidebar-col">
+            <!-- Vitals Snapshot -->
+            <article class="panel-box vitals-panel">
+              <div class="panel-header">
+                <div>
+                  <small>LATEST VITALS</small>
+                  <h3>Health Snapshot</h3>
+                </div>
+                <button type="button" id="btnQuickLogVitals" class="btn-text-sm">＋ Record</button>
+              </div>
+
+              <div id="vitalsSnapshotBox" class="vitals-display">
+                <div class="vitals-grid">
+                  <div class="vital-tile">
+                    <span class="vital-name">Blood Pressure</span>
+                    <strong id="vitalBP">122/80</strong>
+                    <small>mmHg · Normal</small>
+                  </div>
+                  <div class="vital-tile">
+                    <span class="vital-name">Heart Rate</span>
+                    <strong id="vitalHR">72</strong>
+                    <small>bpm · Resting</small>
+                  </div>
+                  <div class="vital-tile">
+                    <span class="vital-name">Blood Sugar</span>
+                    <strong id="vitalGlucose">108</strong>
+                    <small>mg/dL · Fasting</small>
+                  </div>
+                  <div class="vital-tile">
+                    <span class="vital-name">Oxygen (SpO2)</span>
+                    <strong id="vitalO2">98%</strong>
+                    <small>Pulse Oximeter</small>
+                  </div>
+                </div>
+                <p id="vitalsAuthorMeta" class="vitals-meta">Recorded by Nurse Sarah Miller, RN</p>
+              </div>
+            </article>
+
+            <!-- Patient Code & Care Circle Card -->
+            <article class="panel-box code-panel" id="patientCodePanel">
+              <small>YOUR PATIENT CODE</small>
+              <div class="code-box">
+                <strong id="displayPatientCode">DT-PT-1001</strong>
+                <button type="button" id="btnCopyCode" class="btn-copy">📋 Copy</button>
+              </div>
+              <p class="code-explain">Share this code with your family guardians or nursing caretakers to link them directly to your health circle.</p>
+            </article>
+
+            <!-- Latest Clinical Note Card -->
+            <article class="panel-box">
+              <div class="panel-header">
+                <div>
+                  <small>LATEST CARE NOTE</small>
+                  <h3>Circle Notes</h3>
+                </div>
+              </div>
+              <div id="latestNoteBox" class="note-quote-box">
+                <p id="latestNoteContent">"Morning wellness check completed. Eleanor reported good sleep and took morning medications with breakfast."</p>
+                <span id="latestNoteMeta" class="note-meta">— Nurse Sarah Miller, RN</span>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= PAGE 2: MEDICATIONS ================= -->
+      <section id="pageMedications" class="content-page hide">
+        <div class="page-toolbar">
+          <div>
+            <small>PHARMACY & TREATMENT PLAN</small>
+            <h3>Medication Cabinet</h3>
+          </div>
+          <button id="btnAddMedication" class="btn btn-primary">＋ Add Medication</button>
+        </div>
+        <div id="medicationCardsGrid" class="cards-grid"></div>
+      </section>
+
+      <!-- ================= PAGE 3: CARETAKER ROUNDS ================= -->
+      <section id="pageRounds" class="content-page hide">
+        <div class="page-toolbar">
+          <div>
+            <small>CLINICAL ROUNDS</small>
+            <h3>Medication Administration Rounds</h3>
+          </div>
+          <button id="btnRefreshRounds" class="btn btn-secondary">🔄 Refresh Rounds</button>
+        </div>
+        <article class="panel-box">
+          <p class="panel-lead">Below is the complete scheduled medication round for all your assigned patients today. Mark administration status on behalf of the patient.</p>
+          <div id="roundsContainer" class="rounds-list"></div>
+        </article>
+      </section>
+
+      <!-- ================= PAGE 4: CARE NOTES & VITALS ================= -->
+      <section id="pageVitals" class="content-page hide">
+        <div class="page-toolbar">
+          <div>
+            <small>CLINICAL OBSERVATIONS</small>
+            <h3>Care Notes & Vitals Record</h3>
+          </div>
+          <button id="btnLogNewNote" class="btn btn-primary">＋ Log Vitals / Care Note</button>
+        </div>
+        <div id="careNotesList" class="care-notes-timeline"></div>
+      </section>
+
+      <!-- ================= PAGE 5: ADHERENCE HISTORY ================= -->
+      <section id="pageHistory" class="content-page hide">
+        <div class="page-toolbar">
+          <div>
+            <small>AUDIT TRAIL</small>
+            <h3>30-Day Dose History</h3>
+          </div>
+          <div class="history-filter-chips">
+            <span class="chip-badge chip-green">✓ Taken Verified</span>
+            <span class="chip-badge chip-red">⚠️ Missed Recorded</span>
+          </div>
+        </div>
+        <article class="panel-box">
+          <div id="historyTableContainer" class="table-responsive"></div>
+        </article>
+      </section>
+
+      <!-- ================= PAGE 6: CARE CIRCLE ================= -->
+      <section id="pageCareteam" class="content-page hide">
+        <div class="page-toolbar">
+          <div>
+            <small>CONNECTED CIRCLE</small>
+            <h3 id="careTeamTitle">Care Circle & Connections</h3>
+          </div>
+          <button id="btnLinkNewMember" class="btn btn-primary">＋ Connect New Member</button>
+        </div>
+        <div id="careTeamGrid" class="cards-grid"></div>
+      </section>
+
+      <!-- ================= PAGE 7: DOCTORS & CLINIC ================= -->
+      <section id="pageDoctors" class="content-page hide">
+        <div class="page-toolbar">
+          <div>
+            <small>HEALTHCARE NETWORK</small>
+            <h3>Physician & Clinic Contacts</h3>
+          </div>
+          <button id="btnAddDoctor" class="btn btn-primary">＋ Add Doctor Contact</button>
+        </div>
+        <div id="doctorsListGrid" class="cards-grid"></div>
+      </section>
+
+      <footer class="app-legal-footer">
+        DoseTrack Multi-Role Medication Care Platform · Connected for Patient, Guardian, and Caretaker harmony. Always consult a licensed clinician for medical guidance.
+      </footer>
+    </main>
+  </div>
+
+  <!-- ================= MODALS & DIALOGS ================= -->
+
+  <!-- Modal 1: Add/Edit Medication Dialog -->
+  <div id="medicationDialog" class="modal-backdrop hide">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="medModalTitle">Add Medication</h3>
+        <button type="button" class="btn-close" data-close="medicationDialog">×</button>
+      </div>
+
+      <!-- AI Prescription Scanner Section -->
+      <div class="ai-scan-wrapper">
+        <div class="ai-scan-banner">
+          <div class="ai-scan-banner-info">
+            <div class="ai-badge-chip">
+              <span class="ai-sparkle">✨</span> AI VISION ASSISTANT
+            </div>
+            <h4>Auto-Fill with Doctor Prescription</h4>
+            <p>Upload or snap a photo of your paper prescription slip, doctor order, or pharmacy label. AI Vision will automatically read the handwriting and fill the form.</p>
+          </div>
+          <div class="ai-scan-actions">
+            <label class="btn btn-ai-primary" for="prescriptionFileInput" id="btnUploadPrescription">
+              <span class="btn-camera-icon">📸</span>
+              <span>Scan Prescription</span>
+              <input type="file" id="prescriptionFileInput" accept="image/*" capture="environment" class="hide">
+            </label>
+          </div>
+        </div>
+
+        <!-- Quick 1-Click Sample Prescriptions for Instant Testing -->
+        <div class="sample-rx-bar">
+          <span class="sample-rx-label">TRY SAMPLE PRESCRIPTIONS:</span>
+          <div class="sample-rx-buttons">
+            <button type="button" class="sample-rx-btn" data-sample="amoxicillin">
+              <span>📄</span>
+              <div>
+                <strong>Amoxicillin 500mg</strong>
+                <small>Antibiotic · 3x Daily (High Confidence)</small>
+              </div>
+            </button>
+            <button type="button" class="sample-rx-btn" data-sample="cardiac_combo">
+              <span>📄</span>
+              <div>
+                <strong>Lisinopril & Atorvastatin</strong>
+                <small>Multi-Med Rx · Cardiac Plan</small>
+              </div>
+            </button>
+            <button type="button" class="sample-rx-btn" data-sample="handwritten_low_conf">
+              <span>✍️</span>
+              <div>
+                <strong>Metformin 850mg</strong>
+                <small>Handwritten Rx · Verification Demo</small>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Scanning / Processing Indicator Box -->
+        <div id="scanLoadingBox" class="scan-loading-card hide">
+          <div class="scan-animation-container">
+            <div class="scan-laser-line"></div>
+            <div class="scan-preview-placeholder">
+              <img id="scanPreviewThumbnail" src="" alt="Prescription preview" class="hide">
+              <div id="scanPreviewIcon" class="scan-doc-icon">📑</div>
+            </div>
+          </div>
+          <div class="scan-loading-text">
+            <div class="loading-spinner-ring"></div>
+            <div>
+              <strong id="scanProgressTitle">Scanning Prescription Image...</strong>
+              <p id="scanProgressSubtitle">Extracting medication names, strengths, frequencies and instructions...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Multi-Medication Selection Bar (If >1 med found in prescription) -->
+        <div id="multiMedSelectorBox" class="multi-med-box hide">
+          <div class="multi-med-header">
+            <strong>Multiple Medications Detected</strong>
+            <span class="chip-badge chip-green" id="multiMedCountBadge">2 found</span>
+          </div>
+          <p class="multi-med-sub">Select which medication from the prescription you want to review and save:</p>
+          <div id="multiMedCardsList" class="multi-med-grid"></div>
+        </div>
+
+        <!-- Confidence & Verification Notice -->
+        <div id="aiConfidenceNotice" class="ai-confidence-banner hide">
+          <div class="confidence-badge-wrap">
+            <span id="aiConfidenceIcon">✓</span>
+            <div>
+              <strong id="aiConfidenceTitle">AI Extracted from Prescription</strong>
+              <p id="aiConfidenceText">Extracted with 94% confidence. Please review the details below before saving.</p>
+            </div>
+          </div>
+          <button type="button" id="btnClearAiScan" class="btn-text-sm" title="Clear auto-filled fields">Clear</button>
+        </div>
+      </div>
+
+      <form id="medicationForm" class="modal-form">
+        <input id="formMedId" type="hidden">
+        
+        <div class="field-group" id="groupMedName">
+          <div class="label-row">
+            <label class="field-label" for="formMedName">Medicine Name *</label>
+            <span id="badgeMedName" class="confidence-field-pill hide"></span>
+          </div>
+          <input id="formMedName" required placeholder="e.g. Lisinopril, Metformin">
+        </div>
+
+        <div class="field-row">
+          <div class="field-group" id="groupMedDosage">
+            <div class="label-row">
+              <label class="field-label" for="formMedDosage">Dosage *</label>
+              <span id="badgeMedDosage" class="confidence-field-pill hide"></span>
+            </div>
+            <input id="formMedDosage" required placeholder="e.g. 10mg, 500mg">
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="formMedQuantity">Quantity / Form</label>
+            <input id="formMedQuantity" placeholder="e.g. 1 tablet, 5ml">
+          </div>
+        </div>
+
+        <div class="field-group" id="groupMedFreq">
+          <div class="label-row">
+            <label class="field-label" for="formMedFreq">Frequency *</label>
+            <span id="badgeMedFreq" class="confidence-field-pill hide"></span>
+          </div>
+          <select id="formMedFreq">
+            <option value="Once daily">Once daily</option>
+            <option value="Twice daily">Twice daily</option>
+            <option value="Three times daily">Three times daily</option>
+            <option value="Four times daily">Four times daily</option>
+            <option value="As needed / PRN">As needed / PRN</option>
+            <option value="Custom schedule">Custom schedule</option>
+          </select>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label" for="formMedStart">Start Date *</label>
+            <input id="formMedStart" type="date" required>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="formMedEnd">End Date (Optional)</label>
+            <input id="formMedEnd" type="date">
+          </div>
+        </div>
+
+        <div class="field-group" id="groupMedTimes">
+          <div class="label-row">
+            <label class="field-label">Scheduled Dose Times *</label>
+            <span id="badgeMedTimes" class="confidence-field-pill hide"></span>
+          </div>
+          <div id="doseTimeInputsWrap" class="time-chips-wrap">
+            <input type="time" class="dose-time-input" value="08:00" required>
+          </div>
+          <button type="button" id="btnAddTimeInput" class="btn-text-sm">＋ Add Another Dose Time</button>
+        </div>
+
+        <div class="field-group" id="groupMedInstructions">
+          <div class="label-row">
+            <label class="field-label" for="formMedInstructions">Instructions / Precautions</label>
+            <span id="badgeMedInstructions" class="confidence-field-pill hide"></span>
+          </div>
+          <textarea id="formMedInstructions" rows="2" placeholder="e.g. Take with food in the morning. Drink a full glass of water."></textarea>
+        </div>
+
+        <p id="medFormError" class="form-error hide"></p>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" data-close="medicationDialog">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Medication</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 2: Log Vitals & Care Note Dialog -->
+  <div id="vitalsDialog" class="modal-backdrop hide">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Log Patient Vitals & Clinical Note</h3>
+        <button type="button" class="btn-close" data-close="vitalsDialog">×</button>
+      </div>
+      <form id="vitalsForm" class="modal-form">
+        <div class="field-group">
+          <label class="field-label">Record Type *</label>
+          <select id="vitalsTypeSelect">
+            <option value="vitals">Vital Signs & Daily Observations</option>
+            <option value="general">General Care Observation</option>
+            <option value="symptom">Symptom / Side Effect Report</option>
+          </select>
+        </div>
+
+        <div id="vitalsInputsGroup" class="vitals-input-grid">
+          <div class="field-group">
+            <label class="field-label" for="inputBP">Blood Pressure (mmHg)</label>
+            <input id="inputBP" placeholder="120/80">
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="inputHR">Heart Rate (bpm)</label>
+            <input id="inputHR" type="number" placeholder="72">
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="inputGlucose">Blood Sugar (mg/dL)</label>
+            <input id="inputGlucose" type="number" placeholder="105">
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="inputO2">Oxygen Saturation (%)</label>
+            <input id="inputO2" type="number" placeholder="98">
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="inputNoteContent">Clinical Observations & Comments *</label>
+          <textarea id="inputNoteContent" rows="3" required placeholder="Describe how the patient is feeling, meals taken, medication tolerance, or nursing notes..."></textarea>
+        </div>
+
+        <p id="vitalsFormError" class="form-error hide"></p>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" data-close="vitalsDialog">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save & Alert Circle</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 3: Send Gentle Nudge Dialog (for Guardian/Caretaker) -->
+  <div id="nudgeDialog" class="modal-backdrop hide">
+    <div class="modal-card modal-sm">
+      <div class="modal-header">
+        <h3>Send Gentle Reminder</h3>
+        <button type="button" class="btn-close" data-close="nudgeDialog">×</button>
+      </div>
+      <form id="nudgeForm" class="modal-form">
+        <p class="dialog-sub">Send a caring notification straight to the patient's dashboard and phone.</p>
+        
+        <div class="quick-nudge-presets">
+          <button type="button" class="preset-pill" data-nudge="Friendly reminder to take your scheduled dose with water! 💧">💧 Drink water with dose</button>
+          <button type="button" class="preset-pill" data-nudge="Hi! Remember to have a light meal before taking your medication. 🥪">🥪 Have a snack</button>
+          <button type="button" class="preset-pill" data-nudge="Checking in on you! Let me know if you need any refills. ❤️">❤️ Just checking in</button>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="inputNudgeMessage">Message</label>
+          <textarea id="inputNudgeMessage" rows="3" required placeholder="Type your reminder message here..."></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" data-close="nudgeDialog">Cancel</button>
+          <button type="submit" class="btn btn-primary">Send Reminder 💬</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 4: Connect Care Circle Member Dialog -->
+  <div id="linkMemberDialog" class="modal-backdrop hide">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="linkMemberTitle">Connect to a Patient</h3>
+        <button type="button" class="btn-close" data-close="linkMemberDialog">×</button>
+      </div>
+      <form id="linkMemberForm" class="modal-form">
+        <div class="field-group">
+          <label class="field-label" for="inputPatientCodeOrEmail">Patient Code (e.g. DT-PT-1001) or Patient Email *</label>
+          <input id="inputPatientCodeOrEmail" required placeholder="DT-PT-1001 or patient@dosetrack.com">
+          <small class="field-hint">Demo Patient Code is: <strong>DT-PT-1001</strong></small>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="inputMemberRelationship">Your Relationship to this Patient *</label>
+          <input id="inputMemberRelationship" required placeholder="e.g. Son, Daughter, Spouse, Home Health Nurse, Assisted Living Staff">
+        </div>
+
+        <p id="linkMemberError" class="form-error hide"></p>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" data-close="linkMemberDialog">Cancel</button>
+          <button type="submit" class="btn btn-primary">Establish Connection</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 5: Add Doctor Contact Dialog -->
+  <div id="doctorDialog" class="modal-backdrop hide">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Add Healthcare Professional</h3>
+        <button type="button" class="btn-close" data-close="doctorDialog">×</button>
+      </div>
+      <form id="doctorForm" class="modal-form">
+        <div class="field-group">
+          <label class="field-label" for="inputDocName">Doctor Name *</label>
+          <input id="inputDocName" required placeholder="e.g. Dr. Robert Chen, MD">
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label" for="inputDocSpec">Specialization</label>
+            <input id="inputDocSpec" placeholder="e.g. Cardiology, Endocrinology">
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="inputDocClinic">Hospital / Clinic</label>
+            <input id="inputDocClinic" placeholder="e.g. Hope Valley Heart Center">
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label" for="inputDocPhone">Phone</label>
+            <input id="inputDocPhone" type="tel" placeholder="(555) 000-0000">
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="inputDocEmail">Email</label>
+            <input id="inputDocEmail" type="email" placeholder="doctor@clinic.org">
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="inputDocAvailability">Consultation Availability</label>
+          <input id="inputDocAvailability" placeholder="e.g. Mon, Wed, Fri 9:00 AM - 3:00 PM">
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="inputDocAddress">Clinic Address</label>
+          <textarea id="inputDocAddress" rows="2" placeholder="Suite, Street Address, City, State"></textarea>
+        </div>
+
+        <p id="doctorFormError" class="form-error hide"></p>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" data-close="doctorDialog">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Doctor Contact</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Switch Patient Modal (for Guardians/Caretakers with multiple patients) -->
+  <div id="switchPatientDialog" class="modal-backdrop hide">
+    <div class="modal-card modal-sm">
+      <div class="modal-header">
+        <h3>Switch Patient View</h3>
+        <button type="button" class="btn-close" data-close="switchPatientDialog">×</button>
+      </div>
+      <div id="patientSelectionList" class="patient-select-list"></div>
+      <div class="modal-actions">
+        <button type="button" id="btnLinkAnotherPatient" class="btn btn-primary btn-block">＋ Connect Another Patient</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js" defer></script>
+</body>
+</html>
