@@ -4,10 +4,12 @@ const jwt = require('jsonwebtoken');
 const db = require('../db');
 const { requireAuth } = require('../middleware/auth');
 
+const JWT_SECRET = process.env.JWT_SECRET || 'dosetrack_super_secret_jwt_key_2026_secure';
+
 const tokenFor = (u) =>
   jwt.sign(
     { sub: u.id, email: u.email, role: u.role, fullName: u.full_name },
-    process.env.JWT_SECRET,
+    JWT_SECRET,
     { expiresIn: '7d' }
   );
 

@@ -1,29 +1,120 @@
 require('dotenv').config();
 const db = require('../src/db');
-const bcrypt = require('bcryptjs');
 
 async function init() {
-  console.log('[Init] Checking and updating database schema...');
+  console.log('[Init] Ensuring DoseTrack tables and database schema...');
 
-  // Helper to safely add column if missing
-  async function ensureColumn(table, column, definition) {
-    const [cols] = await db.query(
-      `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
-      [table, column]
-    );
-    if (!cols.length) {
-      console.log(`[Init] Adding column ${column} to ${table}...`);
-      await db.query(`ALTER TABLE \`${table}\` ADD COLUMN ${definition}`);
-    }
-  }
+  // 1. Create Base & Relational Tables if they do not exist
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS users (
+      id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+      full_name VARCHAR(120) NOT NULL,
+      role ENUM('patient', 'guardian', 'caretaker') NOT NULL DEFAULT 'patient',
+      patient_code VARCHAR(20) UNIQUE NULL,
+      email VARCHAR(190) NOT NULL UNIQUE,
+      phone VARCHAR(30) NULL,
+      emergency_contact VARCHAR(120) NULL,
+      avatar_color VARCHAR(30) DEFAULT '#0d9488',
+      password_hash VARCHAR(255) NOT NULL,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `);
 
-  // Ensure users columns
-  await ensureColumn('users', 'role', "role ENUM('patient', 'guardian', 'caretaker') NOT NULL DEFAULT 'patient'");
-  await ensureColumn('users', 'patient_code', "patient_code VARCHAR(20) UNIQUE NULL");
-  await ensureColumn('users', 'emergency_contact', "emergency_contact VARCHAR(120) NULL");
-  await ensureColumn('users', 'avatar_color', "avatar_color VARCHAR(30) DEFAULT '#0d9488'");
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS medications (
+      id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+      user_id BIGINT UNSIGNED NOT NULL,
+      name VARCHAR(160) NOT NULL,
+      dosage VARCHAR(100) NOT NULL,
+      quantity VARCHAR(100),
+      frequency VARCHAR(100) NOT NULL,
+      instructions TEXT,
+      start_date DATE NOT NULL,
+      end_date DATE,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+      INDEX idx_med_user_dates (user_id, start_date, end_date)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `);
 
-  // Ensure connections table
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS schedules (
+      id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+      medication_id BIGINT UNSIGNED NOT NULL,
+      user_id BIGINT UNSIGNED NOT NULL,
+      dose_time TIME NOT NULL,
+      active BOOLEAN NOT NULL DEFAULT TRUE,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (medication_id) REFERENCES medications(id) ON DELETE CASCADE,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+      UNIQUE KEY uq_medication_dose_time (medication_id, dose_time),
+      INDEX idx_schedule_user_active (user_id, active)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `);
+
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS dose_events (
+      id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+      schedule_id BIGINT UNSIGNED NOT NULL,
+      medication_id BIGINT UNSIGNED NOT NULL,
+      user_id BIGINT UNSIGNED NOT NULL,
+      scheduled_for DATETIME NOT NULL,
+      status ENUM('taken', 'missed') NOT NULL,
+      recorded_by_id BIGINT UNSIGNED NULL,
+      recorded_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (schedule_id) REFERENCES schedules(id) ON DELETE CASCADE,
+      FOREIGN KEY (medication_id) REFERENCES medications(id) ON DELETE CASCADE,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+      UNIQUE KEY uq_dose_event (schedule_id, scheduled_for),
+      INDEX idx_events_user_date (user_id, scheduled_for)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `);
+
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS doctors (
+      id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+      user_id BIGINT UNSIGNED NOT NULL,
+      name VARCHAR(160) NOT NULL,
+      specialization VARCHAR(160),
+      clinic_name VARCHAR(200),
+      phone VARCHAR(30),
+      email VARCHAR(190),
+      availability VARCHAR(200),
+      clinic_address TEXT,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `);
+
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS appointment_requests (
+      id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+      doctor_id BIGINT UNSIGNED NOT NULL,
+      user_id BIGINT UNSIGNED NOT NULL,
+      requested_date DATE,
+      message TEXT,
+      status ENUM('requested', 'confirmed', 'cancelled') NOT NULL DEFAULT 'requested',
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (doctor_id) REFERENCES doctors(id) ON DELETE CASCADE,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `);
+
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS reminder_logs (
+      id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+      schedule_id BIGINT UNSIGNED NOT NULL,
+      user_id BIGINT UNSIGNED NOT NULL,
+      scheduled_for DATETIME NOT NULL,
+      delivered_via ENUM('dashboard', 'email', 'sms', 'push') NOT NULL DEFAULT 'dashboard',
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE KEY uq_reminder_log (schedule_id, scheduled_for, delivered_via),
+      FOREIGN KEY (schedule_id) REFERENCES schedules(id) ON DELETE CASCADE,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `);
+
   await db.query(`
     CREATE TABLE IF NOT EXISTS patient_connections (
       id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
@@ -36,10 +127,9 @@ async function init() {
       FOREIGN KEY (patient_id) REFERENCES users(id) ON DELETE CASCADE,
       FOREIGN KEY (member_id) REFERENCES users(id) ON DELETE CASCADE,
       UNIQUE KEY uq_patient_member (patient_id, member_id)
-    )
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
 
-  // Ensure care_notes table
   await db.query(`
     CREATE TABLE IF NOT EXISTS care_notes (
       id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
@@ -52,10 +142,9 @@ async function init() {
       FOREIGN KEY (patient_id) REFERENCES users(id) ON DELETE CASCADE,
       FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE CASCADE,
       INDEX idx_notes_patient (patient_id, created_at)
-    )
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
 
-  // Ensure care_alerts table
   await db.query(`
     CREATE TABLE IF NOT EXISTS care_alerts (
       id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
@@ -70,11 +159,44 @@ async function init() {
       FOREIGN KEY (patient_id) REFERENCES users(id) ON DELETE CASCADE,
       FOREIGN KEY (to_user_id) REFERENCES users(id) ON DELETE CASCADE,
       INDEX idx_alerts_user (to_user_id, read_status, created_at)
-    )
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
 
-  // Ensure recorded_by_id on dose_events
+  // 2. Helper to safely add column if missing on legacy/pre-existing tables
+  async function ensureColumn(table, column, definition) {
+    try {
+      const [cols] = await db.query(
+        `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
+        [table, column]
+      );
+      if (!cols.length) {
+        console.log(`[Init] Adding missing column ${column} to ${table}...`);
+        await db.query(`ALTER TABLE \`${table}\` ADD COLUMN ${definition}`);
+      }
+    } catch (e) {
+      console.warn(`[Init] Note on column ${table}.${column}:`, e.message);
+    }
+  }
+
+  // Ensure users columns for legacy schema migrations
+  await ensureColumn('users', 'role', "role ENUM('patient', 'guardian', 'caretaker') NOT NULL DEFAULT 'patient'");
+  await ensureColumn('users', 'patient_code', "patient_code VARCHAR(20) UNIQUE NULL");
+  await ensureColumn('users', 'emergency_contact', "emergency_contact VARCHAR(120) NULL");
+  await ensureColumn('users', 'avatar_color', "avatar_color VARCHAR(30) DEFAULT '#0d9488'");
   await ensureColumn('dose_events', 'recorded_by_id', "recorded_by_id BIGINT UNSIGNED NULL");
+
+  // 3. Auto-seed demo accounts if database has 0 users
+  try {
+    const [rows] = await db.query(`SELECT COUNT(*) AS count FROM users`);
+    if (rows && rows[0] && Number(rows[0].count) === 0) {
+      console.log('[Init] Fresh database detected (0 users). Auto-seeding initial demo accounts...');
+      const { seed } = require('./seed_demo');
+      await seed();
+      console.log('[Init] Demo accounts successfully initialized.');
+    }
+  } catch (seedErr) {
+    console.warn('[Init] Auto-seed check warning:', seedErr.message);
+  }
 
   console.log('[Init] Database schema verified and updated successfully.');
 }

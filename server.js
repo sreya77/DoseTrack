@@ -30,10 +30,13 @@ app.get('/api/health', async (req, res) => {
 // Seed helper endpoint to quickly reset/seed demo data from UI
 app.post('/api/seed-demo', async (req, res) => {
   try {
+    const { init: initDb } = require('./database/init_db');
+    await initDb();
     const { seed } = require('./database/seed_demo');
     await seed();
     res.json({ message: 'Demo data seeded successfully.' });
   } catch (err) {
+    console.error('[Seed Demo Error]', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -59,8 +62,11 @@ app.use((err, req, res, next) => {
   if (err.code === 'ER_DUP_ENTRY') {
     return res.status(409).json({ error: 'That record or email already exists.' });
   }
+  const msg = err.sqlMessage || err.message || 'Server error.';
   res.status(500).json({
-    error: process.env.NODE_ENV === 'production' ? 'Something went wrong.' : err.message || 'Server error.'
+    error: process.env.NODE_ENV === 'production'
+      ? (err.code?.startsWith('ER_') ? 'Database service is initializing or updating. Please try again in a few seconds.' : 'Something went wrong.')
+      : msg
   });
 });
 
@@ -72,7 +78,7 @@ const port = Number(process.env.PORT || 3000);
     await initDb();
     console.log('[DoseTrack] Database schema ready.');
   } catch (e) {
-    console.warn('[DoseTrack] Schema auto-init warning:', e.message);
+    console.error('[DoseTrack] Schema auto-init error:', e);
   }
 
   app.listen(port, () => {
