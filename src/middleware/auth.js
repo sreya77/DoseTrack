@@ -37,7 +37,7 @@ async function requireAdmin(req, res, next) {
 async function logAudit(adminId, action, targetType = null, targetId = null, details = null, req = null) {
   try {
     const rawIp = req ? (req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '127.0.0.1') : '127.0.0.1';
-    const ip = String(rawIp).replace(/^.*:/, '').slice(0, 45); // clean IPv4/IPv6
+    const ip = String(rawIp).split(',')[0].trim().replace(/^::ffff:/i, '').slice(0, 45); // clean IPv4/IPv6
     await db.execute(
       `INSERT INTO admin_audit_log (admin_id, action, target_type, target_id, details, ip_address)
        VALUES (?, ?, ?, ?, ?, ?)`,
@@ -48,4 +48,46 @@ async function logAudit(adminId, action, targetType = null, targetId = null, det
   }
 }
 
-module.exports = { requireAuth, requireAdmin, logAudit };
+/**
+ * Log any user action (patient, guardian, caretaker) to the system-wide activity log.
+ * This powers the administrator's "everything happening" activity stream.
+ */
+async function logActivity(req, { action, targetType = null, targetId = null, patientId = null, details = null, actor = null }) {
+  try {
+    const actorId = actor?.id ?? req?.user?.id ?? null;
+    let actorName = actor?.fullName ?? req?.user?.fullName ?? null;
+    let actorRole = actor?.role ?? req?.user?.role ?? null;
+
+    if (actorId && (!actorName || !actorRole)) {
+      const [rows] = await db.execute('SELECT full_name, role FROM users WHERE id = ?', [actorId]);
+      actorName = actorName || rows[0]?.full_name || null;
+      actorRole = actorRole || rows[0]?.role || null;
+    }
+
+    const rawIp = req ? (req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '127.0.0.1') : null;
+    const ip = rawIp
+      ? String(rawIp).split(',')[0].trim().replace(/^::ffff:/i, '').slice(0, 45)
+      : null;
+
+    await db.execute(
+      `INSERT INTO user_activity_log 
+         (actor_id, actor_name, actor_role, action, target_type, target_id, patient_id, details, ip_address)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        actorId,
+        actorName,
+        actorRole,
+        action,
+        targetType,
+        targetId != null ? String(targetId) : null,
+        patientId != null ? Number(patientId) : null,
+        details,
+        ip
+      ]
+    );
+  } catch (e) {
+    console.error('[Activity Log Error]', e.message);
+  }
+}
+
+module.exports = { requireAuth, requireAdmin, logAudit, logActivity };

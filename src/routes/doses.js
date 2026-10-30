@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const db = require('../db');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, logActivity } = require('../middleware/auth');
 const { canAccessPatient } = require('./careNotes');
 
 router.use(requireAuth);
@@ -165,9 +165,19 @@ router.post('/:scheduleId/status', async (req, res, next) => {
       await db.execute(
         `INSERT INTO care_alerts (patient_id, from_user_id, to_user_id, alert_type, title, message)
          VALUES (?, ?, ?, ?, ?, ?)`,
-        [patientId, userId, patientId, alertTitle, alertMessage]
+        [patientId, userId, patientId, alertType, alertTitle, alertMessage]
       );
     }
+
+    await logActivity(req, {
+      action: status === 'taken' ? 'DOSE_TAKEN' : 'DOSE_MISSED',
+      targetType: 'dose_event',
+      targetId: sched.id,
+      patientId,
+      details: isSelf
+        ? `Recorded own dose ${doseDesc} as ${status}.`
+        : `Marked dose ${doseDesc} as ${status} for ${patientName}.`
+    });
 
     res.json({
       message: `Dose marked ${status}.`,

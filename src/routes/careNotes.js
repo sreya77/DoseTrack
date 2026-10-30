@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const db = require('../db');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, logActivity } = require('../middleware/auth');
 
 router.use(requireAuth);
 
@@ -122,6 +122,14 @@ router.post('/', async (req, res, next) => {
         [patientId, userId, c.member_id, alertTitle, alertMsg]
       );
     }
+
+    await logActivity(req, {
+      action: noteType === 'vitals' ? 'VITALS_LOG' : 'CARE_NOTE_ADD',
+      targetType: 'care_note',
+      targetId: r.insertId,
+      patientId,
+      details: `${noteType === 'vitals' ? 'Logged vitals' : 'Posted care note'}: ${alertMsg}`
+    });
 
     res.status(201).json({
       id: r.insertId,

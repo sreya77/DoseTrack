@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const db = require('../db');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, logActivity } = require('../middleware/auth');
 const { canAccessPatient } = require('./careNotes');
 
 router.use(requireAuth);
@@ -123,6 +123,14 @@ router.post('/', async (req, res, next) => {
       );
     }
 
+    await logActivity(req, {
+      action: 'MEDICATION_ADD',
+      targetType: 'medication',
+      targetId: medId,
+      patientId: targetPatientId,
+      details: `${Number(userId) !== Number(targetPatientId) ? 'Added on behalf of patient' : 'Added'} medication ${name.trim()} (${dosage.trim()}).`
+    });
+
     res.status(201).json({ id: medId, message: 'Medication saved successfully.' });
   } catch (e) {
     await conn.rollback();
@@ -185,6 +193,15 @@ router.put('/:id', async (req, res, next) => {
     }
 
     await conn.commit();
+
+    await logActivity(req, {
+      action: 'MEDICATION_UPDATE',
+      targetType: 'medication',
+      targetId: req.params.id,
+      patientId: targetPatientId,
+      details: `Updated medication ${name.trim()} (${dosage.trim()}).`
+    });
+
     res.json({ message: 'Medication updated successfully.' });
   } catch (e) {
     await conn.rollback();
@@ -207,6 +224,15 @@ router.delete('/:id', async (req, res, next) => {
     }
 
     await db.execute('DELETE FROM medications WHERE id = ?', [req.params.id]);
+
+    await logActivity(req, {
+      action: 'MEDICATION_DELETE',
+      targetType: 'medication',
+      targetId: req.params.id,
+      patientId: targetPatientId,
+      details: `Deleted medication ${existing[0].name}.`
+    });
+
     res.json({ message: 'Medication deleted.' });
   } catch (e) {
     next(e);

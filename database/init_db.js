@@ -179,6 +179,27 @@ async function init() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
 
+  // System-wide activity log for ALL user roles (patient, guardian, caretaker)
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS user_activity_log (
+      id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+      actor_id BIGINT UNSIGNED NULL,
+      actor_name VARCHAR(120) NULL,
+      actor_role VARCHAR(20) NULL,
+      action VARCHAR(80) NOT NULL,
+      target_type VARCHAR(40) NULL,
+      target_id VARCHAR(60) NULL,
+      patient_id BIGINT UNSIGNED NULL,
+      details TEXT NULL,
+      ip_address VARCHAR(45) NULL,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (actor_id) REFERENCES users(id) ON DELETE SET NULL,
+      INDEX idx_activity_actor (actor_id, created_at),
+      INDEX idx_activity_patient (patient_id, created_at),
+      INDEX idx_activity_action (action, created_at)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `);
+
   // Application Settings table
   await db.query(`
     CREATE TABLE IF NOT EXISTS app_settings (

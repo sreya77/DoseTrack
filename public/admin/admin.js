@@ -106,8 +106,10 @@ function switchTab(tabId) {
     'adherence': 'Dose Adherence & At-Risk Monitoring',
     'doctors': 'Doctor & Clinical Directory',
     'care-circles': 'Care Circle & Family Connections',
+    'clinical-oversight': 'Clinical Oversight & Care Team Observations',
     'reminders': 'Reminder Logs & System Configuration',
     'reports': 'Regulatory & Adherence Compliance Reports',
+    'activity': 'System-Wide User Activity Stream',
     'audit': 'Forensic Audit Log & Administrator Profile'
   };
   if ($('currentTabTitle')) {
@@ -126,10 +128,14 @@ function switchTab(tabId) {
     loadDoctors();
   } else if (tabId === 'care-circles') {
     loadCareCircles();
+  } else if (tabId === 'clinical-oversight') {
+    loadClinicalOversight();
   } else if (tabId === 'reminders') {
     loadReminders();
   } else if (tabId === 'reports') {
     initReports();
+  } else if (tabId === 'activity') {
+    loadActivity();
   } else if (tabId === 'audit') {
     loadAuditLog();
   }
@@ -196,9 +202,68 @@ async function loadDashboard() {
     // 3. Recent Activity Lists
     renderRecentDoses(recentActivity.doses || []);
     renderRecentAudit(recentActivity.auditLogs || []);
+
+    // 4. Unified 360-degree Omni Care Feed
+    loadDashboardOmniFeed();
   } catch (err) {
     showToast('Failed to load dashboard statistics: ' + err.message, true);
   }
+}
+
+async function loadDashboardOmniFeed() {
+  const container = $('dashboardOmniFeed');
+  if (!container) return;
+
+  try {
+    const data = await adminApi('/clinical-oversight/omni-feed?limit=6');
+    if (!data || !data.feed || !data.feed.length) {
+      container.innerHTML = '<div style="color:var(--ink-400); font-size:13px; padding:12px;">No care activities recorded yet.</div>';
+      return;
+    }
+
+    const typeIcons = {
+      dose: '💊',
+      note: '📝',
+      alert: '🚨',
+      appointment: '📅'
+    };
+
+    const roleColors = {
+      patient: '#0f766e',
+      guardian: '#4338ca',
+      caretaker: '#0369a1',
+      system: '#b45309'
+    };
+
+    container.innerHTML = data.feed.map((item) => {
+      const icon = typeIcons[item.type] || '📌';
+      const rColor = roleColors[item.actor.role] || '#475569';
+      return `
+        <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:8px; padding:12px; font-size:12.5px; box-shadow:0 1px 2px rgba(0,0,0,0.03);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span style="font-weight:700; color:${rColor}; display:flex; align-items:center; gap:4px;">
+              <span>${icon}</span> ${esc(item.actor.name)}
+              <small style="background:#f1f5f9; color:#475569; padding:1px 5px; border-radius:3px; font-size:10px; text-transform:uppercase;">${esc(item.actor.role)}</small>
+            </span>
+            <small style="color:var(--ink-400); font-size:11px;">${esc(String(item.timestamp || '').slice(11, 16) || '')}</small>
+          </div>
+          <div style="color:var(--ink-800); font-weight:600; font-size:12.5px; margin-bottom:4px;">
+            ${esc(item.summary)}
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--ink-500); border-top:1px dashed #f1f5f9; padding-top:6px; margin-top:6px;">
+            <span>Patient: <strong>${esc(item.patient.name)}</strong> (${esc(item.patient.patientCode || 'PT')})</span>
+            <span style="font-weight:700; text-transform:capitalize; color:#0d9488;">${esc(item.outcome)}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+  } catch (err) {
+    container.innerHTML = '<div style="color:var(--ink-400); font-size:12px; padding:10px;">Unable to load omni-feed.</div>';
+  }
+}
+
+if ($('btnGoToClinicalOversight')) {
+  $('btnGoToClinicalOversight').addEventListener('click', () => switchTab('clinical-oversight'));
 }
 
 function renderRecentDoses(doses) {
@@ -644,7 +709,7 @@ async function viewUserDetails(userId) {
     const data = await adminApi(`/users/${userId}`);
     if (!data) return;
 
-    const { user, careTeam, assignedPatients, medications, adherenceStats } = data;
+    const { user, careTeam, assignedPatients, medications, adherenceStats, recentNotes, recentAlerts } = data;
 
     let roleSpecificHtml = '';
 
@@ -702,6 +767,39 @@ async function viewUserDetails(userId) {
             </div>
           ` : '<p style="font-size:12px; color:var(--ink-400);">No connected care team members.</p>'}
         </div>
+
+        ${recentNotes?.length ? `
+          <div style="margin-top:18px;">
+            <h4 style="font-size:14px; margin-bottom:10px;">📋 Recent Care Notes & Observations (${recentNotes.length})</h4>
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              ${recentNotes.map(n => `
+                <div style="background:#ffffff; border:1px solid #e2e8f0; padding:10px; border-radius:6px; font-size:12.5px;">
+                  <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                    <span style="font-weight:700; color:#0f766e;">${esc(n.author_name || 'Care Team')} (${esc(n.author_role || '')})</span>
+                    <span style="font-size:11px; color:var(--ink-400);">${esc(String(n.created_at || '').slice(0, 16))}</span>
+                  </div>
+                  <div style="color:var(--ink-800);">${esc(n.content)}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+
+        ${recentAlerts?.length ? `
+          <div style="margin-top:18px;">
+            <h4 style="font-size:14px; margin-bottom:10px;">🚨 Recent Care Alerts (${recentAlerts.length})</h4>
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              ${recentAlerts.map(a => `
+                <div style="background:#fff7ed; border:1px solid #ffedd5; padding:8px 12px; border-radius:6px; font-size:12px; display:flex; justify-content:space-between;">
+                  <div>
+                    <strong>${esc(a.title)}:</strong> ${esc(a.message)}
+                  </div>
+                  <span style="font-size:11px; color:#c2410c;">${esc(String(a.created_at || '').slice(0, 16))}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
       `;
     } else if (user.role === 'guardian' || user.role === 'caretaker') {
       roleSpecificHtml = `
@@ -720,6 +818,23 @@ async function viewUserDetails(userId) {
             </div>
           ` : '<p style="font-size:12px; color:var(--ink-400);">No connected patients assigned.</p>'}
         </div>
+
+        ${recentNotes?.length ? `
+          <div style="margin-top:18px;">
+            <h4 style="font-size:14px; margin-bottom:10px;">📝 Notes Authored for Patients (${recentNotes.length})</h4>
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              ${recentNotes.map(n => `
+                <div style="background:#ffffff; border:1px solid #e2e8f0; padding:10px; border-radius:6px; font-size:12.5px;">
+                  <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                    <span style="font-weight:700; color:#0f766e;">For: ${esc(n.patient_name || 'Patient')} [<code>${esc(n.patient_code || '')}</code>]</span>
+                    <span style="font-size:11px; color:var(--ink-400);">${esc(String(n.created_at || '').slice(0, 16))}</span>
+                  </div>
+                  <div style="color:var(--ink-800);">${esc(n.content)}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
       `;
     }
 
@@ -1888,6 +2003,625 @@ if ($('btnPrintReport')) {
   });
 }
 
+// ================= CLINICAL OVERSIGHT MODULE =================
+AdminState.clinicalSub = 'notes';
+AdminState.notesPage = 1;
+AdminState.notesLimit = 20;
+AdminState.notesSearch = '';
+AdminState.notesType = '';
+AdminState.notesRole = '';
+
+AdminState.alertsPage = 1;
+AdminState.alertsLimit = 25;
+AdminState.alertsSearch = '';
+AdminState.alertsType = '';
+
+AdminState.appointmentsPage = 1;
+AdminState.appointmentsLimit = 20;
+AdminState.appointmentsStatus = '';
+
+function switchClinicalSubView(sub) {
+  AdminState.clinicalSub = sub;
+  const buttons = {
+    notes: $('subBtnNotes'),
+    alerts: $('subBtnAlerts'),
+    appointments: $('subBtnAppointments')
+  };
+  const views = {
+    notes: $('subViewNotes'),
+    alerts: $('subViewAlerts'),
+    appointments: $('subViewAppointments')
+  };
+
+  Object.entries(buttons).forEach(([key, btn]) => {
+    if (!btn) return;
+    const isActive = key === sub;
+    btn.style.background = isActive ? '#0d9488' : 'transparent';
+    btn.style.color = isActive ? '#ffffff' : 'var(--ink-700)';
+    btn.style.fontWeight = isActive ? '700' : '600';
+  });
+
+  Object.entries(views).forEach(([key, v]) => {
+    if (!v) return;
+    v.classList.toggle('hide', key !== sub);
+  });
+
+  if (sub === 'notes') loadClinicalNotes();
+  else if (sub === 'alerts') loadClinicalAlerts();
+  else if (sub === 'appointments') loadClinicalAppointments();
+}
+
+if ($('clinicalSubNav')) {
+  $('clinicalSubNav').querySelectorAll('button[data-sub]').forEach((btn) => {
+    btn.addEventListener('click', () => switchClinicalSubView(btn.dataset.sub));
+  });
+}
+
+async function loadClinicalOversight() {
+  switchClinicalSubView(AdminState.clinicalSub || 'notes');
+}
+
+// 1. Care Notes & Vitals
+async function loadClinicalNotes() {
+  const tbody = $('notesTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:32px; color:var(--ink-400);">Loading care notes & vitals...</td></tr>';
+
+  try {
+    const params = new URLSearchParams({
+      page: AdminState.notesPage,
+      limit: AdminState.notesLimit,
+      search: AdminState.notesSearch,
+      noteType: AdminState.notesType,
+      authorRole: AdminState.notesRole
+    });
+
+    const data = await adminApi('/clinical-oversight/notes?' + params.toString());
+    if (!data) return;
+
+    if (!data.notes.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:32px; color:var(--ink-400);">No care notes or vitals found matching criteria.</td></tr>';
+      updateNotesPagination(data.pagination);
+      return;
+    }
+
+    const typeBadges = {
+      vitals: '<span style="background:#e0f2fe; color:#0369a1; font-weight:700; font-size:11px; padding:3px 7px; border-radius:4px;">💓 Vitals</span>',
+      symptom: '<span style="background:#fef3c7; color:#92400e; font-weight:700; font-size:11px; padding:3px 7px; border-radius:4px;">⚠️ Symptom</span>',
+      alert: '<span style="background:#fee2e2; color:#b91c1c; font-weight:700; font-size:11px; padding:3px 7px; border-radius:4px;">🚨 Alert</span>',
+      general: '<span style="background:#f1f5f9; color:#475569; font-weight:700; font-size:11px; padding:3px 7px; border-radius:4px;">📝 General</span>'
+    };
+
+    tbody.innerHTML = data.notes.map((n) => {
+      let vitalsHtml = '<span style="color:var(--ink-400); font-size:12px;">—</span>';
+      if (n.vitals && typeof n.vitals === 'object') {
+        const vBadges = [];
+        const bp = n.vitals.blood_pressure;
+        const hr = n.vitals.heart_rate || n.vitals.pulse;
+        const glu = n.vitals.blood_sugar || n.vitals.blood_glucose;
+        const o2 = n.vitals.spo2 || n.vitals.oxygen_saturation;
+        const temp = n.vitals.temperature;
+        const mood = n.vitals.mood;
+
+        if (bp) vBadges.push(`<strong>BP:</strong> ${esc(bp)}${String(bp).includes('mmHg') ? '' : ' mmHg'}`);
+        if (hr) vBadges.push(`<strong>Pulse:</strong> ${esc(hr)}${String(hr).includes('bpm') ? '' : ' bpm'}`);
+        if (glu) vBadges.push(`<strong>Glucose:</strong> ${esc(glu)}${String(glu).includes('mg/dL') ? '' : ' mg/dL'}`);
+        if (o2) vBadges.push(`<strong>SpO2:</strong> ${esc(o2)}${String(o2).includes('%') ? '' : '%'}`);
+        if (temp) vBadges.push(`<strong>Temp:</strong> ${esc(temp)}${String(temp).includes('°') ? '' : '°F'}`);
+        if (mood) vBadges.push(`<strong>Mood:</strong> ${esc(mood)}`);
+
+        if (vBadges.length) {
+          vitalsHtml = `<div style="display:flex; flex-wrap:wrap; gap:4px; font-size:11.5px;">${vBadges.map(b => `<span style="background:#f0fdfa; border:1px solid #ccfbf1; color:#0f766e; padding:2px 6px; border-radius:4px;">${b}</span>`).join('')}</div>`;
+        }
+      }
+
+      return `
+        <tr>
+          <td><code>#${n.id}</code></td>
+          <td>
+            <strong>${esc(n.patient.name)}</strong>
+            <small style="color:var(--ink-400); display:block;"><code>${esc(n.patient.patientCode || 'PT')}</code></small>
+          </td>
+          <td>
+            <strong>${esc(n.author.name)}</strong>
+            <small style="color:var(--ink-400); display:block; text-transform:capitalize;">${esc(n.author.role)}</small>
+          </td>
+          <td>${typeBadges[n.noteType] || esc(n.noteType)}</td>
+          <td style="max-width:320px;">
+            <div style="font-size:12.5px; color:var(--ink-900); line-height:1.4;">${esc(n.content)}</div>
+          </td>
+          <td style="max-width:260px;">${vitalsHtml}</td>
+          <td><small style="color:var(--ink-600);">${esc(String(n.createdAt || '').slice(0, 16))}</small></td>
+        </tr>
+      `;
+    }).join('');
+
+    updateNotesPagination(data.pagination);
+  } catch (err) {
+    showToast('Failed to load care notes: ' + err.message, true);
+  }
+}
+
+function updateNotesPagination(p) {
+  if ($('notesPaginationInfo')) {
+    const start = (p.page - 1) * p.limit + 1;
+    const end = Math.min(p.total, p.page * p.limit);
+    $('notesPaginationInfo').textContent = p.total > 0 ? `Showing ${start}-${end} of ${p.total} notes` : 'No care notes';
+  }
+  if ($('notesPageCurrent')) $('notesPageCurrent').textContent = p.page;
+  if ($('btnPrevNotesPage')) $('btnPrevNotesPage').disabled = p.page <= 1;
+  if ($('btnNextNotesPage')) $('btnNextNotesPage').disabled = p.page >= p.pages;
+}
+
+if ($('notesSearchInput')) {
+  let notesTimer;
+  $('notesSearchInput').addEventListener('input', (e) => {
+    clearTimeout(notesTimer);
+    notesTimer = setTimeout(() => {
+      AdminState.notesSearch = e.target.value.trim();
+      AdminState.notesPage = 1;
+      loadClinicalNotes();
+    }, 300);
+  });
+}
+
+if ($('notesTypeFilter')) {
+  $('notesTypeFilter').addEventListener('change', (e) => {
+    AdminState.notesType = e.target.value;
+    AdminState.notesPage = 1;
+    loadClinicalNotes();
+  });
+}
+
+if ($('notesAuthorRoleFilter')) {
+  $('notesAuthorRoleFilter').addEventListener('change', (e) => {
+    AdminState.notesRole = e.target.value;
+    AdminState.notesPage = 1;
+    loadClinicalNotes();
+  });
+}
+
+if ($('btnPrevNotesPage')) {
+  $('btnPrevNotesPage').addEventListener('click', () => {
+    if (AdminState.notesPage > 1) {
+      AdminState.notesPage--;
+      loadClinicalNotes();
+    }
+  });
+}
+
+if ($('btnNextNotesPage')) {
+  $('btnNextNotesPage').addEventListener('click', () => {
+    AdminState.notesPage++;
+    loadClinicalNotes();
+  });
+}
+
+// 2. Care Alerts & SOS Stream
+async function loadClinicalAlerts() {
+  const tbody = $('alertsTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:32px; color:var(--ink-400);">Loading care alerts...</td></tr>';
+
+  try {
+    const params = new URLSearchParams({
+      page: AdminState.alertsPage,
+      limit: AdminState.alertsLimit,
+      search: AdminState.alertsSearch,
+      alertType: AdminState.alertsType
+    });
+
+    const data = await adminApi('/clinical-oversight/alerts?' + params.toString());
+    if (!data) return;
+
+    if (!data.alerts.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:32px; color:var(--ink-400);">No alerts found matching criteria.</td></tr>';
+      updateAlertsPagination(data.pagination);
+      return;
+    }
+
+    const alertBadges = {
+      sos: '<span style="background:#fee2e2; color:#b91c1c; font-weight:800; font-size:11px; padding:3px 8px; border-radius:4px;">🚨 SOS EMERGENCY</span>',
+      dose_missed: '<span style="background:#fef3c7; color:#92400e; font-weight:700; font-size:11px; padding:3px 7px; border-radius:4px;">⏰ DOSE MISSED</span>',
+      nudge: '<span style="background:#e0f2fe; color:#0369a1; font-weight:700; font-size:11px; padding:3px 7px; border-radius:4px;">👋 NUDGE</span>',
+      vitals_logged: '<span style="background:#ecfdf5; color:#047857; font-weight:700; font-size:11px; padding:3px 7px; border-radius:4px;">💓 VITALS</span>'
+    };
+
+    tbody.innerHTML = data.alerts.map((a) => `
+      <tr>
+        <td><code>#${a.id}</code></td>
+        <td>${alertBadges[a.alertType] || `<span style="background:#f1f5f9; padding:2px 6px; border-radius:4px; font-size:11px;">${esc(a.alertType)}</span>`}</td>
+        <td>
+          <strong>${esc(a.patient.name)}</strong>
+          <small style="color:var(--ink-400); display:block;"><code>${esc(a.patient.patientCode || 'PT')}</code></small>
+        </td>
+        <td style="max-width:320px;">
+          <strong style="font-size:13px; color:var(--ink-900);">${esc(a.title)}</strong>
+          <div style="font-size:12px; color:var(--ink-700); margin-top:2px;">${esc(a.message)}</div>
+        </td>
+        <td>
+          ${a.sender ? `<strong>${esc(a.sender.name)}</strong><small style="color:var(--ink-400); display:block;">${esc(a.sender.role)}</small>` : '<span style="color:var(--ink-400);">System Trigger</span>'}
+        </td>
+        <td>
+          <strong>${esc(a.recipient.name)}</strong>
+          <small style="color:var(--ink-400); display:block;">${esc(a.recipient.role)}</small>
+        </td>
+        <td><small style="color:var(--ink-600);">${esc(String(a.createdAt || '').slice(0, 16))}</small></td>
+      </tr>
+    `).join('');
+
+    updateAlertsPagination(data.pagination);
+  } catch (err) {
+    showToast('Failed to load alerts: ' + err.message, true);
+  }
+}
+
+function updateAlertsPagination(p) {
+  if ($('alertsPaginationInfo')) {
+    const start = (p.page - 1) * p.limit + 1;
+    const end = Math.min(p.total, p.page * p.limit);
+    $('alertsPaginationInfo').textContent = p.total > 0 ? `Showing ${start}-${end} of ${p.total} alerts` : 'No alerts';
+  }
+  if ($('alertsPageCurrent')) $('alertsPageCurrent').textContent = p.page;
+  if ($('btnPrevAlertsPage')) $('btnPrevAlertsPage').disabled = p.page <= 1;
+  if ($('btnNextAlertsPage')) $('btnNextAlertsPage').disabled = p.page >= p.pages;
+}
+
+if ($('alertsSearchInput')) {
+  let alertsTimer;
+  $('alertsSearchInput').addEventListener('input', (e) => {
+    clearTimeout(alertsTimer);
+    alertsTimer = setTimeout(() => {
+      AdminState.alertsSearch = e.target.value.trim();
+      AdminState.alertsPage = 1;
+      loadClinicalAlerts();
+    }, 300);
+  });
+}
+
+if ($('alertsTypeFilter')) {
+  $('alertsTypeFilter').addEventListener('change', (e) => {
+    AdminState.alertsType = e.target.value;
+    AdminState.alertsPage = 1;
+    loadClinicalAlerts();
+  });
+}
+
+if ($('btnPrevAlertsPage')) {
+  $('btnPrevAlertsPage').addEventListener('click', () => {
+    if (AdminState.alertsPage > 1) {
+      AdminState.alertsPage--;
+      loadClinicalAlerts();
+    }
+  });
+}
+
+if ($('btnNextAlertsPage')) {
+  $('btnNextAlertsPage').addEventListener('click', () => {
+    AdminState.alertsPage++;
+    loadClinicalAlerts();
+  });
+}
+
+// 3. Doctor Appointment Requests
+async function loadClinicalAppointments() {
+  const tbody = $('appointmentsTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:32px; color:var(--ink-400);">Loading appointments...</td></tr>';
+
+  try {
+    const params = new URLSearchParams({
+      page: AdminState.appointmentsPage,
+      limit: AdminState.appointmentsLimit,
+      status: AdminState.appointmentsStatus
+    });
+
+    const data = await adminApi('/clinical-oversight/appointments?' + params.toString());
+    if (!data) return;
+
+    if (!data.appointments.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:32px; color:var(--ink-400);">No appointment requests found matching criteria.</td></tr>';
+      updateAppointmentsPagination(data.pagination);
+      return;
+    }
+
+    const statusBadges = {
+      requested: '<span style="background:#fef3c7; color:#92400e; font-weight:700; font-size:11px; padding:3px 7px; border-radius:4px;">⏳ Requested</span>',
+      confirmed: '<span style="background:#d1fae5; color:#065f46; font-weight:700; font-size:11px; padding:3px 7px; border-radius:4px;">✅ Confirmed</span>',
+      cancelled: '<span style="background:#f1f5f9; color:#64748b; font-weight:700; font-size:11px; padding:3px 7px; border-radius:4px;">✕ Cancelled</span>'
+    };
+
+    tbody.innerHTML = data.appointments.map((a) => {
+      let actionButtons = '';
+      if (a.status === 'requested') {
+        actionButtons = `
+          <button type="button" class="btn-action-icon btn-confirm-appt" data-id="${a.id}" style="background:#d1fae5; color:#065f46; border:1px solid #a7f3d0;" title="Confirm Appointment">✓ Confirm</button>
+          <button type="button" class="btn-action-icon btn-cancel-appt" data-id="${a.id}" style="background:#fee2e2; color:#b91c1c; border:1px solid #fecaca;" title="Cancel Request">✕ Cancel</button>
+        `;
+      } else if (a.status === 'confirmed') {
+        actionButtons = `
+          <button type="button" class="btn-action-icon btn-cancel-appt" data-id="${a.id}" style="background:#fee2e2; color:#b91c1c; border:1px solid #fecaca;" title="Cancel Appointment">✕ Cancel</button>
+        `;
+      } else if (a.status === 'cancelled') {
+        actionButtons = `
+          <button type="button" class="btn-action-icon btn-confirm-appt" data-id="${a.id}" style="background:#d1fae5; color:#065f46; border:1px solid #a7f3d0;" title="Re-confirm Appointment">✓ Re-confirm</button>
+        `;
+      }
+
+      return `
+        <tr>
+          <td><code>#${a.id}</code></td>
+          <td>
+            <strong>${esc(a.patient.name)}</strong>
+            <small style="color:var(--ink-400); display:block;"><code>${esc(a.patient.patientCode || 'PT')}</code> · ${esc(a.patient.phone || 'No phone')}</small>
+          </td>
+          <td>
+            <strong>${esc(a.doctor.name)}</strong>
+            <small style="color:var(--ink-400); display:block;">${esc(a.doctor.specialization || 'Clinical')} · ${esc(a.doctor.clinicName || 'Clinic')}</small>
+          </td>
+          <td><strong>${esc(String(a.requestedDate || '').slice(0, 10))}</strong></td>
+          <td style="max-width:260px;">
+            <div style="font-size:12.5px; color:var(--ink-800);">${esc(a.message || 'No patient message')}</div>
+          </td>
+          <td>${statusBadges[a.status] || esc(a.status)}</td>
+          <td>
+            <div style="display:flex; gap:6px;">${actionButtons}</div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    tbody.querySelectorAll('.btn-confirm-appt').forEach((b) => {
+      b.addEventListener('click', () => patchAppointment(b.dataset.id, 'confirmed'));
+    });
+    tbody.querySelectorAll('.btn-cancel-appt').forEach((b) => {
+      b.addEventListener('click', () => patchAppointment(b.dataset.id, 'cancelled'));
+    });
+
+    updateAppointmentsPagination(data.pagination);
+  } catch (err) {
+    showToast('Failed to load appointments: ' + err.message, true);
+  }
+}
+
+async function patchAppointment(id, status) {
+  try {
+    const res = await adminApi(`/clinical-oversight/appointments/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status })
+    });
+    showToast(res.message || `Appointment status updated to ${status}.`);
+    loadClinicalAppointments();
+  } catch (err) {
+    showToast('Failed to update appointment: ' + err.message, true);
+  }
+}
+
+function updateAppointmentsPagination(p) {
+  if ($('appointmentsPaginationInfo')) {
+    const start = (p.page - 1) * p.limit + 1;
+    const end = Math.min(p.total, p.page * p.limit);
+    $('appointmentsPaginationInfo').textContent = p.total > 0 ? `Showing ${start}-${end} of ${p.total} appointments` : 'No appointments';
+  }
+  if ($('appointmentsPageCurrent')) $('appointmentsPageCurrent').textContent = p.page;
+  if ($('btnPrevAppointmentsPage')) $('btnPrevAppointmentsPage').disabled = p.page <= 1;
+  if ($('btnNextAppointmentsPage')) $('btnNextAppointmentsPage').disabled = p.page >= p.pages;
+}
+
+if ($('appointmentsStatusFilter')) {
+  $('appointmentsStatusFilter').addEventListener('change', (e) => {
+    AdminState.appointmentsStatus = e.target.value;
+    AdminState.appointmentsPage = 1;
+    loadClinicalAppointments();
+  });
+}
+
+if ($('btnPrevAppointmentsPage')) {
+  $('btnPrevAppointmentsPage').addEventListener('click', () => {
+    if (AdminState.appointmentsPage > 1) {
+      AdminState.appointmentsPage--;
+      loadClinicalAppointments();
+    }
+  });
+}
+
+if ($('btnNextAppointmentsPage')) {
+  $('btnNextAppointmentsPage').addEventListener('click', () => {
+    AdminState.appointmentsPage++;
+    loadClinicalAppointments();
+  });
+}
+
+// ================= USER ACTIVITY STREAM MODULE =================
+AdminState.activityPage = 1;
+AdminState.activityLimit = 25;
+AdminState.activitySearch = '';
+AdminState.activityRole = '';
+AdminState.activityAction = '';
+AdminState.activityFrom = '';
+AdminState.activityTo = '';
+
+const ACTIVITY_ROLE_STYLES = {
+  patient: { bg: '#ccfbf1', color: '#0f766e', label: 'Patient' },
+  guardian: { bg: '#e0e7ff', color: '#4338ca', label: 'Guardian' },
+  caretaker: { bg: '#e0f2fe', color: '#0369a1', label: 'Caretaker' },
+  admin: { bg: '#fef3c7', color: '#92400e', label: 'Admin' }
+};
+
+async function loadActivity() {
+  const tbody = $('activityTableBody');
+  if (!tbody) return;
+
+  tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:32px; color:var(--ink-400);">Loading activity stream...</td></tr>';
+
+  try {
+    const params = new URLSearchParams({
+      page: AdminState.activityPage,
+      limit: AdminState.activityLimit,
+      search: AdminState.activitySearch,
+      role: AdminState.activityRole,
+      action: AdminState.activityAction,
+      from: AdminState.activityFrom,
+      to: AdminState.activityTo
+    });
+
+    const data = await adminApi('/activity?' + params.toString());
+    if (!data) return;
+
+    renderActivitySummary(data.summary);
+
+    if (!data.logs.length) {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:32px; color:var(--ink-400);">No user activity found matching the selected filters.</td></tr>';
+      updateActivityPagination(data.pagination);
+      return;
+    }
+
+    tbody.innerHTML = data.logs.map((l) => {
+      const role = ACTIVITY_ROLE_STYLES[l.actor.role] || { bg: '#e5e7eb', color: '#374151', label: l.actor.role };
+      const patientCell = l.patient
+        ? `<strong>${esc(l.patient.name)}</strong><small style="color:var(--ink-400); display:block;">${esc(l.patient.patientCode || '')}</small>`
+        : '<span style="color:var(--ink-400);">—</span>';
+
+      return `
+        <tr>
+          <td><code>#${l.id}</code></td>
+          <td>
+            <strong>${esc(l.actor.name)}</strong>
+            <small style="color:var(--ink-400); display:block;">ID #${esc(l.actor.id ?? '—')}</small>
+          </td>
+          <td>
+            <span style="background:${role.bg}; color:${role.color}; font-weight:700; font-size:11px; padding:3px 7px; border-radius:4px; text-transform:capitalize;">
+              ${esc(role.label)}
+            </span>
+          </td>
+          <td>
+            <span style="background:#eef2ff; color:#3730a3; font-weight:700; font-size:11px; padding:3px 7px; border-radius:4px; font-family:monospace;">
+              ${esc(l.action)}
+            </span>
+          </td>
+          <td>${patientCell}</td>
+          <td style="max-width:340px;">
+            <div style="font-size:12.5px; color:var(--ink-900);">${esc(l.details)}</div>
+            <small style="color:var(--ink-400);">${esc(l.targetType)}${l.targetId !== '—' ? ` #${esc(l.targetId)}` : ''}</small>
+          </td>
+          <td><code>${esc(l.ipAddress)}</code></td>
+          <td><small style="color:var(--ink-600);">${esc(l.createdAt)}</small></td>
+        </tr>
+      `;
+    }).join('');
+
+    updateActivityPagination(data.pagination);
+  } catch (err) {
+    showToast('Failed to load activity stream: ' + err.message, true);
+  }
+}
+
+function renderActivitySummary(summary) {
+  const container = $('activitySummaryChips');
+  if (!container || !summary) return;
+
+  const roles = ['patient', 'guardian', 'caretaker'];
+  const total = roles.reduce((sum, r) => sum + Number(summary.byRole?.[r] || 0), 0);
+
+  const chips = [
+    `<div style="background:var(--ink-900); color:#fff; border-radius:8px; padding:8px 14px; font-size:12.5px;">
+       <strong>${total}</strong> total actions
+     </div>`
+  ];
+
+  roles.forEach((r) => {
+    const style = ACTIVITY_ROLE_STYLES[r];
+    chips.push(`
+      <div style="background:${style.bg}; color:${style.color}; border-radius:8px; padding:8px 14px; font-size:12.5px;">
+        <strong>${Number(summary.byRole?.[r] || 0)}</strong> ${style.label.toLowerCase()} actions
+      </div>
+    `);
+  });
+
+  (summary.byAction || []).slice(0, 4).forEach((a) => {
+    chips.push(`
+      <div style="background:#f1f5f9; color:#334155; border-radius:8px; padding:8px 14px; font-size:12px;">
+        <code>${esc(a.action)}</code> · ${a.count}
+      </div>
+    `);
+  });
+
+  container.innerHTML = chips.join('');
+}
+
+function updateActivityPagination(p) {
+  if ($('activityPaginationInfo')) {
+    const start = (p.page - 1) * p.limit + 1;
+    const end = Math.min(p.total, p.page * p.limit);
+    $('activityPaginationInfo').textContent = p.total > 0
+      ? `Showing ${start}-${end} of ${p.total} activity records`
+      : 'No activity records';
+  }
+  if ($('activityPageCurrent')) $('activityPageCurrent').textContent = p.page;
+  if ($('btnPrevActivityPage')) $('btnPrevActivityPage').disabled = p.page <= 1;
+  if ($('btnNextActivityPage')) $('btnNextActivityPage').disabled = p.page >= p.pages;
+}
+
+if ($('activitySearchInput')) {
+  let activitySearchTimer;
+  $('activitySearchInput').addEventListener('input', (e) => {
+    clearTimeout(activitySearchTimer);
+    activitySearchTimer = setTimeout(() => {
+      AdminState.activitySearch = e.target.value.trim();
+      AdminState.activityPage = 1;
+      loadActivity();
+    }, 300);
+  });
+}
+
+if ($('activityRoleFilter')) {
+  $('activityRoleFilter').addEventListener('change', (e) => {
+    AdminState.activityRole = e.target.value;
+    AdminState.activityPage = 1;
+    loadActivity();
+  });
+}
+
+if ($('activityActionFilter')) {
+  $('activityActionFilter').addEventListener('change', (e) => {
+    AdminState.activityAction = e.target.value;
+    AdminState.activityPage = 1;
+    loadActivity();
+  });
+}
+
+if ($('activityFromDate')) {
+  $('activityFromDate').addEventListener('change', (e) => {
+    AdminState.activityFrom = e.target.value;
+    AdminState.activityPage = 1;
+    loadActivity();
+  });
+}
+
+if ($('activityToDate')) {
+  $('activityToDate').addEventListener('change', (e) => {
+    AdminState.activityTo = e.target.value;
+    AdminState.activityPage = 1;
+    loadActivity();
+  });
+}
+
+if ($('btnPrevActivityPage')) {
+  $('btnPrevActivityPage').addEventListener('click', () => {
+    if (AdminState.activityPage > 1) {
+      AdminState.activityPage--;
+      loadActivity();
+    }
+  });
+}
+
+if ($('btnNextActivityPage')) {
+  $('btnNextActivityPage').addEventListener('click', () => {
+    AdminState.activityPage++;
+    loadActivity();
+  });
+}
+
 // ================= AUDIT LOG & PROFILE MODULE =================
 AdminState.auditPage = 1;
 AdminState.auditLimit = 25;
@@ -2020,6 +2754,9 @@ if ($('formAdminChangePassword')) {
     }
   });
 }
+
+// ================= SESSION BOOTSTRAP =================
+(async () => {
   if (!AdminState.token) {
     window.location.href = '/admin/login';
     return;

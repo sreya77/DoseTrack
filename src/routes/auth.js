@@ -2,7 +2,7 @@ const router = require('express').Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../db');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, logActivity } = require('../middleware/auth');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dosetrack_super_secret_jwt_key_2026_secure';
 
@@ -91,6 +91,15 @@ router.post('/register', async (req, res, next) => {
       avatarColor
     };
 
+    await logActivity(req, {
+      action: 'REGISTER',
+      targetType: 'user',
+      targetId: newUserId,
+      patientId: chosenRole === 'patient' ? newUserId : null,
+      details: `${fullName.trim()} registered a new ${chosenRole} account.`,
+      actor: { id: newUserId, fullName: fullName.trim(), role: chosenRole }
+    });
+
     res.status(201).json({
       token: tokenFor(user),
       user
@@ -135,6 +144,17 @@ router.post('/login', async (req, res, next) => {
       emergencyContact: u.emergency_contact || '',
       avatarColor: u.avatar_color || '#0d9488'
     };
+
+    if (user.role !== 'admin') {
+      await logActivity(req, {
+        action: 'LOGIN',
+        targetType: 'user',
+        targetId: user.id,
+        patientId: user.role === 'patient' ? user.id : null,
+        details: `${user.fullName} signed in as ${user.role}.`,
+        actor: { id: user.id, fullName: user.fullName, role: user.role }
+      });
+    }
 
     res.json({
       token: tokenFor(user),

@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const db = require('../db');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, logActivity } = require('../middleware/auth');
 const { canAccessPatient } = require('./careNotes');
 
 router.use(requireAuth);
@@ -62,6 +62,14 @@ router.post('/', async (req, res, next) => {
       ]
     );
 
+    await logActivity(req, {
+      action: 'DOCTOR_ADD',
+      targetType: 'doctor',
+      targetId: r.insertId,
+      patientId: targetPatientId,
+      details: `Added doctor ${name.trim()}${specialization?.trim() ? ` (${specialization.trim()})` : ''}.`
+    });
+
     res.status(201).json({ id: r.insertId, message: 'Doctor contact saved.' });
   } catch (e) {
     next(e);
@@ -83,6 +91,14 @@ router.post('/:id/appointment-requests', async (req, res, next) => {
       `INSERT INTO appointment_requests (doctor_id, user_id, requested_date, message) VALUES (?, ?, ?, ?)`,
       [req.params.id, targetPatientId, req.body.requestedDate || null, req.body.message || null]
     );
+
+    await logActivity(req, {
+      action: 'APPOINTMENT_REQUEST',
+      targetType: 'appointment_request',
+      targetId: r.insertId,
+      patientId: targetPatientId,
+      details: `Requested an appointment${req.body.requestedDate ? ` for ${req.body.requestedDate}` : ''}.`
+    });
 
     res.status(201).json({ id: r.insertId, message: 'Appointment request recorded. Please confirm directly with the clinic.' });
   } catch (e) {

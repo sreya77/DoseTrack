@@ -254,6 +254,21 @@ async function seed() {
     }
   }
 
+  // Seed sample appointment requests
+  const [[firstDoc]] = await db.query(`SELECT id FROM doctors WHERE user_id = ? LIMIT 1`, [patientId]);
+  if (firstDoc) {
+    const [appts] = await db.query(`SELECT id FROM appointment_requests WHERE user_id = ?`, [patientId]);
+    if (!appts.length) {
+      await db.query(
+        `INSERT INTO appointment_requests (doctor_id, user_id, requested_date, message, status)
+         VALUES 
+           (?, ?, DATE_ADD(CURDATE(), INTERVAL 3 DAY), 'Quarterly blood pressure review and prescription renewal check.', 'requested'),
+           (?, ?, DATE_SUB(CURDATE(), INTERVAL 14 DAY), 'Routine Endocrinology follow-up for A1C test review.', 'confirmed')`,
+        [firstDoc.id, patientId, firstDoc.id, patientId]
+      );
+    }
+  }
+
   // 9. Care Notes & Vitals logged by Nurse Sarah
   await db.query(`DELETE FROM care_notes WHERE patient_id = ?`, [patientId]);
   await db.query(

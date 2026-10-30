@@ -147,6 +147,8 @@ router.get('/:id', async (req, res, next) => {
     let assignedPatients = [];
     let medications = [];
     let adherenceStats = null;
+    let recentNotes = [];
+    let recentAlerts = [];
 
     if (u.role === 'patient') {
       // Connected Care Team
@@ -190,6 +192,32 @@ router.get('/:id', async (req, res, next) => {
         missed: Number(adh[0]?.missed || 0),
         rate: total > 0 ? Math.round((taken / total) * 100) : 100
       };
+
+      // Recent Care Notes & Vitals for this patient
+      const [notes] = await db.execute(
+        `SELECT n.id, n.note_type, n.content, n.vitals_json, n.created_at,
+                author.full_name as author_name, author.role as author_role
+         FROM care_notes n
+         JOIN users author ON author.id = n.author_id
+         WHERE n.patient_id = ?
+         ORDER BY n.created_at DESC
+         LIMIT 5`,
+        [u.id]
+      );
+      recentNotes = notes;
+
+      // Recent Alerts for this patient
+      const [alerts] = await db.execute(
+        `SELECT a.id, a.alert_type, a.title, a.message, a.created_at,
+                sender.full_name as sender_name
+         FROM care_alerts a
+         LEFT JOIN users sender ON sender.id = a.from_user_id
+         WHERE a.patient_id = ?
+         ORDER BY a.created_at DESC
+         LIMIT 5`,
+        [u.id]
+      );
+      recentAlerts = alerts;
     } else if (u.role === 'guardian' || u.role === 'caretaker') {
       const [pts] = await db.execute(
         `SELECT pc.id as connection_id, pc.relationship,
@@ -200,6 +228,32 @@ router.get('/:id', async (req, res, next) => {
         [u.id]
       );
       assignedPatients = pts;
+
+      // Notes authored by this guardian/caretaker
+      const [notes] = await db.execute(
+        `SELECT n.id, n.note_type, n.content, n.vitals_json, n.created_at,
+                pt.full_name as patient_name, pt.patient_code
+         FROM care_notes n
+         JOIN users pt ON pt.id = n.patient_id
+         WHERE n.author_id = ?
+         ORDER BY n.created_at DESC
+         LIMIT 5`,
+        [u.id]
+      );
+      recentNotes = notes;
+
+      // Alerts triggered by or sent to this member
+      const [alerts] = await db.execute(
+        `SELECT a.id, a.alert_type, a.title, a.message, a.created_at,
+                pt.full_name as patient_name
+         FROM care_alerts a
+         JOIN users pt ON pt.id = a.patient_id
+         WHERE a.from_user_id = ? OR a.to_user_id = ?
+         ORDER BY a.created_at DESC
+         LIMIT 5`,
+        [u.id, u.id]
+      );
+      recentAlerts = alerts;
     }
 
     res.json({
@@ -218,7 +272,9 @@ router.get('/:id', async (req, res, next) => {
       careTeam,
       assignedPatients,
       medications,
-      adherenceStats
+      adherenceStats,
+      recentNotes,
+      recentAlerts
     });
   } catch (err) {
     next(err);

@@ -16,6 +16,8 @@ router.use('/doctors', require('./doctors'));
 router.use('/care-circles', require('./careCircles'));
 router.use('/reminders', require('./reminders'));
 router.use('/reports', require('./reports'));
+router.use('/clinical-oversight', require('./clinicalOversight'));
+router.use('/activity', require('./activity'));
 router.use('/audit', require('./audit'));
 
 module.exports = router;

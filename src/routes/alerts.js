@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const db = require('../db');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, logActivity } = require('../middleware/auth');
 
 router.use(requireAuth);
 
@@ -55,6 +55,14 @@ router.post('/nudge', async (req, res, next) => {
       [patientId, senderId, patientId, `Reminder from ${senderName}`, nudgeText]
     );
 
+    await logActivity(req, {
+      action: 'NUDGE_SENT',
+      targetType: 'care_alert',
+      targetId: r.insertId,
+      patientId,
+      details: `Sent a nudge: ${nudgeText}`
+    });
+
     res.status(201).json({
       id: r.insertId,
       message: 'Nudge sent successfully to patient.'
@@ -99,6 +107,14 @@ router.post('/sos', async (req, res, next) => {
         [patientId, patientId, member.member_id, `🚨 URGENT: SOS Alert from ${ptName}`, alertBody]
       );
     }
+
+    await logActivity(req, {
+      action: 'SOS_TRIGGERED',
+      targetType: 'care_alert',
+      targetId: patientId,
+      patientId,
+      details: `Triggered an emergency SOS alert to ${team.length} care-circle member(s).`
+    });
 
     res.status(201).json({
       message: `Emergency SOS broadcasted to ${team.length} care circle member(s). Help is being alerted!`,

@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const db = require('../db');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, logActivity } = require('../middleware/auth');
 
 router.use(requireAuth);
 
@@ -143,6 +143,14 @@ router.post('/link', async (req, res, next) => {
       [patient.id, memberId, patient.id, `${sender[0].full_name} (${relationship.trim()}) is now connected to your care team.`]
     );
 
+    await logActivity(req, {
+      action: 'CARE_LINK',
+      targetType: 'patient_connection',
+      targetId: patient.id,
+      patientId: patient.id,
+      details: `Connected to patient ${patient.full_name} as ${relationship.trim()}.`
+    });
+
     res.status(201).json({
       message: `Successfully connected to patient ${patient.full_name}.`,
       patientId: patient.id
@@ -168,6 +176,15 @@ router.delete('/:connectionId', async (req, res, next) => {
     }
 
     await db.execute('DELETE FROM patient_connections WHERE id = ?', [connId]);
+
+    await logActivity(req, {
+      action: 'CARE_UNLINK',
+      targetType: 'patient_connection',
+      targetId: connId,
+      patientId: conn[0].patient_id,
+      details: `Removed a care-circle connection (${conn[0].relationship || 'caregiver'}).`
+    });
+
     res.json({ message: 'Care connection removed.' });
   } catch (e) {
     next(e);
