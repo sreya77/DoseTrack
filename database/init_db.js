@@ -232,7 +232,38 @@ async function init() {
   await ensureColumn('medications', 'is_active', "is_active BOOLEAN NOT NULL DEFAULT TRUE");
   await ensureColumn('dose_events', 'recorded_by_id', "recorded_by_id BIGINT UNSIGNED NULL");
 
-  // 3. Auto-seed demo accounts if database has 0 users
+  // 3. Ensure a system administrator account always exists (idempotent)
+  try {
+    const bcrypt = require('bcryptjs');
+    const adminEmail = (process.env.ADMIN_EMAIL || 'admin@dosetrack.com').trim().toLowerCase();
+    const adminPassword = process.env.ADMIN_PASSWORD || 'password123';
+    const [existingAdmin] = await db.query(`SELECT id, role FROM users WHERE email = ?`, [adminEmail]);
+
+    if (!existingAdmin.length) {
+      const hash = await bcrypt.hash(adminPassword, 10);
+      await db.query(
+        `INSERT INTO users (full_name, role, patient_code, email, phone, emergency_contact, avatar_color, is_active, password_hash)
+         VALUES (?, 'admin', NULL, ?, '(555) 000-ADMIN', NULL, '#f59e0b', 1, ?)`,
+        ['Dr. Alexander Wright (Admin)', adminEmail, hash]
+      );
+      console.log(`[Init] Created administrator account ${adminEmail}.`);
+    } else {
+      if (existingAdmin[0].role !== 'admin') {
+        await db.query(`UPDATE users SET role = 'admin' WHERE id = ?`, [existingAdmin[0].id]);
+        console.log(`[Init] Promoted ${adminEmail} to administrator.`);
+      }
+      // Only reset the password when explicitly provided via env
+      if (process.env.ADMIN_PASSWORD) {
+        const hash = await bcrypt.hash(adminPassword, 10);
+        await db.query(`UPDATE users SET password_hash = ?, is_active = 1 WHERE id = ?`, [hash, existingAdmin[0].id]);
+        console.log(`[Init] Reset administrator password from ADMIN_PASSWORD env.`);
+      }
+    }
+  } catch (adminErr) {
+    console.warn('[Init] Admin account check warning:', adminErr.message);
+  }
+
+  // 4. Auto-seed demo accounts if database has 0 users
   try {
     const [rows] = await db.query(`SELECT COUNT(*) AS count FROM users`);
     if (rows && rows[0] && Number(rows[0].count) === 0) {
