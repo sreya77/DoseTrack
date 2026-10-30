@@ -6,7 +6,8 @@ const poolConfig = (process.env.DATABASE_URL || process.env.MYSQL_URL)
       waitForConnections: true,
       connectionLimit: 10,
       queueLimit: 0,
-      dateStrings: true
+      dateStrings: true,
+      ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : undefined
     }
   : {
       host: process.env.DB_HOST || '127.0.0.1',
@@ -17,7 +18,8 @@ const poolConfig = (process.env.DATABASE_URL || process.env.MYSQL_URL)
       waitForConnections: true,
       connectionLimit: 10,
       queueLimit: 0,
-      dateStrings: true
+      dateStrings: true,
+      ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : undefined
     };
 
 module.exports = mysql.createPool(poolConfig);
