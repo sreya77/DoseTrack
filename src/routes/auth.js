@@ -92,12 +92,13 @@ router.post('/register', async (req, res, next) => {
     };
 
     await logActivity(req, {
-      action: 'REGISTER',
-      targetType: 'user',
-      targetId: newUserId,
-      patientId: chosenRole === 'patient' ? newUserId : null,
-      details: `${fullName.trim()} registered a new ${chosenRole} account.`,
-      actor: { id: newUserId, fullName: fullName.trim(), role: chosenRole }
+      actionType: 'REGISTER',
+      entityType: 'user',
+      entityId: newUserId,
+      userId: newUserId,
+      userRole: chosenRole,
+      description: `${fullName.trim()} registered a new ${chosenRole} account.`,
+      newValue: { fullName: fullName.trim(), email: normalizedEmail, role: chosenRole, patientCode: assignedPatientCode }
     });
 
     res.status(201).json({
@@ -126,6 +127,15 @@ router.post('/login', async (req, res, next) => {
     );
 
     if (!rows.length || !(await bcrypt.compare(password, rows[0].password_hash))) {
+      await logActivity(req, {
+        actionType: 'LOGIN_FAILED',
+        entityType: 'user',
+        entityId: rows[0]?.id || null,
+        userId: rows[0]?.id || null,
+        userRole: rows[0]?.role || 'unknown',
+        description: `Failed login attempt for email: ${email}`,
+        newValue: { emailAttempted: email, failureReason: !rows.length ? 'User not found' : 'Incorrect password' }
+      });
       return res.status(401).json({ error: 'Invalid email or password.' });
     }
 
@@ -145,21 +155,112 @@ router.post('/login', async (req, res, next) => {
       avatarColor: u.avatar_color || '#0d9488'
     };
 
-    if (user.role !== 'admin') {
-      await logActivity(req, {
-        action: 'LOGIN',
-        targetType: 'user',
-        targetId: user.id,
-        patientId: user.role === 'patient' ? user.id : null,
-        details: `${user.fullName} signed in as ${user.role}.`,
-        actor: { id: user.id, fullName: user.fullName, role: user.role }
-      });
-    }
+    await logActivity(req, {
+      actionType: 'LOGIN_SUCCESS',
+      entityType: 'user',
+      entityId: user.id,
+      userId: user.id,
+      userRole: user.role,
+      description: `${user.fullName} (${user.role}) successfully logged in.`,
+      newValue: { email: user.email, role: user.role, fullName: user.fullName }
+    });
 
     res.json({
       token: tokenFor(user),
       user
     });
+  } catch (e) {
+    next(e);
+  }
+});
+
+// Logout
+router.post('/logout', requireAuth, async (req, res) => {
+  try {
+    await logActivity(req, {
+      actionType: 'LOGOUT',
+      entityType: 'user',
+      entityId: req.user.id,
+      userId: req.user.id,
+      userRole: req.user.role,
+      description: `${req.user.fullName || 'User'} logged out.`
+    });
+    res.json({ message: 'Logged out successfully.' });
+  } catch {
+    res.json({ message: 'Logged out.' });
+  }
+});
+
+// Update Profile
+router.put('/profile', requireAuth, async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const { fullName, phone, emergencyContact } = req.body;
+
+    const [oldRows] = await db.execute(
+      'SELECT full_name, phone, emergency_contact FROM users WHERE id = ?',
+      [userId]
+    );
+    if (!oldRows.length) return res.status(404).json({ error: 'User not found.' });
+
+    const oldValue = oldRows[0];
+    const newValue = {
+      full_name: fullName ? fullName.trim() : oldValue.full_name,
+      phone: phone !== undefined ? phone.trim() : oldValue.phone,
+      emergency_contact: emergencyContact !== undefined ? emergencyContact.trim() : oldValue.emergency_contact
+    };
+
+    await db.execute(
+      'UPDATE users SET full_name = ?, phone = ?, emergency_contact = ? WHERE id = ?',
+      [newValue.full_name, newValue.phone, newValue.emergency_contact, userId]
+    );
+
+    await logActivity(req, {
+      actionType: 'PROFILE_UPDATE',
+      entityType: 'user',
+      entityId: userId,
+      userId,
+      userRole: req.user.role,
+      description: `${newValue.full_name} updated their profile information.`,
+      oldValue,
+      newValue
+    });
+
+    res.json({ message: 'Profile updated successfully.', user: newValue });
+  } catch (e) {
+    next(e);
+  }
+});
+
+// Change Password
+router.post('/change-password', requireAuth, async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword || newPassword.length < 8) {
+      return res.status(400).json({ error: 'Current password and new password (min 8 chars) are required.' });
+    }
+
+    const [rows] = await db.execute('SELECT password_hash, full_name, role FROM users WHERE id = ?', [userId]);
+    if (!rows.length || !(await bcrypt.compare(currentPassword, rows[0].password_hash))) {
+      return res.status(401).json({ error: 'Incorrect current password.' });
+    }
+
+    const newHash = await bcrypt.hash(newPassword, 10);
+    await db.execute('UPDATE users SET password_hash = ? WHERE id = ?', [newHash, userId]);
+
+    await logActivity(req, {
+      actionType: 'PASSWORD_CHANGE',
+      entityType: 'user',
+      entityId: userId,
+      userId,
+      userRole: rows[0].role,
+      description: `${rows[0].full_name} changed their password.`,
+      newValue: { passwordChanged: true, timestamp: new Date().toISOString() }
+    });
+
+    res.json({ message: 'Password changed successfully.' });
   } catch (e) {
     next(e);
   }

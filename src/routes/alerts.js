@@ -56,11 +56,12 @@ router.post('/nudge', async (req, res, next) => {
     );
 
     await logActivity(req, {
-      action: 'NUDGE_SENT',
-      targetType: 'care_alert',
-      targetId: r.insertId,
+      actionType: 'NUDGE_SENT',
+      entityType: 'care_alert',
+      entityId: r.insertId,
       patientId,
-      details: `Sent a nudge: ${nudgeText}`
+      description: `Sent a nudge: ${nudgeText}`,
+      newValue: { patientId, message: nudgeText }
     });
 
     res.status(201).json({
@@ -109,11 +110,12 @@ router.post('/sos', async (req, res, next) => {
     }
 
     await logActivity(req, {
-      action: 'SOS_TRIGGERED',
-      targetType: 'care_alert',
-      targetId: patientId,
+      actionType: 'EMERGENCY_SOS_TRIGGERED',
+      entityType: 'care_alert',
+      entityId: patientId,
       patientId,
-      details: `Triggered an emergency SOS alert to ${team.length} care-circle member(s).`
+      description: `Triggered an emergency SOS alert to ${team.length} care-circle member(s).`,
+      newValue: { message: alertBody, recipientCount: team.length }
     });
 
     res.status(201).json({
@@ -125,15 +127,30 @@ router.post('/sos', async (req, res, next) => {
   }
 });
 
-// Mark single alert as read
+// Mark single alert as read / acknowledged
 router.patch('/:id/read', async (req, res, next) => {
   try {
     const userId = req.user.id;
+    const [alert] = await db.execute('SELECT * FROM care_alerts WHERE id = ? AND to_user_id = ?', [req.params.id, userId]);
+    if (!alert.length) return res.status(404).json({ error: 'Alert not found.' });
+
     await db.execute(
       'UPDATE care_alerts SET read_status = TRUE WHERE id = ? AND to_user_id = ?',
       [req.params.id, userId]
     );
-    res.json({ message: 'Alert marked as read.' });
+
+    const a = alert[0];
+    const isSos = a.alert_type === 'sos';
+    await logActivity(req, {
+      actionType: isSos ? 'EMERGENCY_SOS_ACKNOWLEDGED' : 'ALERT_ACKNOWLEDGED',
+      entityType: 'care_alert',
+      entityId: a.id,
+      patientId: a.patient_id,
+      description: `${isSos ? 'Acknowledged emergency SOS' : 'Acknowledged alert'}: "${a.title}".`,
+      newValue: { alertId: a.id, alertType: a.alert_type, readStatus: true }
+    });
+
+    res.json({ message: 'Alert acknowledged.' });
   } catch (e) {
     next(e);
   }

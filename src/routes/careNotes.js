@@ -124,17 +124,50 @@ router.post('/', async (req, res, next) => {
     }
 
     await logActivity(req, {
-      action: noteType === 'vitals' ? 'VITALS_LOG' : 'CARE_NOTE_ADD',
-      targetType: 'care_note',
-      targetId: r.insertId,
+      actionType: noteType === 'vitals' ? 'VITALS_LOG' : 'CARE_NOTE_ADD',
+      entityType: 'care_note',
+      entityId: r.insertId,
       patientId,
-      details: `${noteType === 'vitals' ? 'Logged vitals' : 'Posted care note'}: ${alertMsg}`
+      description: `${noteType === 'vitals' ? 'Logged vitals' : 'Posted care note'}: ${alertMsg}`,
+      newValue: { noteType, content: content.trim(), vitals: vitals || null }
     });
 
     res.status(201).json({
       id: r.insertId,
       message: 'Care note recorded successfully.'
     });
+  } catch (e) {
+    next(e);
+  }
+});
+
+// Edit a care note
+router.put('/:id', async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const { content, vitals } = req.body;
+    const [existing] = await db.execute('SELECT * FROM care_notes WHERE id = ?', [req.params.id]);
+    if (!existing.length) return res.status(404).json({ error: 'Note not found.' });
+
+    const oldNote = existing[0];
+    if (Number(oldNote.author_id) !== Number(userId) && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'You can only edit your own notes.' });
+    }
+
+    const vitalsJson = vitals ? JSON.stringify(vitals) : oldNote.vitals_json;
+    await db.execute('UPDATE care_notes SET content = ?, vitals_json = ? WHERE id = ?', [content ? content.trim() : oldNote.content, vitalsJson, req.params.id]);
+
+    await logActivity(req, {
+      actionType: 'CARE_NOTE_EDIT',
+      entityType: 'care_note',
+      entityId: req.params.id,
+      patientId: oldNote.patient_id,
+      description: `Edited care note #${req.params.id}.`,
+      oldValue: { content: oldNote.content, vitals: oldNote.vitals_json },
+      newValue: { content: content ? content.trim() : oldNote.content, vitals }
+    });
+
+    res.json({ message: 'Care note updated.' });
   } catch (e) {
     next(e);
   }

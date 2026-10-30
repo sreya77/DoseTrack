@@ -17,6 +17,7 @@ router.use('/care-circles', require('./careCircles'));
 router.use('/reminders', require('./reminders'));
 router.use('/reports', require('./reports'));
 router.use('/clinical-oversight', require('./clinicalOversight'));
+router.use('/oversight', require('./oversight'));
 router.use('/activity', require('./activity'));
 router.use('/audit', require('./audit'));
 

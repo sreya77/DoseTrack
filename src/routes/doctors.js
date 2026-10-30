@@ -62,15 +62,111 @@ router.post('/', async (req, res, next) => {
       ]
     );
 
+    const newDoc = {
+      name: name.trim(),
+      specialization: specialization?.trim() || null,
+      clinicName: clinicName?.trim() || null,
+      phone: phone?.trim() || null,
+      email: email?.trim() || null,
+      availability: availability?.trim() || null,
+      clinicAddress: clinicAddress?.trim() || null
+    };
+
     await logActivity(req, {
-      action: 'DOCTOR_ADD',
-      targetType: 'doctor',
-      targetId: r.insertId,
+      actionType: 'DOCTOR_ADD',
+      entityType: 'doctor',
+      entityId: r.insertId,
       patientId: targetPatientId,
-      details: `Added doctor ${name.trim()}${specialization?.trim() ? ` (${specialization.trim()})` : ''}.`
+      description: `Added doctor ${name.trim()}${specialization?.trim() ? ` (${specialization.trim()})` : ''}.`,
+      newValue: newDoc
     });
 
     res.status(201).json({ id: r.insertId, message: 'Doctor contact saved.' });
+  } catch (e) {
+    next(e);
+  }
+});
+
+// Edit Doctor Contact
+router.put('/:id', async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const { name, specialization, clinicName, phone, email, availability, clinicAddress } = req.body;
+
+    const [existing] = await db.execute('SELECT * FROM doctors WHERE id = ?', [req.params.id]);
+    if (!existing.length) return res.status(404).json({ error: 'Doctor not found.' });
+
+    const oldDoc = existing[0];
+    if (!(await canAccessPatient(userId, oldDoc.user_id))) {
+      return res.status(403).json({ error: 'Not authorized to modify this doctor.' });
+    }
+
+    const updatedDoc = {
+      name: name ? name.trim() : oldDoc.name,
+      specialization: specialization !== undefined ? specialization?.trim() : oldDoc.specialization,
+      clinic_name: clinicName !== undefined ? clinicName?.trim() : oldDoc.clinic_name,
+      phone: phone !== undefined ? phone?.trim() : oldDoc.phone,
+      email: email !== undefined ? email?.trim() : oldDoc.email,
+      availability: availability !== undefined ? availability?.trim() : oldDoc.availability,
+      clinic_address: clinicAddress !== undefined ? clinicAddress?.trim() : oldDoc.clinic_address
+    };
+
+    await db.execute(
+      `UPDATE doctors 
+       SET name = ?, specialization = ?, clinic_name = ?, phone = ?, email = ?, availability = ?, clinic_address = ?
+       WHERE id = ?`,
+      [
+        updatedDoc.name,
+        updatedDoc.specialization,
+        updatedDoc.clinic_name,
+        updatedDoc.phone,
+        updatedDoc.email,
+        updatedDoc.availability,
+        updatedDoc.clinic_address,
+        req.params.id
+      ]
+    );
+
+    await logActivity(req, {
+      actionType: 'DOCTOR_EDIT',
+      entityType: 'doctor',
+      entityId: req.params.id,
+      patientId: oldDoc.user_id,
+      description: `Updated details for doctor ${updatedDoc.name}.`,
+      oldValue: oldDoc,
+      newValue: updatedDoc
+    });
+
+    res.json({ message: 'Doctor details updated successfully.' });
+  } catch (e) {
+    next(e);
+  }
+});
+
+// Delete Doctor Contact
+router.delete('/:id', async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const [existing] = await db.execute('SELECT * FROM doctors WHERE id = ?', [req.params.id]);
+    if (!existing.length) return res.status(404).json({ error: 'Doctor not found.' });
+
+    const oldDoc = existing[0];
+    if (!(await canAccessPatient(userId, oldDoc.user_id))) {
+      return res.status(403).json({ error: 'Not authorized to delete this doctor.' });
+    }
+
+    await db.execute('DELETE FROM doctors WHERE id = ?', [req.params.id]);
+
+    await logActivity(req, {
+      actionType: 'DOCTOR_DELETE',
+      entityType: 'doctor',
+      entityId: req.params.id,
+      patientId: oldDoc.user_id,
+      description: `Removed doctor ${oldDoc.name} from directory.`,
+      oldValue: oldDoc
+    });
+
+    res.json({ message: 'Doctor deleted.' });
   } catch (e) {
     next(e);
   }
@@ -93,11 +189,12 @@ router.post('/:id/appointment-requests', async (req, res, next) => {
     );
 
     await logActivity(req, {
-      action: 'APPOINTMENT_REQUEST',
-      targetType: 'appointment_request',
-      targetId: r.insertId,
+      actionType: 'APPOINTMENT_REQUEST',
+      entityType: 'appointment_request',
+      entityId: r.insertId,
       patientId: targetPatientId,
-      details: `Requested an appointment${req.body.requestedDate ? ` for ${req.body.requestedDate}` : ''}.`
+      description: `Requested an appointment${req.body.requestedDate ? ` for ${req.body.requestedDate}` : ''}.`,
+      newValue: { doctorId: req.params.id, requestedDate: req.body.requestedDate || null, message: req.body.message || null }
     });
 
     res.status(201).json({ id: r.insertId, message: 'Appointment request recorded. Please confirm directly with the clinic.' });

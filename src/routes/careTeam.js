@@ -144,11 +144,12 @@ router.post('/link', async (req, res, next) => {
     );
 
     await logActivity(req, {
-      action: 'CARE_LINK',
-      targetType: 'patient_connection',
-      targetId: patient.id,
+      actionType: 'CARE_CIRCLE_CONNECT',
+      entityType: 'patient_connection',
+      entityId: patient.id,
       patientId: patient.id,
-      details: `Connected to patient ${patient.full_name} as ${relationship.trim()}.`
+      description: `Connected to patient ${patient.full_name} as ${relationship.trim()}.`,
+      newValue: { patientId: patient.id, patientName: patient.full_name, memberId, relationship: relationship.trim() }
     });
 
     res.status(201).json({
@@ -175,14 +176,16 @@ router.delete('/:connectionId', async (req, res, next) => {
       return res.status(404).json({ error: 'Connection not found or permission denied.' });
     }
 
+    const oldConn = conn[0];
     await db.execute('DELETE FROM patient_connections WHERE id = ?', [connId]);
 
     await logActivity(req, {
-      action: 'CARE_UNLINK',
-      targetType: 'patient_connection',
-      targetId: connId,
-      patientId: conn[0].patient_id,
-      details: `Removed a care-circle connection (${conn[0].relationship || 'caregiver'}).`
+      actionType: 'CARE_CIRCLE_DISCONNECT',
+      entityType: 'patient_connection',
+      entityId: connId,
+      patientId: oldConn.patient_id,
+      description: `Disconnected care-circle connection (${oldConn.relationship || 'caregiver'}).`,
+      oldValue: { connectionId: connId, patientId: oldConn.patient_id, memberId: oldConn.member_id, relationship: oldConn.relationship }
     });
 
     res.json({ message: 'Care connection removed.' });

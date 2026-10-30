@@ -179,6 +179,29 @@ async function init() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
 
+  // Central Activity Log table (powers all admin oversight, monitoring & investigative tooling)
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS activity_log (
+      id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+      user_id BIGINT UNSIGNED NULL,
+      user_role VARCHAR(30) NULL,
+      action_type VARCHAR(80) NOT NULL,
+      entity_type VARCHAR(60) NULL,
+      entity_id VARCHAR(60) NULL,
+      description TEXT NOT NULL,
+      old_value JSON NULL,
+      new_value JSON NULL,
+      ip_address VARCHAR(45) NULL,
+      user_agent VARCHAR(255) NULL,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+      INDEX idx_act_user (user_id, created_at),
+      INDEX idx_act_type (action_type, created_at),
+      INDEX idx_act_entity (entity_type, entity_id),
+      INDEX idx_act_created (created_at DESC)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `);
+
   // System-wide activity log for ALL user roles (patient, guardian, caretaker)
   await db.query(`
     CREATE TABLE IF NOT EXISTS user_activity_log (

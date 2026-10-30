@@ -170,13 +170,22 @@ router.post('/:scheduleId/status', async (req, res, next) => {
     }
 
     await logActivity(req, {
-      action: status === 'taken' ? 'DOSE_TAKEN' : 'DOSE_MISSED',
-      targetType: 'dose_event',
-      targetId: sched.id,
+      actionType: status === 'taken' ? 'DOSE_TAKEN' : 'DOSE_MISSED',
+      entityType: 'dose_event',
+      entityId: sched.id,
       patientId,
-      details: isSelf
+      description: isSelf
         ? `Recorded own dose ${doseDesc} as ${status}.`
-        : `Marked dose ${doseDesc} as ${status} for ${patientName}.`
+        : `Marked dose ${doseDesc} as ${status} for ${patientName}.`,
+      oldValue: { status: 'scheduled', scheduledFor },
+      newValue: {
+        status,
+        scheduledFor,
+        medicationName: sched.med_name,
+        dosage: sched.dosage,
+        recordedBy: actorName,
+        recordedByRole: actor[0]?.role || 'patient'
+      }
     });
 
     res.json({

@@ -29,47 +29,47 @@
       <nav class="admin-nav" id="adminSidebarNav">
         <button type="button" class="admin-nav-item active" data-tab="dashboard">
           <span class="admin-nav-icon">📊</span>
-          <span>Dashboard</span>
+          <span>Overview</span>
+        </button>
+        <button type="button" class="admin-nav-item" data-tab="live-feed">
+          <span class="admin-nav-icon">📡</span>
+          <span>Live Activity Feed</span>
+        </button>
+        <button type="button" class="admin-nav-item" data-tab="user-360">
+          <span class="admin-nav-icon">👤</span>
+          <span>User 360 View</span>
+        </button>
+        <button type="button" class="admin-nav-item" data-tab="session-monitor">
+          <span class="admin-nav-icon">🔐</span>
+          <span>Login & Sessions</span>
+        </button>
+        <button type="button" class="admin-nav-item" data-tab="adherence-watchlist">
+          <span class="admin-nav-icon">⚠️</span>
+          <span>Adherence Watchlist</span>
+        </button>
+        <button type="button" class="admin-nav-item" data-tab="medication-changes">
+          <span class="admin-nav-icon">💊</span>
+          <span>Medication Changes</span>
+        </button>
+        <button type="button" class="admin-nav-item" data-tab="alert-center">
+          <span class="admin-nav-icon">🚨</span>
+          <span>Emergency & Alerts</span>
+        </button>
+        <button type="button" class="admin-nav-item" data-tab="care-circle-map">
+          <span class="admin-nav-icon">⭕</span>
+          <span>Care Circle Map</span>
+        </button>
+        <button type="button" class="admin-nav-item" data-tab="data-access-audit">
+          <span class="admin-nav-icon">🛡️</span>
+          <span>Data Access Audit</span>
         </button>
         <button type="button" class="admin-nav-item" data-tab="users">
           <span class="admin-nav-icon">👥</span>
-          <span>User Management</span>
-        </button>
-        <button type="button" class="admin-nav-item" data-tab="medications">
-          <span class="admin-nav-icon">💊</span>
-          <span>Medications</span>
-        </button>
-        <button type="button" class="admin-nav-item" data-tab="adherence">
-          <span class="admin-nav-icon">📈</span>
-          <span>Adherence Monitor</span>
-        </button>
-        <button type="button" class="admin-nav-item" data-tab="doctors">
-          <span class="admin-nav-icon">🩺</span>
-          <span>Doctors & Clinics</span>
-        </button>
-        <button type="button" class="admin-nav-item" data-tab="care-circles">
-          <span class="admin-nav-icon">⭕</span>
-          <span>Care Circles</span>
-        </button>
-        <button type="button" class="admin-nav-item" data-tab="clinical-oversight">
-          <span class="admin-nav-icon">🩺</span>
-          <span>Clinical Oversight</span>
-        </button>
-        <button type="button" class="admin-nav-item" data-tab="reminders">
-          <span class="admin-nav-icon">⏰</span>
-          <span>Reminders & Config</span>
-        </button>
-        <button type="button" class="admin-nav-item" data-tab="reports">
-          <span class="admin-nav-icon">📑</span>
-          <span>Compliance Reports</span>
-        </button>
-        <button type="button" class="admin-nav-item" data-tab="activity">
-          <span class="admin-nav-icon">📡</span>
-          <span>User Activity Stream</span>
+          <span>User Directory</span>
         </button>
         <button type="button" class="admin-nav-item" data-tab="audit">
-          <span class="admin-nav-icon">🛡️</span>
-          <span>Audit Log & Profile</span>
+          <span class="admin-nav-icon">⚙️</span>
+          <span>Admin Profile</span>
         </button>
       </nav>
 
@@ -213,7 +213,7 @@
             </div>
           </div>
 
-          <!-- 360-Degree Live Care Stream (Patient, Caretaker, Guardian events) -->
+          <!-- 360-Degree Live Care Stream -->
           <div class="admin-card" style="margin-top:20px; margin-bottom:0;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid #e2e8f0; padding-bottom:10px; flex-wrap:wrap; gap:10px;">
               <div>
@@ -230,581 +230,51 @@
           </div>
         </section>
 
-        <!-- Tab 2: Users -->
-        <section id="tab-users" class="tab-view hide">
-          <div class="admin-action-bar">
-            <div class="filter-group">
-              <input type="text" id="userSearchInput" class="admin-search-input" placeholder="Search by name, email, phone, code...">
-              <select id="userRoleFilter" class="admin-select">
+        <!-- ================= MONITORING & OVERSIGHT MODULES ================= -->
+
+        <!-- 1. LIVE ACTIVITY FEED -->
+        <section id="tab-live-feed" class="tab-view hide">
+          <div class="admin-action-bar" style="flex-wrap:wrap; gap:12px;">
+            <div class="filter-group" style="flex-wrap:wrap; gap:8px;">
+              <div style="display:flex; align-items:center; gap:8px; background:#f0fdf4; border:1px solid #bbf7d0; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:700; color:#166534;">
+                <span class="live-indicator-dot"></span>
+                <span id="liveFeedStatusText">Live (5s auto-refresh)</span>
+                <button type="button" class="btn-action-icon" id="btnToggleAutoRefresh" style="font-size:11px; padding:2px 6px; margin-left:4px;">⏸ Pause</button>
+              </div>
+              <input type="text" id="liveSearchInput" class="admin-search-input" placeholder="Search actor, description, IP, entity..." style="min-width:240px;">
+              <select id="liveRoleFilter" class="admin-select">
                 <option value="">All Roles</option>
                 <option value="patient">Patients</option>
                 <option value="guardian">Guardians</option>
                 <option value="caretaker">Caretakers / Nurses</option>
                 <option value="admin">Administrators</option>
               </select>
-              <select id="userStatusFilter" class="admin-select">
-                <option value="">All Statuses</option>
-                <option value="active">Active Only</option>
-                <option value="inactive">Inactive Only</option>
-              </select>
-            </div>
-            <button type="button" class="btn-primary-add" id="btnOpenAddUser">
-              <span>✚</span> Add New User
-            </button>
-          </div>
-
-          <div class="admin-table-wrap">
-            <table class="admin-table">
-              <thead>
-                <tr>
-                  <th>User / Name</th>
-                  <th>Role</th>
-                  <th>Patient Code</th>
-                  <th>Email (Privacy Masked)</th>
-                  <th>Phone</th>
-                  <th>Status</th>
-                  <th>Joined</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="usersTableBody">
-                <tr>
-                  <td colspan="8" style="text-align:center; padding:32px; color:var(--ink-400);">
-                    Loading users directory...
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-
-            <div class="admin-pagination">
-              <div id="usersPaginationInfo">Showing 0 of 0 users</div>
-              <div class="pagination-controls">
-                <button type="button" class="btn-page" id="btnPrevUsersPage" disabled>← Previous</button>
-                <span id="usersPageCurrent" style="font-weight:700;">1</span>
-                <button type="button" class="btn-page" id="btnNextUsersPage" disabled>Next →</button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Tab 3: Medications -->
-        <section id="tab-medications" class="tab-view hide">
-          <div class="admin-action-bar">
-            <div class="filter-group">
-              <input type="text" id="medSearchInput" class="admin-search-input" placeholder="Search medication, dosage, patient...">
-              <select id="medPatientFilter" class="admin-select">
-                <option value="">All Patients</option>
-              </select>
-              <select id="medStatusFilter" class="admin-select">
-                <option value="">All Statuses</option>
-                <option value="active">Active Only</option>
-                <option value="inactive">Inactive Only</option>
-              </select>
-            </div>
-            <div style="font-size:12px; color:var(--ink-400);">
-              Formulary is read-only with administrative pause/resume toggle.
-            </div>
-          </div>
-
-          <div class="admin-table-wrap">
-            <table class="admin-table">
-              <thead>
-                <tr>
-                  <th>Medication & Strength</th>
-                  <th>Patient</th>
-                  <th>Frequency & Instructions</th>
-                  <th>Linked Dose Times</th>
-                  <th>Regimen Duration</th>
-                  <th>Status</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody id="medsTableBody">
-                <tr>
-                  <td colspan="7" style="text-align:center; padding:32px; color:var(--ink-400);">
-                    Loading medications...
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-
-            <div class="admin-pagination">
-              <div id="medsPaginationInfo">Showing 0 of 0 medications</div>
-              <div class="pagination-controls">
-                <button type="button" class="btn-page" id="btnPrevMedsPage" disabled>← Previous</button>
-                <span id="medsPageCurrent" style="font-weight:700;">1</span>
-                <button type="button" class="btn-page" id="btnNextMedsPage" disabled>Next →</button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Tab 4: Adherence -->
-        <section id="tab-adherence" class="tab-view hide">
-          <!-- Summary Section: At-Risk Compliance -->
-          <div class="admin-card" style="margin-bottom:20px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
-              <div>
-                <h3 style="font-size:16px;">Patient Population Adherence Summary</h3>
-                <small style="color:var(--ink-400);">Patients under 70% threshold flagged as At Risk for clinical intervention</small>
-              </div>
-              <div style="font-size:12px; display:flex; gap:12px;">
-                <span class="badge-risk badge-risk-danger">● Under 70%: At Risk</span>
-                <span class="badge-risk badge-risk-warning">● 70% - 85%: Moderate</span>
-                <span class="badge-risk badge-risk-success">● &gt;85%: Optimal</span>
-              </div>
-            </div>
-            <div id="adherenceSummaryGrid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:14px;">
-              <div style="color:var(--ink-400); font-size:13px;">Loading patient adherence metrics...</div>
-            </div>
-          </div>
-
-          <!-- Dose Events Stream Filters & Export -->
-          <div class="admin-action-bar">
-            <div class="filter-group">
-              <input type="date" id="adhStartDate" class="admin-select" title="Start Date">
-              <span style="color:var(--ink-400); font-size:12px;">to</span>
-              <input type="date" id="adhEndDate" class="admin-select" title="End Date">
-              <select id="adhPatientFilter" class="admin-select">
-                <option value="">All Patients</option>
-              </select>
-              <select id="adhStatusFilter" class="admin-select">
-                <option value="">All Outcomes</option>
-                <option value="taken">Verified Taken</option>
-                <option value="missed">Missed Doses</option>
-              </select>
-              <button type="button" class="btn-action-icon" id="btnFilterAdherence" title="Apply Date & Patient Filters">🔍 Apply</button>
-              <button type="button" class="btn-action-icon" id="btnResetAdherence" title="Reset Filters">↺ Reset</button>
-            </div>
-            <button type="button" class="btn-primary-add" id="btnExportAdherenceCsv" style="background:#0284c7;">
-              <span>📥</span> Export CSV Report
-            </button>
-          </div>
-
-          <!-- Detailed Read-Only Dose Events Table -->
-          <div class="admin-table-wrap">
-            <div style="padding:10px 16px; background:#f8fafc; border-bottom:1px solid #e2e8f0; font-size:12px; color:var(--ink-600); display:flex; justify-content:space-between; align-items:center;">
-              <span>🔒 <strong>Immutable Forensic Trail:</strong> Dose events cannot be edited or erased by any user role.</span>
-              <span id="adherenceRecordCount">0 records</span>
-            </div>
-            <table class="admin-table">
-              <thead>
-                <tr>
-                  <th>Event ID</th>
-                  <th>Scheduled Dose Time</th>
-                  <th>Patient</th>
-                  <th>Medication Regimen</th>
-                  <th>Outcome Status</th>
-                  <th>Recorded Timestamp</th>
-                  <th>Administered / Signed By</th>
-                </tr>
-              </thead>
-              <tbody id="adherenceTableBody">
-                <tr>
-                  <td colspan="7" style="text-align:center; padding:32px; color:var(--ink-400);">
-                    Loading dose events...
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-
-            <div class="admin-pagination">
-              <div id="adherencePaginationInfo">Showing 0 of 0 events</div>
-              <div class="pagination-controls">
-                <button type="button" class="btn-page" id="btnPrevAdhPage" disabled>← Previous</button>
-                <span id="adhPageCurrent" style="font-weight:700;">1</span>
-                <button type="button" class="btn-page" id="btnNextAdhPage" disabled>Next →</button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Tab 5: Doctors -->
-        <section id="tab-doctors" class="tab-view hide">
-          <div class="admin-action-bar">
-            <div class="filter-group">
-              <input type="text" id="docSearchInput" class="admin-search-input" placeholder="Search doctor, specialty, clinic...">
-            </div>
-            <button type="button" class="btn-primary-add" id="btnOpenAddDoctor">
-              <span>✚</span> Add Doctor / Clinic
-            </button>
-          </div>
-
-          <div id="doctorsGrid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:18px;">
-            <div style="color:var(--ink-400); font-size:13px;">Loading doctors directory...</div>
-          </div>
-        </section>
-
-        <!-- Tab 6: Care Circles -->
-        <section id="tab-care-circles" class="tab-view hide">
-          <div class="admin-action-bar">
-            <div class="filter-group">
-              <select id="circlePatientFilter" class="admin-select">
-                <option value="">All Patients</option>
-              </select>
-            </div>
-            <button type="button" class="btn-primary-add" id="btnOpenConnectCircle">
-              <span>✚</span> Connect Care Circle Member
-            </button>
-          </div>
-
-          <div class="admin-card" style="margin-bottom:20px; background:#f0fdfa; border-color:#ccfbf1;">
-            <h4 style="color:#0f766e; font-size:14px; margin-bottom:4px;">Connected Care Triangle</h4>
-            <p style="color:#115e59; font-size:12.5px;">
-              Family Guardians provide remote observation & moral support. Caretakers / Registered Nurses sign off on doses and log vitals.
-            </p>
-          </div>
-
-          <div class="admin-table-wrap">
-            <table class="admin-table">
-              <thead>
-                <tr>
-                  <th>Patient</th>
-                  <th>Care Circle Member</th>
-                  <th>Role</th>
-                  <th>Relationship</th>
-                  <th>Permissions</th>
-                  <th>Connected Date</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody id="careCirclesTableBody">
-                <tr>
-                  <td colspan="7" style="text-align:center; padding:32px; color:var(--ink-400);">
-                    Loading care circle connections...
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <!-- Tab: Clinical Oversight (Care Notes, Vitals, Alerts, Appointments) -->
-        <section id="tab-clinical-oversight" class="tab-view hide">
-          <!-- Segmented Sub-Nav Controls -->
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
-            <div style="display:inline-flex; background:#f1f5f9; padding:4px; border-radius:8px; gap:4px;" id="clinicalSubNav">
-              <button type="button" class="btn-action-icon active" data-sub="notes" id="subBtnNotes" style="padding:6px 14px; font-size:12.5px; border-radius:6px; font-weight:700; background:#0d9488; color:#fff;">📝 Care Notes & Vitals</button>
-              <button type="button" class="btn-action-icon" data-sub="alerts" id="subBtnAlerts" style="padding:6px 14px; font-size:12.5px; border-radius:6px; font-weight:600; color:var(--ink-700);">🚨 Care Alerts & SOS</button>
-              <button type="button" class="btn-action-icon" data-sub="appointments" id="subBtnAppointments" style="padding:6px 14px; font-size:12.5px; border-radius:6px; font-weight:600; color:var(--ink-700);">📅 Doctor Appointments</button>
-            </div>
-            <div style="font-size:12px; color:var(--ink-500);">
-              🩺 Direct clinical oversight over actions taken by Patients, Caretakers, and Guardians
-            </div>
-          </div>
-
-          <!-- Sub-Panel 1: Care Notes & Vitals -->
-          <div id="subViewNotes" class="clinical-sub-view">
-            <div class="admin-action-bar">
-              <div class="filter-group">
-                <input type="text" id="notesSearchInput" class="admin-search-input" placeholder="Search note content, patient, or author...">
-                <select id="notesTypeFilter" class="admin-select">
-                  <option value="">All Note Types</option>
-                  <option value="vitals">Vitals Recorded</option>
-                  <option value="symptom">Symptom Logged</option>
-                  <option value="general">General Clinical Note</option>
-                  <option value="alert">Alert / Critical</option>
-                </select>
-                <select id="notesAuthorRoleFilter" class="admin-select">
-                  <option value="">All Roles</option>
-                  <option value="caretaker">Caretakers / Nurses</option>
-                  <option value="guardian">Guardians</option>
-                  <option value="patient">Patients</option>
-                </select>
-              </div>
-              <div style="font-size:12px; color:var(--ink-400);">
-                Observations & vital signs logged across care teams
-              </div>
-            </div>
-
-            <div class="admin-table-wrap">
-              <table class="admin-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Patient</th>
-                    <th>Author / Role</th>
-                    <th>Note Type</th>
-                    <th>Observations & Content</th>
-                    <th>Vital Signs</th>
-                    <th>Logged At</th>
-                  </tr>
-                </thead>
-                <tbody id="notesTableBody">
-                  <tr><td colspan="7" style="text-align:center; padding:32px; color:var(--ink-400);">Loading care notes...</td></tr>
-                </tbody>
-              </table>
-              <div class="admin-pagination">
-                <div id="notesPaginationInfo">Showing 0 of 0 notes</div>
-                <div class="pagination-controls">
-                  <button type="button" class="btn-page" id="btnPrevNotesPage" disabled>← Previous</button>
-                  <span id="notesPageCurrent" style="font-weight:700;">1</span>
-                  <button type="button" class="btn-page" id="btnNextNotesPage" disabled>Next →</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Sub-Panel 2: Care Alerts & SOS Stream -->
-          <div id="subViewAlerts" class="clinical-sub-view hide">
-            <div class="admin-action-bar">
-              <div class="filter-group">
-                <input type="text" id="alertsSearchInput" class="admin-search-input" placeholder="Search alerts, messages, patients...">
-                <select id="alertsTypeFilter" class="admin-select">
-                  <option value="">All Alert Types</option>
-                  <option value="sos">SOS Emergency</option>
-                  <option value="dose_missed">Missed Dose Alert</option>
-                  <option value="nudge">Caretaker Nudge</option>
-                  <option value="vitals_logged">Vitals Recorded</option>
-                </select>
-              </div>
-              <div style="font-size:12px; color:var(--ink-400);">
-                System-wide emergency alerts and notifications
-              </div>
-            </div>
-
-            <div class="admin-table-wrap">
-              <table class="admin-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Type</th>
-                    <th>Patient</th>
-                    <th>Alert Title & Message</th>
-                    <th>Sender</th>
-                    <th>Recipient</th>
-                    <th>Timestamp</th>
-                  </tr>
-                </thead>
-                <tbody id="alertsTableBody">
-                  <tr><td colspan="7" style="text-align:center; padding:32px; color:var(--ink-400);">Loading alerts...</td></tr>
-                </tbody>
-              </table>
-              <div class="admin-pagination">
-                <div id="alertsPaginationInfo">Showing 0 of 0 alerts</div>
-                <div class="pagination-controls">
-                  <button type="button" class="btn-page" id="btnPrevAlertsPage" disabled>← Previous</button>
-                  <span id="alertsPageCurrent" style="font-weight:700;">1</span>
-                  <button type="button" class="btn-page" id="btnNextAlertsPage" disabled>Next →</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Sub-Panel 3: Doctor Appointment Requests -->
-          <div id="subViewAppointments" class="clinical-sub-view hide">
-            <div class="admin-action-bar">
-              <div class="filter-group">
-                <select id="appointmentsStatusFilter" class="admin-select">
-                  <option value="">All Statuses</option>
-                  <option value="requested">Requested (Pending)</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
-              </div>
-              <div style="font-size:12px; color:var(--ink-400);">
-                Patient-doctor consultation requests
-              </div>
-            </div>
-
-            <div class="admin-table-wrap">
-              <table class="admin-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Patient</th>
-                    <th>Doctor & Clinic</th>
-                    <th>Requested Date</th>
-                    <th>Patient Message</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="appointmentsTableBody">
-                  <tr><td colspan="7" style="text-align:center; padding:32px; color:var(--ink-400);">Loading appointments...</td></tr>
-                </tbody>
-              </table>
-              <div class="admin-pagination">
-                <div id="appointmentsPaginationInfo">Showing 0 of 0 appointments</div>
-                <div class="pagination-controls">
-                  <button type="button" class="btn-page" id="btnPrevAppointmentsPage" disabled>← Previous</button>
-                  <span id="appointmentsPageCurrent" style="font-weight:700;">1</span>
-                  <button type="button" class="btn-page" id="btnNextAppointmentsPage" disabled>Next →</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Tab 7: Reminders -->
-        <section id="tab-reminders" class="tab-view hide">
-          <!-- Global System Settings Card -->
-          <div class="admin-card" style="margin-bottom:24px;">
-            <div style="border-bottom:1px solid #e2e8f0; padding-bottom:12px; margin-bottom:18px;">
-              <h3 style="font-size:16px;">System Reminder & Clinical Alert Configuration</h3>
-              <small style="color:var(--ink-400);">Global parameters governing dose evaluation intervals, grace periods, and risk alerts</small>
-            </div>
-
-            <form id="formAppSettings">
-              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:18px; margin-bottom:18px;">
-                <div class="form-group">
-                  <label for="setGracePeriod">Grace Period Before Dose Marked Missed (Minutes)</label>
-                  <input type="number" id="setGracePeriod" class="admin-search-input" style="width:100%;" min="5" max="180" required>
-                  <small style="color:var(--ink-400); font-size:11px;">Time elapsed after scheduled time before automatic missed flag</small>
-                </div>
-
-                <div class="form-group">
-                  <label for="setSnooze">Default Snooze Duration (Minutes)</label>
-                  <input type="number" id="setSnooze" class="admin-search-input" style="width:100%;" min="5" max="60" required>
-                  <small style="color:var(--ink-400); font-size:11px;">Standard interval when a patient delays a notification</small>
-                </div>
-
-                <div class="form-group">
-                  <label for="setRiskThreshold">Adherence Risk Threshold (%)</label>
-                  <input type="number" id="setRiskThreshold" class="admin-search-input" style="width:100%;" min="40" max="95" required>
-                  <small style="color:var(--ink-400); font-size:11px;">Patients falling below this rate are flagged At Risk</small>
-                </div>
-
-                <div class="form-group">
-                  <label for="setDefaultChannel">Default Reminder Channel</label>
-                  <select id="setDefaultChannel" class="admin-select" style="width:100%;">
-                    <option value="dashboard">Dashboard Notifications</option>
-                    <option value="email">Email Notification</option>
-                    <option value="sms">SMS Text Alert</option>
-                    <option value="push">Browser Push Alert</option>
-                  </select>
-                  <small style="color:var(--ink-400); font-size:11px;">Primary mechanism for scheduled dose delivery</small>
-                </div>
-              </div>
-
-              <div class="form-group" style="margin-bottom:18px;">
-                <label for="setAnnouncement">Clinical System Banner Announcement</label>
-                <input type="text" id="setAnnouncement" class="admin-search-input" style="width:100%;" placeholder="e.g. DoseTrack Clinical System Online">
-              </div>
-
-              <div style="display:flex; justify-content:flex-end;">
-                <button type="submit" class="btn-primary-add" id="btnSaveSettings">
-                  <span>💾</span> Save Configuration Changes
-                </button>
-              </div>
-            </form>
-          </div>
-
-          <!-- Real-Time Reminder Logs -->
-          <div class="admin-action-bar">
-            <div class="filter-group">
-              <h3 style="font-size:16px; margin-right:12px;">Automated Reminder Execution Stream</h3>
-              <select id="remindersChannelFilter" class="admin-select">
-                <option value="">All Channels</option>
-                <option value="dashboard">Dashboard</option>
-                <option value="email">Email</option>
-                <option value="sms">SMS</option>
-                <option value="push">Push</option>
-              </select>
-            </div>
-            <button type="button" class="btn-action-icon" id="btnRefreshReminders">🔄 Refresh Stream</button>
-          </div>
-
-          <div class="admin-table-wrap">
-            <table class="admin-table">
-              <thead>
-                <tr>
-                  <th>Log ID</th>
-                  <th>Scheduled Dose Time</th>
-                  <th>Patient</th>
-                  <th>Medication Regimen</th>
-                  <th>Delivery Channel</th>
-                  <th>Processed Timestamp</th>
-                </tr>
-              </thead>
-              <tbody id="remindersTableBody">
-                <tr>
-                  <td colspan="6" style="text-align:center; padding:32px; color:var(--ink-400);">
-                    Loading reminder logs...
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-
-            <div class="admin-pagination">
-              <div id="remindersPaginationInfo">Showing 0 of 0 reminder logs</div>
-              <div class="pagination-controls">
-                <button type="button" class="btn-page" id="btnPrevRemPage" disabled>← Previous</button>
-                <span id="remPageCurrent" style="font-weight:700;">1</span>
-                <button type="button" class="btn-page" id="btnNextRemPage" disabled>Next →</button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Tab 8: Reports -->
-        <section id="tab-reports" class="tab-view hide">
-          <div class="admin-action-bar">
-            <div class="filter-group">
-              <input type="date" id="repStartDate" class="admin-select" title="Start Date">
-              <span style="color:var(--ink-400); font-size:12px;">to</span>
-              <input type="date" id="repEndDate" class="admin-select" title="End Date">
-              <select id="repPatientFilter" class="admin-select">
-                <option value="">All Patients</option>
-              </select>
-              <button type="button" class="btn-primary-add" id="btnGenerateReport">
-                <span>📊</span> Generate Report
-              </button>
-            </div>
-            <div style="display:flex; gap:10px;">
-              <button type="button" class="btn-action-icon" id="btnPrintReport" style="background:#0d9488; color:white; border:none; padding:8px 14px; font-weight:700;">
-                🖨️ Printable PDF View
-              </button>
-            </div>
-          </div>
-
-          <!-- Report Preview Container -->
-          <div id="reportOutputContainer" class="admin-card">
-            <div style="text-align:center; padding:40px; color:var(--ink-400);">
-              Select an evaluation window and click <strong>Generate Report</strong> to analyze compliance.
-            </div>
-          </div>
-        </section>
-
-        <!-- Tab 9: User Activity Stream -->
-        <section id="tab-activity" class="tab-view hide">
-          <div class="admin-action-bar" style="flex-wrap:wrap; gap:10px;">
-            <div class="filter-group">
-              <input type="text" id="activitySearchInput" class="admin-search-input" placeholder="Search actor, details, patient, IP...">
-              <select id="activityRoleFilter" class="admin-select" title="Filter by role">
-                <option value="">All Roles</option>
-                <option value="patient">Patients</option>
-                <option value="guardian">Guardians</option>
-                <option value="caretaker">Caretakers</option>
-              </select>
-              <select id="activityActionFilter" class="admin-select" title="Filter by action">
+              <select id="liveActionFilter" class="admin-select">
                 <option value="">All Actions</option>
-                <option value="REGISTER">REGISTER</option>
-                <option value="LOGIN">LOGIN</option>
-                <option value="MEDICATION_ADD">MEDICATION_ADD</option>
-                <option value="MEDICATION_UPDATE">MEDICATION_UPDATE</option>
-                <option value="MEDICATION_DELETE">MEDICATION_DELETE</option>
                 <option value="DOSE_TAKEN">DOSE_TAKEN</option>
                 <option value="DOSE_MISSED">DOSE_MISSED</option>
-                <option value="CARE_NOTE_ADD">CARE_NOTE_ADD</option>
+                <option value="MEDICATION_ADD">MEDICATION_ADD</option>
+                <option value="MEDICATION_EDIT">MEDICATION_EDIT</option>
+                <option value="MEDICATION_DELETE">MEDICATION_DELETE</option>
                 <option value="VITALS_LOG">VITALS_LOG</option>
-                <option value="CARE_LINK">CARE_LINK</option>
-                <option value="CARE_UNLINK">CARE_UNLINK</option>
+                <option value="CARE_NOTE_ADD">CARE_NOTE_ADD</option>
+                <option value="CARE_CIRCLE_CONNECT">CARE_CIRCLE_CONNECT</option>
+                <option value="CARE_CIRCLE_DISCONNECT">CARE_CIRCLE_DISCONNECT</option>
                 <option value="DOCTOR_ADD">DOCTOR_ADD</option>
-                <option value="APPOINTMENT_REQUEST">APPOINTMENT_REQUEST</option>
-                <option value="NUDGE_SENT">NUDGE_SENT</option>
-                <option value="SOS_TRIGGERED">SOS_TRIGGERED</option>
+                <option value="EMERGENCY_SOS_TRIGGERED">EMERGENCY_SOS_TRIGGERED</option>
+                <option value="EMERGENCY_SOS_ACKNOWLEDGED">EMERGENCY_SOS_ACKNOWLEDGED</option>
+                <option value="LOGIN_SUCCESS">LOGIN_SUCCESS</option>
+                <option value="LOGIN_FAILED">LOGIN_FAILED</option>
+                <option value="PROFILE_UPDATE">PROFILE_UPDATE</option>
+                <option value="PASSWORD_CHANGE">PASSWORD_CHANGE</option>
               </select>
-              <input type="date" id="activityFromDate" class="admin-select" title="From date">
-              <span style="color:var(--ink-400); font-size:12px;">to</span>
-              <input type="date" id="activityToDate" class="admin-select" title="To date">
+              <input type="date" id="liveDateFrom" class="admin-select" title="From date">
+              <input type="date" id="liveDateTo" class="admin-select" title="To date">
             </div>
             <div style="font-size:12px; color:var(--ink-400);">
-              📡 Live record of every action by patients, guardians and caretakers
+              💡 Click any row to open the complete inspection drawer with old vs new JSON values
             </div>
           </div>
-
-          <div id="activitySummaryChips" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px;"></div>
 
           <div class="admin-table-wrap">
             <table class="admin-table">
@@ -814,27 +284,281 @@
                   <th>Actor</th>
                   <th>Role</th>
                   <th>Action</th>
+                  <th>Activity Description</th>
+                  <th>Target Entity</th>
+                  <th>IP & Device</th>
+                  <th>Timestamp</th>
+                  <th>Inspect</th>
+                </tr>
+              </thead>
+              <tbody id="liveFeedTableBody">
+                <tr><td colspan="9" style="text-align:center; padding:32px; color:var(--ink-400);">Connecting to live activity stream...</td></tr>
+              </tbody>
+            </table>
+            <div class="admin-pagination">
+              <div id="liveFeedPaginationInfo">Showing 0 of 0 events</div>
+              <div class="pagination-controls">
+                <button type="button" class="btn-page" id="btnPrevLivePage" disabled>← Previous</button>
+                <span id="livePageCurrent" style="font-weight:700;">1</span>
+                <button type="button" class="btn-page" id="btnNextLivePage" disabled>Next →</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. USER 360 VIEW -->
+        <section id="tab-user-360" class="tab-view hide">
+          <div class="admin-action-bar" style="margin-bottom:18px;">
+            <div class="filter-group" style="width:100%; max-width:600px;">
+              <label for="selectUser360" style="font-size:13px; font-weight:700; color:var(--ink-700); margin-right:8px;">Investigate User:</label>
+              <select id="selectUser360" class="admin-select" style="flex:1;">
+                <option value="">Select a patient, guardian, or caretaker to investigate...</option>
+              </select>
+              <button type="button" class="btn-primary-add" id="btnRefreshUser360">🔄 Refresh Dossier</button>
+            </div>
+            <div style="font-size:12px; color:var(--ink-400);">
+              🛡️ Full 360° patient profile, dose history, adherence, vitals, care circle & timeline
+            </div>
+          </div>
+
+          <div id="user360ContentContainer">
+            <div class="admin-card" style="text-align:center; padding:60px 20px; color:var(--ink-400);">
+              <div style="font-size:40px; margin-bottom:12px;">👤</div>
+              <h3 style="font-size:18px; color:var(--ink-800); margin-bottom:6px;">Select a user to investigate</h3>
+              <p style="font-size:13px; max-width:480px; margin:0 auto;">
+                Use the dropdown above to load the complete 360° clinical dossier, session history, adherence rate, medication changes, and personal audit trail.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. LOGIN & SESSION MONITOR -->
+        <section id="tab-session-monitor" class="tab-view hide">
+          <!-- Suspicious Activity Flags Card -->
+          <div id="sessionSuspiciousBanner" class="admin-card hide" style="background:#fff1f2; border:1px solid #fecdd3; margin-bottom:20px;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+              <span style="font-size:18px;">🚨</span>
+              <strong style="color:#9f1239; font-size:14.5px;">Security Alerts & Suspicious Flags Detected</strong>
+            </div>
+            <div id="sessionSuspiciousList" style="font-size:12.5px; color:#9f1239; line-height:1.6;"></div>
+          </div>
+
+          <!-- Online Users Grid -->
+          <div class="admin-card" style="margin-bottom:24px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid #e2e8f0; padding-bottom:10px;">
+              <div>
+                <h3 style="font-size:16px;">🟢 Users Active / Online Now</h3>
+                <small style="color:var(--ink-400);">Active sessions within the last 30 minutes</small>
+              </div>
+              <button type="button" class="btn-action-icon" id="btnRefreshSessions">🔄 Refresh Sessions</button>
+            </div>
+            <div id="onlineUsersGrid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:12px;">
+              <div style="color:var(--ink-400); font-size:13px; padding:12px;">Loading active sessions...</div>
+            </div>
+          </div>
+
+          <!-- Dual Column: Recent Auth Events & Failed Logins -->
+          <div style="display:grid; grid-template-columns:1.2fr 1fr; gap:20px;">
+            <div class="admin-card" style="margin-bottom:0;">
+              <h4 style="font-size:15px; margin-bottom:12px;">Recent Login & Session Events</h4>
+              <div class="admin-table-wrap">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>Event</th>
+                      <th>IP & Device</th>
+                      <th>Timestamp</th>
+                    </tr>
+                  </thead>
+                  <tbody id="sessionAuthTableBody">
+                    <tr><td colspan="4" style="text-align:center; padding:24px; color:var(--ink-400);">Loading auth events...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="admin-card" style="margin-bottom:0;">
+              <h4 style="font-size:15px; margin-bottom:12px; color:#b91c1c;">⚠️ Failed Login Attempts (24h)</h4>
+              <div class="admin-table-wrap">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>IP Address</th>
+                      <th>Attempt Details</th>
+                      <th>Attempts</th>
+                      <th>Last Attempt</th>
+                    </tr>
+                  </thead>
+                  <tbody id="sessionFailedTableBody">
+                    <tr><td colspan="4" style="text-align:center; padding:24px; color:var(--ink-400);">Loading failed login attempts...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. ADHERENCE WATCHLIST -->
+        <section id="tab-adherence-watchlist" class="tab-view hide">
+          <div class="admin-action-bar">
+            <div>
+              <h3 style="font-size:16px; margin-bottom:2px;">Clinical Adherence Risk Watchlist</h3>
+              <small style="color:var(--ink-400);">System-wide compliance monitoring flagging patients under 70%, 3+ consecutive misses, and 48h dose inactivity</small>
+            </div>
+            <button type="button" class="btn-action-icon" id="btnRefreshWatchlist">🔄 Refresh Watchlist</button>
+          </div>
+
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
                   <th>Patient</th>
-                  <th>Details</th>
+                  <th>Patient Code</th>
+                  <th>30d Scheduled</th>
+                  <th>Taken</th>
+                  <th>Missed</th>
+                  <th>Adherence Rate</th>
+                  <th>Consecutive Misses</th>
+                  <th>Inactivity</th>
+                  <th>Risk Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="watchlistTableBody">
+                <tr><td colspan="10" style="text-align:center; padding:32px; color:var(--ink-400);">Evaluating patient population adherence...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- 5. MEDICATION & SCHEDULE CHANGE TRACKER -->
+        <section id="tab-medication-changes" class="tab-view hide">
+          <div class="admin-action-bar">
+            <div>
+              <h3 style="font-size:16px; margin-bottom:2px;">Medication & Schedule Change Tracker</h3>
+              <small style="color:var(--ink-400);">Forensic audit of every add, modification, and deletion across all patient regimens with before vs after diffs</small>
+            </div>
+            <button type="button" class="btn-action-icon" id="btnRefreshMedChanges">🔄 Refresh Changes</button>
+          </div>
+
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Who Changed It</th>
+                  <th>Change Action</th>
+                  <th>Description</th>
+                  <th>Before vs After Diff</th>
                   <th>IP Address</th>
+                  <th>Timestamp</th>
+                  <th>Inspect</th>
+                </tr>
+              </thead>
+              <tbody id="medChangesTableBody">
+                <tr><td colspan="8" style="text-align:center; padding:32px; color:var(--ink-400);">Loading change history...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- 6. EMERGENCY AND ALERT CENTER -->
+        <section id="tab-alert-center" class="tab-view hide">
+          <div class="admin-action-bar">
+            <div>
+              <h3 style="font-size:16px; margin-bottom:2px;">Emergency SOS & Clinical Alert Center</h3>
+              <small style="color:var(--ink-400);">Supervise emergency distress broadcasts, missed dose alerts, and caregiver response times</small>
+            </div>
+            <button type="button" class="btn-action-icon" id="btnRefreshAlertCenter">🔄 Refresh Alert Stream</button>
+          </div>
+
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Alert ID</th>
+                  <th>Type</th>
+                  <th>Patient</th>
+                  <th>Alert Title & Message</th>
+                  <th>Sender</th>
+                  <th>Recipient</th>
+                  <th>Status</th>
+                  <th>Response Time</th>
+                  <th>Triggered At</th>
+                </tr>
+              </thead>
+              <tbody id="alertCenterTableBody">
+                <tr><td colspan="9" style="text-align:center; padding:32px; color:var(--ink-400);">Loading alert stream...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- 7. CARE CIRCLE MAP -->
+        <section id="tab-care-circle-map" class="tab-view hide">
+          <div class="admin-action-bar">
+            <div>
+              <h3 style="font-size:16px; margin-bottom:2px;">Care Circle Relationship Matrix</h3>
+              <small style="color:var(--ink-400);">Overview of patient-caregiver linkages and audit of actions performed by each guardian and nurse</small>
+            </div>
+            <button type="button" class="btn-action-icon" id="btnRefreshCareMap">🔄 Refresh Map</button>
+          </div>
+
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Patient</th>
+                  <th>Caregiver / Member</th>
+                  <th>Relationship</th>
+                  <th>Permissions</th>
+                  <th>Notes Logged</th>
+                  <th>Doses Signed Off</th>
+                  <th>Nudges Sent</th>
+                  <th>Last Active</th>
+                </tr>
+              </thead>
+              <tbody id="careMapTableBody">
+                <tr><td colspan="8" style="text-align:center; padding:32px; color:var(--ink-400);">Compiling care circle matrix...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- 8. DATA ACCESS AUDIT -->
+        <section id="tab-data-access-audit" class="tab-view hide">
+          <div class="admin-action-bar">
+            <div>
+              <h3 style="font-size:16px; margin-bottom:2px;">🛡️ Administrative Data Access Audit ("Admins Are Watched")</h3>
+              <small style="color:var(--ink-400);">Forensic transparency ledger logging every access to sensitive patient clinical dossiers and adherence records</small>
+            </div>
+            <button type="button" class="btn-action-icon" id="btnRefreshAccessAudit">🔄 Refresh Ledger</button>
+          </div>
+
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Audit ID</th>
+                  <th>Administrator</th>
+                  <th>Action Type</th>
+                  <th>Target Entity & ID</th>
+                  <th>Access Details</th>
+                  <th>Admin IP Address</th>
                   <th>Timestamp</th>
                 </tr>
               </thead>
-              <tbody id="activityTableBody">
-                <tr>
-                  <td colspan="8" style="text-align:center; padding:32px; color:var(--ink-400);">
-                    Loading activity stream...
-                  </td>
-                </tr>
+              <tbody id="dataAccessAuditTableBody">
+                <tr><td colspan="7" style="text-align:center; padding:32px; color:var(--ink-400);">Loading data access audit ledger...</td></tr>
               </tbody>
             </table>
-
             <div class="admin-pagination">
-              <div id="activityPaginationInfo">Showing 0 of 0 activity records</div>
+              <div id="accessAuditPaginationInfo">Showing 0 of 0 access logs</div>
               <div class="pagination-controls">
-                <button type="button" class="btn-page" id="btnPrevActivityPage" disabled>← Previous</button>
-                <span id="activityPageCurrent" style="font-weight:700;">1</span>
-                <button type="button" class="btn-page" id="btnNextActivityPage" disabled>Next →</button>
+                <button type="button" class="btn-page" id="btnPrevAccessAuditPage" disabled>← Previous</button>
+                <span id="accessAuditPageCurrent" style="font-weight:700;">1</span>
+                <button type="button" class="btn-page" id="btnNextAccessAuditPage" disabled>Next →</button>
               </div>
             </div>
           </div>
@@ -915,14 +639,9 @@
                 </tr>
               </thead>
               <tbody id="auditTableBody">
-                <tr>
-                  <td colspan="7" style="text-align:center; padding:32px; color:var(--ink-400);">
-                    Loading audit trail...
-                  </td>
-                </tr>
+                <tr><td colspan="7" style="text-align:center; padding:32px; color:var(--ink-400);">Loading audit trail...</td></tr>
               </tbody>
             </table>
-
             <div class="admin-pagination">
               <div id="auditPaginationInfo">Showing 0 of 0 audit logs</div>
               <div class="pagination-controls">
@@ -933,6 +652,7 @@
             </div>
           </div>
         </section>
+
       </div>
 
       <!-- Legal & Clinical Disclaimer Footer -->
@@ -1271,6 +991,20 @@
   </div>
 
   <script src="/admin/admin.js"></script>
+  <!-- Activity Detail Drawer -->
+  <div id="activityDetailDrawer" class="admin-drawer-backdrop hide">
+    <div class="admin-drawer">
+      <div class="admin-drawer-header">
+        <h3>Activity Event Details</h3>
+        <button type="button" id="btnCloseDrawer" class="admin-modal-close">✕</button>
+      </div>
+      <div class="admin-drawer-body" id="drawerContent">
+        <!-- Filled dynamically -->
+      </div>
+      <div class="admin-drawer-footer">
+        <button type="button" id="btnCloseDrawerFooter" class="btn-action-icon">Close</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
-

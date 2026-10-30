@@ -49,44 +49,97 @@ async function logAudit(adminId, action, targetType = null, targetId = null, det
 }
 
 /**
- * Log any user action (patient, guardian, caretaker) to the system-wide activity log.
- * This powers the administrator's "everything happening" activity stream.
+ * Central Activity Logging Engine (Powers Live Activity Feed, User 360, Change Tracking, Session Monitoring)
+ *
+ * Tracks every user-side action across:
+ * - Auth (register, login success/failed, logout)
+ * - Medications (add, edit with old vs new JSON, delete)
+ * - Schedules (create, update, toggle)
+ * - Doses (taken, missed, reminder triggered/ignored)
+ * - Vitals & Care notes (logged, edited)
+ * - Care Circle (connect, disconnect, invite)
+ * - Doctors (added, edited, deleted, appointments)
+ * - Emergency SOS (triggered, acknowledged)
+ * - Profile and password updates
  */
-async function logActivity(req, { action, targetType = null, targetId = null, patientId = null, details = null, actor = null }) {
+async function logActivity(req, options = {}) {
   try {
-    const actorId = actor?.id ?? req?.user?.id ?? null;
-    let actorName = actor?.fullName ?? req?.user?.fullName ?? null;
-    let actorRole = actor?.role ?? req?.user?.role ?? null;
+    const actionType = options.actionType || options.action || 'UNKNOWN_ACTION';
+    const entityType = options.entityType || options.targetType || null;
+    const entityId = options.entityId != null ? String(options.entityId) : (options.targetId != null ? String(options.targetId) : null);
+    const description = options.description || options.details || `${actionType} performed`;
 
-    if (actorId && (!actorName || !actorRole)) {
-      const [rows] = await db.execute('SELECT full_name, role FROM users WHERE id = ?', [actorId]);
-      actorName = actorName || rows[0]?.full_name || null;
-      actorRole = actorRole || rows[0]?.role || null;
+    let userId = options.userId ?? options.actor?.id ?? req?.user?.id ?? null;
+    let userRole = options.userRole ?? options.actor?.role ?? req?.user?.role ?? null;
+    let userName = options.userName ?? options.actor?.fullName ?? req?.user?.fullName ?? null;
+
+    if (userId && (!userRole || !userName)) {
+      try {
+        const [rows] = await db.execute('SELECT full_name, role FROM users WHERE id = ?', [userId]);
+        if (rows.length) {
+          userRole = userRole || rows[0].role;
+          userName = userName || rows[0].full_name;
+        }
+      } catch {}
     }
 
-    const rawIp = req ? (req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '127.0.0.1') : null;
-    const ip = rawIp
-      ? String(rawIp).split(',')[0].trim().replace(/^::ffff:/i, '').slice(0, 45)
-      : null;
+    const rawIp = req ? (req.headers['x-forwarded-for'] || req.socket?.remoteAddress || req.ip || '127.0.0.1') : '127.0.0.1';
+    const ipAddress = String(rawIp).split(',')[0].trim().replace(/^::ffff:/i, '').slice(0, 45);
 
+    const rawUa = req ? (req.headers['user-agent'] || '') : '';
+    const userAgent = String(rawUa).slice(0, 255);
+
+    let oldValueJson = null;
+    if (options.oldValue !== undefined && options.oldValue !== null) {
+      oldValueJson = typeof options.oldValue === 'string' ? options.oldValue : JSON.stringify(options.oldValue);
+    }
+
+    let newValueJson = null;
+    if (options.newValue !== undefined && options.newValue !== null) {
+      newValueJson = typeof options.newValue === 'string' ? options.newValue : JSON.stringify(options.newValue);
+    }
+
+    // 1. Primary write to activity_log table
     await db.execute(
-      `INSERT INTO user_activity_log 
-         (actor_id, actor_name, actor_role, action, target_type, target_id, patient_id, details, ip_address)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO activity_log 
+         (user_id, user_role, action_type, entity_type, entity_id, description, old_value, new_value, ip_address, user_agent)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        actorId,
-        actorName,
-        actorRole,
-        action,
-        targetType,
-        targetId != null ? String(targetId) : null,
-        patientId != null ? Number(patientId) : null,
-        details,
-        ip
+        userId,
+        userRole,
+        actionType,
+        entityType,
+        entityId,
+        description,
+        oldValueJson,
+        newValueJson,
+        ipAddress,
+        userAgent
       ]
     );
+
+    // 2. Mirror to legacy user_activity_log for backward compatibility
+    try {
+      const patientId = options.patientId != null ? Number(options.patientId) : (userRole === 'patient' ? userId : null);
+      await db.execute(
+        `INSERT INTO user_activity_log 
+           (actor_id, actor_name, actor_role, action, target_type, target_id, patient_id, details, ip_address)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          userId,
+          userName || (userId ? `User #${userId}` : 'Guest'),
+          userRole || 'guest',
+          actionType,
+          entityType,
+          entityId,
+          patientId,
+          description,
+          ipAddress
+        ]
+      );
+    } catch {}
   } catch (e) {
-    console.error('[Activity Log Error]', e.message);
+    console.error('[Central Activity Log Error]', e.message);
   }
 }
 

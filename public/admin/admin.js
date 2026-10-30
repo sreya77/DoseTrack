@@ -100,8 +100,19 @@ function switchTab(tabId) {
   });
 
   const titles = {
-    'dashboard': 'Clinical Overview & System KPIs',
-    'users': 'User Account & Credential Management',
+    // Existing titles (kept for backward compatibility)
+    'dashboard': 'Clinical Overview & Dashboard',
+    'users': 'User Directory',
+    // New monitoring & oversight modules
+    'live-feed': 'Live Activity Feed — Real-Time System Monitor',
+    'user-360': 'User 360° Investigation Dossier',
+    'session-monitor': 'Login & Session Monitor',
+    'adherence-watchlist': 'Adherence Watchlist — Clinical Compliance Monitoring',
+    'medication-changes': 'Medication & Schedule Change Tracker',
+    'alert-center': 'Emergency & Alert Center',
+    'care-circle-map': 'Care Circle Relationship Matrix',
+    'data-access-audit': 'Administrative Data Access Audit Ledger',
+    // Retain other legacy titles
     'medications': 'Cross-Patient Medication Formulary',
     'adherence': 'Dose Adherence & At-Risk Monitoring',
     'doctors': 'Doctor & Clinical Directory',
@@ -116,6 +127,7 @@ function switchTab(tabId) {
     $('currentTabTitle').textContent = titles[tabId] || 'Administrator Console';
   }
 
+  // Load appropriate module
   if (tabId === 'dashboard') {
     loadDashboard();
   } else if (tabId === 'users') {
@@ -138,6 +150,22 @@ function switchTab(tabId) {
     loadActivity();
   } else if (tabId === 'audit') {
     loadAuditLog();
+  } else if (tabId === 'live-feed') {
+    loadLiveFeed();
+  } else if (tabId === 'user-360') {
+    initUser360();
+  } else if (tabId === 'session-monitor') {
+    loadSessionMonitor();
+  } else if (tabId === 'adherence-watchlist') {
+    loadAdherenceWatchlist();
+  } else if (tabId === 'medication-changes') {
+    loadMedicationChanges();
+  } else if (tabId === 'alert-center') {
+    loadAlertCenter();
+  } else if (tabId === 'care-circle-map') {
+    loadCareCircleMap();
+  } else if (tabId === 'data-access-audit') {
+    loadDataAccessAudit();
   }
 }
 
@@ -2752,6 +2780,959 @@ if ($('formAdminChangePassword')) {
     } catch (err) {
       showToast(err.message, true);
     }
+  });
+}
+
+// ================= MONITORING MODULES =================
+// State for monitoring modules
+AdminState.liveFeedPage = 1;
+AdminState.liveFeedLimit = 25;
+AdminState.liveFeedSearch = '';
+AdminState.liveFeedRole = '';
+AdminState.liveFeedAction = '';
+AdminState.liveFeedDateFrom = '';
+AdminState.liveFeedDateTo = '';
+AdminState.liveFeedAutoRefresh = null;
+AdminState.liveFeedPaused = false;
+AdminState.accessAuditPage = 1;
+AdminState.accessAuditLimit = 25;
+
+// ================= 1. LIVE ACTIVITY FEED =================
+async function loadLiveFeed() {
+  try {
+    const tbody = $('liveFeedTableBody');
+    if (!tbody) return;
+
+    const params = new URLSearchParams({
+      page: AdminState.liveFeedPage,
+      limit: AdminState.liveFeedLimit,
+      search: AdminState.liveFeedSearch,
+      role: AdminState.liveFeedRole,
+      actionType: AdminState.liveFeedAction,
+      dateFrom: AdminState.liveFeedDateFrom,
+      dateTo: AdminState.liveFeedDateTo
+    });
+
+    const data = await adminApi('/oversight/live-feed?' + params.toString());
+    if (!data) return;
+
+    if (!data.activities || !data.activities.length) {
+      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:32px; color:var(--ink-400);">No activity events match current filters.</td></tr>';
+    } else {
+      tbody.innerHTML = data.activities.map((a) => {
+        const roleColor = { patient: '#0f766e', guardian: '#4338ca', caretaker: '#0369a1', admin: '#b45309' }[a.user.role] || '#475569';
+        const actionColors = {
+          LOGIN_SUCCESS: '#059669', LOGIN_FAILED: '#dc2626', LOGOUT: '#64748b',
+          DOSE_TAKEN: '#059669', DOSE_MISSED: '#dc2626',
+          MEDICATION_ADD: '#2563eb', MEDICATION_EDIT: '#d97706', MEDICATION_DELETE: '#dc2626',
+          EMERGENCY_SOS_TRIGGERED: '#dc2626', EMERGENCY_SOS_ACKNOWLEDGED: '#059669',
+          PROFILE_UPDATE: '#7c3aed', PASSWORD_CHANGE: '#b45309'
+        };
+        const actionColor = actionColors[a.actionType] || '#475569';
+        const ts = String(a.createdAt || '');
+        const timeStr = ts.slice(11, 19) || '';
+        const dateStr = ts.slice(0, 10) || '';
+        const uaShort = (a.userAgent || '—').substring(0, 40) + ((a.userAgent || '').length > 40 ? '…' : '');
+
+        return `
+          <tr style="cursor:pointer;" onclick='openActivityDrawer(${JSON.stringify(a).replace(/'/g, "&#39;")})'>
+            <td><code>#${a.id}</code></td>
+            <td>
+              <div style="display:flex; align-items:center; gap:6px;">
+                <div style="width:28px; height:28px; border-radius:50%; background:${a.user.avatarColor || '#0d9488'}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;">${(a.user.name || 'U').charAt(0).toUpperCase()}</div>
+                <div>
+                  <strong style="font-size:12.5px;">${esc(a.user.name)}</strong>
+                  ${a.user.patientCode ? '<br><code style="font-size:10px;">' + esc(a.user.patientCode) + '</code>' : ''}
+                </div>
+              </div>
+            </td>
+            <td><span style="color:${roleColor}; font-weight:700; font-size:11px; text-transform:uppercase;">${esc(a.user.role)}</span></td>
+            <td><span style="background:${actionColor}15; color:${actionColor}; font-weight:700; font-size:11px; padding:3px 7px; border-radius:4px; font-family:monospace;">${esc(a.actionType)}</span></td>
+            <td style="max-width:260px; font-size:12.5px;">${esc(a.description || '—')}</td>
+            <td><small>${esc(a.entityType || '—')} #${esc(a.entityId || '—')}</small></td>
+            <td><code style="font-size:10px;">${esc(a.ipAddress)}</code><br><small style="color:var(--ink-400); font-size:10px;">${esc(uaShort)}</small></td>
+            <td><small>${esc(dateStr)}<br>${esc(timeStr)}</small></td>
+            <td><button type="button" class="btn-action-icon" title="Inspect full event details">🔍</button></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Update pagination
+    const p = data.pagination;
+    if ($('liveFeedPaginationInfo')) {
+      const start = (p.page - 1) * p.limit + 1;
+      const end = Math.min(p.total, p.page * p.limit);
+      $('liveFeedPaginationInfo').textContent = p.total > 0 ? `Showing ${start}-${end} of ${p.total} events` : 'No events found';
+    }
+    if ($('livePageCurrent')) $('livePageCurrent').textContent = p.page;
+    if ($('btnPrevLivePage')) $('btnPrevLivePage').disabled = p.page <= 1;
+    if ($('btnNextLivePage')) $('btnNextLivePage').disabled = p.page >= p.pages;
+
+    // Start auto-refresh if not paused
+    startLiveFeedAutoRefresh();
+  } catch (err) {
+    showToast('Failed to load live feed: ' + err.message, true);
+  }
+}
+
+function startLiveFeedAutoRefresh() {
+  stopLiveFeedAutoRefresh();
+  if (!AdminState.liveFeedPaused && AdminState.activeTab === 'live-feed') {
+    AdminState.liveFeedAutoRefresh = setInterval(() => {
+      if (AdminState.activeTab === 'live-feed' && !AdminState.liveFeedPaused) {
+        loadLiveFeed();
+      } else {
+        stopLiveFeedAutoRefresh();
+      }
+    }, 5000);
+  }
+}
+
+function stopLiveFeedAutoRefresh() {
+  if (AdminState.liveFeedAutoRefresh) {
+    clearInterval(AdminState.liveFeedAutoRefresh);
+    AdminState.liveFeedAutoRefresh = null;
+  }
+}
+
+// Live Feed filter & pagination event wiring
+if ($('btnToggleAutoRefresh')) {
+  $('btnToggleAutoRefresh').addEventListener('click', () => {
+    AdminState.liveFeedPaused = !AdminState.liveFeedPaused;
+    $('btnToggleAutoRefresh').textContent = AdminState.liveFeedPaused ? '▶ Resume' : '⏸ Pause';
+    if ($('liveFeedStatusText')) {
+      $('liveFeedStatusText').textContent = AdminState.liveFeedPaused ? 'Paused' : 'Live (5s auto-refresh)';
+    }
+    if (AdminState.liveFeedPaused) {
+      stopLiveFeedAutoRefresh();
+    } else {
+      startLiveFeedAutoRefresh();
+    }
+  });
+}
+
+if ($('liveSearchInput')) {
+  let liveSearchTimer;
+  $('liveSearchInput').addEventListener('input', (e) => {
+    clearTimeout(liveSearchTimer);
+    liveSearchTimer = setTimeout(() => {
+      AdminState.liveFeedSearch = e.target.value;
+      AdminState.liveFeedPage = 1;
+      loadLiveFeed();
+    }, 400);
+  });
+}
+
+if ($('liveRoleFilter')) {
+  $('liveRoleFilter').addEventListener('change', (e) => {
+    AdminState.liveFeedRole = e.target.value;
+    AdminState.liveFeedPage = 1;
+    loadLiveFeed();
+  });
+}
+
+if ($('liveActionFilter')) {
+  $('liveActionFilter').addEventListener('change', (e) => {
+    AdminState.liveFeedAction = e.target.value;
+    AdminState.liveFeedPage = 1;
+    loadLiveFeed();
+  });
+}
+
+if ($('liveDateFrom')) {
+  $('liveDateFrom').addEventListener('change', (e) => {
+    AdminState.liveFeedDateFrom = e.target.value;
+    AdminState.liveFeedPage = 1;
+    loadLiveFeed();
+  });
+}
+
+if ($('liveDateTo')) {
+  $('liveDateTo').addEventListener('change', (e) => {
+    AdminState.liveFeedDateTo = e.target.value;
+    AdminState.liveFeedPage = 1;
+    loadLiveFeed();
+  });
+}
+
+if ($('btnPrevLivePage')) {
+  $('btnPrevLivePage').addEventListener('click', () => {
+    if (AdminState.liveFeedPage > 1) {
+      AdminState.liveFeedPage--;
+      loadLiveFeed();
+    }
+  });
+}
+
+if ($('btnNextLivePage')) {
+  $('btnNextLivePage').addEventListener('click', () => {
+    AdminState.liveFeedPage++;
+    loadLiveFeed();
+  });
+}
+
+// ================= ACTIVITY DETAIL DRAWER =================
+function openActivityDrawer(activity) {
+  const drawer = $('activityDetailDrawer');
+  const content = $('drawerContent');
+  if (!drawer || !content) return;
+
+  const a = typeof activity === 'string' ? JSON.parse(activity) : activity;
+
+  const prettyJson = (obj) => {
+    if (!obj) return '<span style="color:var(--ink-400);">—</span>';
+    try {
+      const str = typeof obj === 'string' ? obj : JSON.stringify(obj, null, 2);
+      return '<pre style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:10px; font-size:11.5px; overflow-x:auto; max-height:260px; margin:0;">' + esc(str) + '</pre>';
+    } catch { return '<span style="color:var(--ink-400);">Unable to parse</span>'; }
+  };
+
+  const ts = String(a.createdAt || '');
+
+  content.innerHTML = `
+    <div style="margin-bottom:16px;">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+        <div style="width:42px; height:42px; border-radius:50%; background:${a.user?.avatarColor || '#0d9488'}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700;">
+          ${(a.user?.name || 'U').charAt(0).toUpperCase()}
+        </div>
+        <div>
+          <strong style="font-size:15px;">${esc(a.user?.name || 'Unknown')}</strong>
+          <div style="font-size:12px; color:var(--ink-500);">
+            <span style="text-transform:uppercase; font-weight:700;">${esc(a.user?.role || '')}</span>
+            ${a.user?.patientCode ? ' · <code>' + esc(a.user.patientCode) + '</code>' : ''}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+      <div style="background:#f8fafc; padding:10px; border-radius:6px; border:1px solid #e2e8f0;">
+        <small style="color:var(--ink-400); font-weight:700;">Event ID</small>
+        <div style="font-weight:700; font-size:14px;">#${esc(String(a.id || ''))}</div>
+      </div>
+      <div style="background:#f8fafc; padding:10px; border-radius:6px; border:1px solid #e2e8f0;">
+        <small style="color:var(--ink-400); font-weight:700;">Action Type</small>
+        <div><span style="background:#0d948815; color:#0d9488; font-weight:700; font-size:12px; padding:2px 8px; border-radius:4px; font-family:monospace;">${esc(a.actionType || '')}</span></div>
+      </div>
+      <div style="background:#f8fafc; padding:10px; border-radius:6px; border:1px solid #e2e8f0;">
+        <small style="color:var(--ink-400); font-weight:700;">Target Entity</small>
+        <div style="font-size:13px;">${esc(a.entityType || '—')} #${esc(String(a.entityId || '—'))}</div>
+      </div>
+      <div style="background:#f8fafc; padding:10px; border-radius:6px; border:1px solid #e2e8f0;">
+        <small style="color:var(--ink-400); font-weight:700;">Timestamp</small>
+        <div style="font-size:13px;">${esc(ts)}</div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:16px;">
+      <small style="color:var(--ink-400); font-weight:700;">Description</small>
+      <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:6px; padding:10px; font-size:13px; margin-top:4px;">
+        ${esc(a.description || '—')}
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+      <div>
+        <small style="color:var(--ink-400); font-weight:700;">🔴 Old Value (Before)</small>
+        <div style="margin-top:4px;">${prettyJson(a.oldValue)}</div>
+      </div>
+      <div>
+        <small style="color:var(--ink-400); font-weight:700;">🟢 New Value (After)</small>
+        <div style="margin-top:4px;">${prettyJson(a.newValue)}</div>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; padding-top:12px; border-top:1px solid #e2e8f0;">
+      <div>
+        <small style="color:var(--ink-400); font-weight:700;">IP Address</small>
+        <div style="font-family:monospace; font-size:12.5px;">${esc(a.ipAddress || '—')}</div>
+      </div>
+      <div>
+        <small style="color:var(--ink-400); font-weight:700;">User Agent / Device</small>
+        <div style="font-size:11.5px; word-break:break-all;">${esc(a.userAgent || '—')}</div>
+      </div>
+    </div>
+  `;
+
+  drawer.classList.remove('hide');
+}
+
+if ($('btnCloseDrawer')) {
+  $('btnCloseDrawer').addEventListener('click', () => {
+    $('activityDetailDrawer').classList.add('hide');
+  });
+}
+
+if ($('btnCloseDrawerFooter')) {
+  $('btnCloseDrawerFooter').addEventListener('click', () => {
+    $('activityDetailDrawer').classList.add('hide');
+  });
+}
+
+// Close drawer on backdrop click
+if ($('activityDetailDrawer')) {
+  $('activityDetailDrawer').addEventListener('click', (e) => {
+    if (e.target === $('activityDetailDrawer')) {
+      $('activityDetailDrawer').classList.add('hide');
+    }
+  });
+}
+
+// ================= 2. USER 360 VIEW =================
+async function initUser360() {
+  try {
+    // Populate user dropdown
+    const sel = $('selectUser360');
+    if (!sel) return;
+
+    const data = await adminApi('/users?limit=200');
+    if (!data || !data.users) return;
+
+    sel.innerHTML = '<option value="">Select a patient, guardian, or caretaker to investigate...</option>' +
+      data.users.map(u => `<option value="${u.id}">${esc(u.fullName)} (${esc(u.role)}) ${u.patientCode ? '[' + esc(u.patientCode) + ']' : ''}</option>`).join('');
+  } catch (err) {
+    showToast('Failed to load user list: ' + err.message, true);
+  }
+}
+
+if ($('selectUser360')) {
+  $('selectUser360').addEventListener('change', (e) => {
+    if (e.target.value) loadUser360(e.target.value);
+  });
+}
+
+if ($('btnRefreshUser360')) {
+  $('btnRefreshUser360').addEventListener('click', () => {
+    const sel = $('selectUser360');
+    if (sel && sel.value) loadUser360(sel.value);
+  });
+}
+
+async function loadUser360(userId) {
+  const container = $('user360ContentContainer');
+  if (!container) return;
+
+  container.innerHTML = '<div class="admin-card" style="text-align:center; padding:40px; color:var(--ink-400);">Loading complete 360° investigation dossier & recording audit access…</div>';
+
+  try {
+    const data = await adminApi('/oversight/users/' + userId + '/360');
+    if (!data) return;
+
+    const u = data.user;
+    const s = data.sessionInfo;
+    const adh = data.adherence;
+    const meds = data.medications || [];
+    const doses = data.doseHistory || [];
+    const notes = data.vitalsAndNotes || [];
+    const docs = data.doctors || [];
+    const cc = data.careCircle || {};
+    const timeline = data.personalTimeline || [];
+
+    // Risk badges
+    const riskBadges = [];
+    if (adh.isAtRisk) riskBadges.push('<span style="background:#fef2f2; color:#dc2626; font-weight:700; font-size:11px; padding:3px 8px; border-radius:4px;">⚠ LOW ADHERENCE <70%</span>');
+    if (adh.hasConsecutiveMissedRisk) riskBadges.push('<span style="background:#fff7ed; color:#ea580c; font-weight:700; font-size:11px; padding:3px 8px; border-radius:4px;">⚠ 3+ CONSECUTIVE MISSED</span>');
+    if (adh.hasInactivityRisk) riskBadges.push('<span style="background:#fefce8; color:#ca8a04; font-weight:700; font-size:11px; padding:3px 8px; border-radius:4px;">⚠ 48h+ INACTIVE</span>');
+
+    container.innerHTML = `
+      <!-- Profile Header -->
+      <div class="admin-card" style="margin-bottom:20px;">
+        <div style="display:flex; align-items:center; gap:16px; margin-bottom:14px;">
+          <div style="width:56px; height:56px; border-radius:50%; background:${u.avatarColor || '#0d9488'}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:700;">
+            ${(u.fullName || 'U').charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <h2 style="font-size:20px; margin-bottom:4px;">${esc(u.fullName)}</h2>
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+              <span class="badge-role badge-role-${u.role}">${esc(u.role)}</span>
+              <span class="badge-status ${u.isActive ? 'badge-status-active' : 'badge-status-inactive'}">${u.isActive ? '● Active' : '● Inactive'}</span>
+              ${u.patientCode ? '<code>' + esc(u.patientCode) + '</code>' : ''}
+              ${riskBadges.join(' ')}
+            </div>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; background:#f8fafc; padding:12px; border-radius:8px; border:1px solid #e2e8f0; font-size:12.5px;">
+          <div><strong>Email:</strong><br>${esc(u.email)}</div>
+          <div><strong>Phone:</strong><br>${esc(u.phone || '—')}</div>
+          <div><strong>Emergency:</strong><br>${esc(u.emergencyContact || '—')}</div>
+          <div><strong>Registered:</strong><br>${esc(String(u.createdAt || '').slice(0, 10))}</div>
+        </div>
+      </div>
+
+      <!-- Session & Adherence Stats Row -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px;">
+        <div class="admin-card" style="margin-bottom:0;">
+          <h4 style="font-size:14px; margin-bottom:10px;">🔐 Session & Login Info</h4>
+          <div style="font-size:13px; line-height:1.8;">
+            <div><strong>Last Login:</strong> ${s.lastLogin ? esc(String(s.lastLogin.timestamp || '').slice(0, 19)) : 'Never'}</div>
+            <div><strong>Last IP:</strong> <code>${s.lastLogin ? esc(s.lastLogin.ipAddress) : '—'}</code></div>
+            <div><strong>Failed Attempts (24h):</strong> <span style="color:${s.failedAttempts24h >= 5 ? '#dc2626' : '#059669'}; font-weight:700;">${s.failedAttempts24h}</span></div>
+          </div>
+          ${s.recentSessions && s.recentSessions.length ? `
+            <div style="margin-top:10px; font-size:11.5px;">
+              <strong>Recent Auth Events:</strong>
+              ${s.recentSessions.slice(0, 5).map(ss => `<div style="color:var(--ink-600);">${esc(ss.action_type)} — ${esc(String(ss.created_at || '').slice(0, 19))} from ${esc(ss.ip_address || '—')}</div>`).join('')}
+            </div>
+          ` : ''}
+        </div>
+        <div class="admin-card" style="margin-bottom:0;">
+          <h4 style="font-size:14px; margin-bottom:10px;">📊 30-Day Adherence Summary</h4>
+          <div style="display:flex; align-items:center; gap:18px;">
+            <div style="font-size:36px; font-weight:800; color:${adh.adherenceRate < 70 ? '#dc2626' : adh.adherenceRate < 85 ? '#d97706' : '#059669'};">${adh.adherenceRate}%</div>
+            <div style="font-size:12.5px; line-height:1.7;">
+              <div>Scheduled: <strong>${adh.totalDoses}</strong></div>
+              <div>Taken: <strong style="color:#059669;">${adh.takenDoses}</strong></div>
+              <div>Missed: <strong style="color:#dc2626;">${adh.missedDoses}</strong></div>
+              <div>Consecutive Missed: <strong style="color:${adh.consecutiveMissed >= 3 ? '#dc2626' : 'inherit'};">${adh.consecutiveMissed}</strong></div>
+              <div>Hours Since Last Dose: <strong>${adh.hoursSinceLastDose !== null ? adh.hoursSinceLastDose + 'h' : 'N/A'}</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Medications -->
+      <div class="admin-card" style="margin-bottom:20px;">
+        <h4 style="font-size:14px; margin-bottom:10px;">💊 Medications & Schedules (${meds.length})</h4>
+        ${meds.length ? `
+          <div class="admin-table-wrap"><table class="admin-table"><thead><tr>
+            <th>Medication</th><th>Dosage</th><th>Frequency</th><th>Dose Times</th><th>Period</th><th>Status</th>
+          </tr></thead><tbody>
+          ${meds.map(m => `<tr>
+            <td><strong>${esc(m.name)}</strong></td>
+            <td>${esc(m.dosage)} (${esc(m.quantity)})</td>
+            <td>${esc(m.frequency)}</td>
+            <td>${(m.schedules || []).map(s => '<span class="time-pill">' + esc(s.time) + '</span>').join(' ') || '—'}</td>
+            <td><small>${esc(String(m.startDate || '').slice(0, 10))} → ${esc(String(m.endDate || '').slice(0, 10) || 'Ongoing')}</small></td>
+            <td>${m.isActive ? '<span class="badge-status badge-status-active">Active</span>' : '<span class="badge-status badge-status-inactive">Inactive</span>'}</td>
+          </tr>`).join('')}
+          </tbody></table></div>
+        ` : '<p style="font-size:12px; color:var(--ink-400);">No medications registered.</p>'}
+      </div>
+
+      <!-- Recent Doses -->
+      <div class="admin-card" style="margin-bottom:20px;">
+        <h4 style="font-size:14px; margin-bottom:10px;">💉 Recent Dose History (${doses.length})</h4>
+        ${doses.length ? `
+          <div class="admin-table-wrap"><table class="admin-table"><thead><tr>
+            <th>Medication</th><th>Status</th><th>Scheduled For</th><th>Recorded At</th><th>Recorded By</th>
+          </tr></thead><tbody>
+          ${doses.slice(0, 20).map(d => `<tr>
+            <td>${esc(d.medicationName || '—')} ${esc(d.dosage || '')}</td>
+            <td><span style="color:${d.status === 'taken' ? '#059669' : '#dc2626'}; font-weight:700;">${esc(d.status)}</span></td>
+            <td><small>${esc(String(d.scheduledFor || '').slice(0, 19))}</small></td>
+            <td><small>${esc(String(d.recordedAt || '').slice(0, 19))}</small></td>
+            <td>${esc(d.recordedBy || '—')}</td>
+          </tr>`).join('')}
+          </tbody></table></div>
+        ` : '<p style="font-size:12px; color:var(--ink-400);">No dose events recorded.</p>'}
+      </div>
+
+      <!-- Vitals & Care Notes -->
+      ${notes.length ? `
+      <div class="admin-card" style="margin-bottom:20px;">
+        <h4 style="font-size:14px; margin-bottom:10px;">📋 Vitals & Care Notes (${notes.length})</h4>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          ${notes.slice(0, 15).map(n => `
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:10px; border-radius:6px; font-size:12.5px;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                <strong style="color:#0f766e;">${esc(n.authorName || 'System')} (${esc(n.authorRole || '')})</strong>
+                <small style="color:var(--ink-400);">${esc(String(n.createdAt || '').slice(0, 16))}</small>
+              </div>
+              <div>${esc(n.content || n.note || '—')}</div>
+              ${n.vitals ? '<div style="font-size:11px; color:var(--ink-500); margin-top:4px;">Vitals: ' + esc(JSON.stringify(n.vitals)) + '</div>' : ''}
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      ` : ''}
+
+      <!-- Doctors -->
+      ${docs.length ? `
+      <div class="admin-card" style="margin-bottom:20px;">
+        <h4 style="font-size:14px; margin-bottom:10px;">🩺 Saved Doctors (${docs.length})</h4>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:10px;">
+          ${docs.map(d => `
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:10px; border-radius:6px; font-size:12.5px;">
+              <strong>${esc(d.name)}</strong> <small style="color:var(--ink-400);">${esc(d.specialty || '')}</small>
+              <div style="font-size:11px; color:var(--ink-600); margin-top:2px;">${esc(d.phone || '')} · ${esc(d.email || '')}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      ` : ''}
+
+      <!-- Care Circle -->
+      <div class="admin-card" style="margin-bottom:20px;">
+        <h4 style="font-size:14px; margin-bottom:10px;">⭕ Care Circle Connections</h4>
+        ${(cc.asPatient && cc.asPatient.length) ? `
+          <div style="margin-bottom:10px;">
+            <strong style="font-size:12px; color:var(--ink-500);">Care Team Members (caring for this patient):</strong>
+            ${cc.asPatient.map(c => `
+              <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:8px 12px; border-radius:6px; font-size:12.5px; margin-top:6px; display:flex; justify-content:space-between;">
+                <div><strong>${esc(c.full_name)}</strong> (${esc(c.role)}) — ${esc(c.relationship)}</div>
+                <small style="color:var(--ink-400);">${esc(c.email || c.phone || '')}</small>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+        ${(cc.asMember && cc.asMember.length) ? `
+          <div>
+            <strong style="font-size:12px; color:var(--ink-500);">Patients this user is caring for:</strong>
+            ${cc.asMember.map(c => `
+              <div style="background:#eff6ff; border:1px solid #bfdbfe; padding:8px 12px; border-radius:6px; font-size:12.5px; margin-top:6px; display:flex; justify-content:space-between;">
+                <div><strong>${esc(c.full_name)}</strong> [<code>${esc(c.patient_code)}</code>] — ${esc(c.relationship)}</div>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+        ${(!cc.asPatient || !cc.asPatient.length) && (!cc.asMember || !cc.asMember.length) ? '<p style="font-size:12px; color:var(--ink-400);">No care circle connections.</p>' : ''}
+      </div>
+
+      <!-- Personal Activity Timeline -->
+      <div class="admin-card" style="margin-bottom:20px;">
+        <h4 style="font-size:14px; margin-bottom:10px;">🕐 Personal Activity Timeline (Last ${timeline.length} actions)</h4>
+        ${timeline.length ? `
+          <div class="admin-table-wrap"><table class="admin-table"><thead><tr>
+            <th>Action</th><th>Entity</th><th>Description</th><th>IP</th><th>Timestamp</th><th>Inspect</th>
+          </tr></thead><tbody>
+          ${timeline.map(t => `<tr style="cursor:pointer;">
+            <td><span style="font-family:monospace; font-size:11px; font-weight:700;">${esc(t.actionType)}</span></td>
+            <td><small>${esc(t.entityType || '—')} #${esc(String(t.entityId || '—'))}</small></td>
+            <td style="max-width:240px; font-size:12px;">${esc(t.description || '—')}</td>
+            <td><code style="font-size:10px;">${esc(t.ipAddress || '—')}</code></td>
+            <td><small>${esc(String(t.createdAt || '').slice(0, 19))}</small></td>
+            <td><button type="button" class="btn-action-icon btn-inspect-timeline" data-event='${JSON.stringify(t).replace(/'/g, "&#39;")}' title="Inspect">🔍</button></td>
+          </tr>`).join('')}
+          </tbody></table></div>
+        ` : '<p style="font-size:12px; color:var(--ink-400);">No activity recorded for this user.</p>'}
+      </div>
+
+      <div style="padding:10px; background:#fef3c7; border:1px solid #fde68a; border-radius:6px; font-size:11px; color:#92400e;">
+        🛡️ <strong>Compliance Audit Notice:</strong> Access to this User 360° clinical dossier was recorded in the forensic audit log under administrator ID #${AdminState.user?.id}.
+      </div>
+    `;
+
+    // Wire up timeline inspect buttons
+    container.querySelectorAll('.btn-inspect-timeline').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        try {
+          const ev = JSON.parse(btn.dataset.event);
+          ev.user = { name: u.fullName, role: u.role, patientCode: u.patientCode, avatarColor: u.avatarColor };
+          openActivityDrawer(ev);
+        } catch {}
+      });
+    });
+  } catch (err) {
+    container.innerHTML = '<div class="admin-card" style="text-align:center; padding:40px; color:#dc2626;">Failed to load User 360 dossier: ' + esc(err.message) + '</div>';
+  }
+}
+
+// ================= 3. LOGIN & SESSION MONITOR =================
+async function loadSessionMonitor() {
+  try {
+    const data = await adminApi('/oversight/sessions');
+    if (!data) return;
+
+    // Online Users Grid
+    const grid = $('onlineUsersGrid');
+    if (grid) {
+      if (!data.onlineUsers || !data.onlineUsers.length) {
+        grid.innerHTML = '<div style="color:var(--ink-400); font-size:13px; padding:12px;">No users active in the last 30 minutes.</div>';
+      } else {
+        grid.innerHTML = data.onlineUsers.map(u => `
+          <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:12px; display:flex; align-items:center; gap:10px;">
+            <div style="width:36px; height:36px; border-radius:50%; background:${u.avatarColor || '#0d9488'}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700;">
+              ${(u.fullName || 'U').charAt(0).toUpperCase()}
+            </div>
+            <div style="flex:1;">
+              <strong style="font-size:13px;">${esc(u.fullName)}</strong>
+              <div style="font-size:11px; color:var(--ink-500);">
+                <span style="text-transform:uppercase; font-weight:700;">${esc(u.role)}</span>
+                ${u.patientCode ? ' · <code>' + esc(u.patientCode) + '</code>' : ''}
+              </div>
+              <div style="font-size:10px; color:var(--ink-400); margin-top:2px;">
+                IP: <code>${esc(u.ipAddress || '—')}</code> · Last: ${esc(String(u.lastSeen || '').slice(11, 19))}
+              </div>
+            </div>
+            <span style="width:10px; height:10px; border-radius:50%; background:#22c55e; display:inline-block;" title="Online"></span>
+          </div>
+        `).join('');
+      }
+    }
+
+    // Suspicious Flags Banner
+    const banner = $('sessionSuspiciousBanner');
+    const flagList = $('sessionSuspiciousList');
+    if (banner && flagList) {
+      const flags = data.suspiciousFlags || {};
+      const items = [];
+
+      if (flags.bruteForceAlerts && flags.bruteForceAlerts.length) {
+        flags.bruteForceAlerts.forEach(b => {
+          items.push(`🔴 <strong>Brute Force Alert:</strong> IP <code>${esc(b.ip_address)}</code> — ${b.failed_count} failed login attempts in 24h (last: ${esc(String(b.last_attempt || '').slice(0, 19))})`);
+        });
+      }
+
+      if (flags.multiIpAlerts && flags.multiIpAlerts.length) {
+        flags.multiIpAlerts.forEach(m => {
+          items.push(`🟠 <strong>Multi-IP Login:</strong> ${esc(m.full_name)} (${esc(m.role)}) logged in from ${m.ip_count} distinct IPs: <code>${esc(m.ips)}</code>`);
+        });
+      }
+
+      if (items.length) {
+        flagList.innerHTML = items.join('<br>');
+        banner.classList.remove('hide');
+      } else {
+        banner.classList.add('hide');
+      }
+    }
+
+    // Recent Auth Events Table
+    const authTbody = $('sessionAuthTableBody');
+    if (authTbody) {
+      if (!data.recentAuth || !data.recentAuth.length) {
+        authTbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:24px; color:var(--ink-400);">No recent auth events.</td></tr>';
+      } else {
+        authTbody.innerHTML = data.recentAuth.map(e => {
+          const color = e.action_type === 'LOGIN_SUCCESS' ? '#059669' : e.action_type === 'LOGIN_FAILED' ? '#dc2626' : '#64748b';
+          return `<tr>
+            <td><strong style="font-size:12.5px;">${esc(e.user_name)}</strong><br><small style="color:var(--ink-400);">${esc(e.user_role || '')}</small></td>
+            <td><span style="color:${color}; font-weight:700; font-size:11px;">${esc(e.action_type)}</span></td>
+            <td><code style="font-size:10px;">${esc(e.ip_address || '—')}</code><br><small style="font-size:10px; color:var(--ink-400);">${esc((e.user_agent || '').substring(0, 35))}</small></td>
+            <td><small>${esc(String(e.created_at || '').slice(0, 19))}</small></td>
+          </tr>`;
+        }).join('');
+      }
+    }
+
+    // Failed Login Attempts Table
+    const failedTbody = $('sessionFailedTableBody');
+    if (failedTbody) {
+      if (!data.failedAttempts || !data.failedAttempts.length) {
+        failedTbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:24px; color:var(--ink-400);">No failed login attempts in the last 24 hours. ✅</td></tr>';
+      } else {
+        failedTbody.innerHTML = data.failedAttempts.map(f => `<tr>
+          <td><code>${esc(f.ip_address || '—')}</code></td>
+          <td style="font-size:12px;">${esc(f.description || '—')}</td>
+          <td><span style="color:${f.count >= 5 ? '#dc2626' : '#d97706'}; font-weight:700;">${f.count}</span></td>
+          <td><small>${esc(String(f.last_attempt || '').slice(0, 19))}</small></td>
+        </tr>`).join('');
+      }
+    }
+  } catch (err) {
+    showToast('Failed to load session monitor: ' + err.message, true);
+  }
+}
+
+if ($('btnRefreshSessions')) {
+  $('btnRefreshSessions').addEventListener('click', () => loadSessionMonitor());
+}
+
+// ================= 4. ADHERENCE WATCHLIST =================
+async function loadAdherenceWatchlist() {
+  try {
+    const tbody = $('watchlistTableBody');
+    if (!tbody) return;
+
+    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:32px; color:var(--ink-400);">Evaluating patient adherence compliance...</td></tr>';
+
+    const data = await adminApi('/oversight/adherence-watchlist');
+    if (!data || !data.watchlist) return;
+
+    if (!data.watchlist.length) {
+      tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:32px; color:var(--ink-400);">No active patients found in the system.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = data.watchlist.map(p => {
+      const rateColor = p.adherenceRate < 70 ? '#dc2626' : p.adherenceRate < 85 ? '#d97706' : '#059669';
+      const flagBadges = [];
+      if (p.flags.atRisk) flagBadges.push('<span style="background:#fef2f2; color:#dc2626; font-size:10px; font-weight:700; padding:2px 6px; border-radius:3px;">AT RISK</span>');
+      if (p.flags.consecutiveMissed) flagBadges.push('<span style="background:#fff7ed; color:#ea580c; font-size:10px; font-weight:700; padding:2px 6px; border-radius:3px;">3+ MISSED</span>');
+      if (p.flags.inactivity48h) flagBadges.push('<span style="background:#fefce8; color:#ca8a04; font-size:10px; font-weight:700; padding:2px 6px; border-radius:3px;">48h INACTIVE</span>');
+
+      return `<tr>
+        <td>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <div style="width:28px; height:28px; border-radius:50%; background:${p.avatarColor || '#0d9488'}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;">${(p.fullName || 'P').charAt(0).toUpperCase()}</div>
+            <strong style="font-size:12.5px;">${esc(p.fullName)}</strong>
+          </div>
+        </td>
+        <td><code>${esc(p.patientCode || '—')}</code></td>
+        <td style="text-align:center;">${p.scheduled}</td>
+        <td style="text-align:center; color:#059669; font-weight:700;">${p.taken}</td>
+        <td style="text-align:center; color:#dc2626; font-weight:700;">${p.missed}</td>
+        <td style="text-align:center;"><span style="font-size:16px; font-weight:800; color:${rateColor};">${p.adherenceRate}%</span></td>
+        <td style="text-align:center;"><span style="font-weight:700; color:${p.consecutiveMissed >= 3 ? '#dc2626' : 'inherit'};">${p.consecutiveMissed}</span></td>
+        <td style="text-align:center; font-size:12px;">${typeof p.hoursInactive === 'number' ? p.hoursInactive + 'h ago' : esc(String(p.hoursInactive))}</td>
+        <td>${flagBadges.length ? flagBadges.join(' ') : '<span style="color:#059669; font-weight:700; font-size:11px;">✅ OK</span>'}</td>
+        <td><button type="button" class="btn-action-icon btn-watchlist-360" data-id="${p.id}" title="Open User 360° View">👁️ 360°</button></td>
+      </tr>`;
+    }).join('');
+
+    // Wire up 360 buttons
+    tbody.querySelectorAll('.btn-watchlist-360').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const uid = btn.dataset.id;
+        switchTab('user-360');
+        setTimeout(() => {
+          const sel = $('selectUser360');
+          if (sel) { sel.value = uid; loadUser360(uid); }
+        }, 300);
+      });
+    });
+  } catch (err) {
+    showToast('Failed to load adherence watchlist: ' + err.message, true);
+  }
+}
+
+if ($('btnRefreshWatchlist')) {
+  $('btnRefreshWatchlist').addEventListener('click', () => loadAdherenceWatchlist());
+}
+
+// ================= 5. MEDICATION & SCHEDULE CHANGE TRACKER =================
+async function loadMedicationChanges() {
+  try {
+    const tbody = $('medChangesTableBody');
+    if (!tbody) return;
+
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:32px; color:var(--ink-400);">Loading medication change history...</td></tr>';
+
+    const data = await adminApi('/oversight/medication-changes?limit=50');
+    if (!data || !data.changes) return;
+
+    if (!data.changes.length) {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:32px; color:var(--ink-400);">No medication or schedule changes recorded yet.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = data.changes.map(c => {
+      const actionColors = {
+        MEDICATION_ADD: '#2563eb', MEDICATION_EDIT: '#d97706', MEDICATION_DELETE: '#dc2626',
+        SCHEDULE_CREATE: '#2563eb', SCHEDULE_EDIT: '#d97706', SCHEDULE_TOGGLE: '#7c3aed'
+      };
+      const aColor = actionColors[c.actionType] || '#475569';
+
+      // Build a compact diff display
+      let diffHtml = '—';
+      if (c.oldValue || c.newValue) {
+        const oldStr = c.oldValue ? JSON.stringify(c.oldValue, null, 1) : '(none)';
+        const newStr = c.newValue ? JSON.stringify(c.newValue, null, 1) : '(none)';
+        diffHtml = `<div style="display:grid; grid-template-columns:1fr 1fr; gap:4px; font-size:10px;">
+          <div style="background:#fef2f2; padding:4px 6px; border-radius:4px; max-height:60px; overflow:auto;"><strong style="color:#dc2626;">OLD:</strong> ${esc(oldStr.substring(0, 120))}${oldStr.length > 120 ? '…' : ''}</div>
+          <div style="background:#f0fdf4; padding:4px 6px; border-radius:4px; max-height:60px; overflow:auto;"><strong style="color:#059669;">NEW:</strong> ${esc(newStr.substring(0, 120))}${newStr.length > 120 ? '…' : ''}</div>
+        </div>`;
+      }
+
+      return `<tr style="${c.isUnusual ? 'background:#fffbeb;' : ''}">
+        <td><code>#${c.id}</code>${c.isUnusual ? '<br><span style="color:#d97706; font-size:10px; font-weight:700;">⚠ ' + esc(c.unusualReason || 'Unusual') + '</span>' : ''}</td>
+        <td>
+          <strong style="font-size:12.5px;">${esc(c.actor.name || '—')}</strong>
+          <div style="font-size:10px; color:var(--ink-500); text-transform:uppercase;">${esc(c.actor.role || '')}</div>
+        </td>
+        <td><span style="background:${aColor}15; color:${aColor}; font-weight:700; font-size:11px; padding:2px 6px; border-radius:4px; font-family:monospace;">${esc(c.actionType)}</span></td>
+        <td style="max-width:200px; font-size:12px;">${esc(c.description || '—')}</td>
+        <td style="max-width:260px;">${diffHtml}</td>
+        <td><code style="font-size:10px;">${esc(c.ipAddress || '—')}</code></td>
+        <td><small>${esc(String(c.createdAt || '').slice(0, 19))}</small></td>
+        <td><button type="button" class="btn-action-icon btn-inspect-medchange" data-event='${JSON.stringify(c).replace(/'/g, "&#39;")}' title="Inspect full diff">🔍</button></td>
+      </tr>`;
+    }).join('');
+
+    // Wire inspect buttons
+    tbody.querySelectorAll('.btn-inspect-medchange').forEach(btn => {
+      btn.addEventListener('click', () => {
+        try {
+          const ev = JSON.parse(btn.dataset.event);
+          ev.user = ev.actor;
+          openActivityDrawer(ev);
+        } catch {}
+      });
+    });
+  } catch (err) {
+    showToast('Failed to load medication changes: ' + err.message, true);
+  }
+}
+
+if ($('btnRefreshMedChanges')) {
+  $('btnRefreshMedChanges').addEventListener('click', () => loadMedicationChanges());
+}
+
+// ================= 6. EMERGENCY & ALERT CENTER =================
+async function loadAlertCenter() {
+  try {
+    const tbody = $('alertCenterTableBody');
+    if (!tbody) return;
+
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:32px; color:var(--ink-400);">Loading emergency and alert stream...</td></tr>';
+
+    const data = await adminApi('/oversight/alert-center');
+    if (!data || !data.alerts) return;
+
+    if (!data.alerts.length) {
+      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:32px; color:var(--ink-400);">No alerts or emergency events recorded.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = data.alerts.map(a => {
+      const typeColors = { sos: '#dc2626', nudge: '#d97706', missed_dose: '#ea580c', medication: '#2563eb' };
+      const tColor = typeColors[a.alertType] || '#475569';
+      const statusBadge = a.status === 'open'
+        ? '<span style="background:#fef2f2; color:#dc2626; font-weight:700; font-size:11px; padding:2px 8px; border-radius:4px;">🔴 OPEN</span>'
+        : '<span style="background:#f0fdf4; color:#059669; font-weight:700; font-size:11px; padding:2px 8px; border-radius:4px;">✅ ACK</span>';
+
+      return `<tr style="${a.isUrgent ? 'background:#fef2f2;' : ''}">
+        <td><code>#${a.id}</code></td>
+        <td><span style="background:${tColor}15; color:${tColor}; font-weight:700; font-size:11px; padding:2px 8px; border-radius:4px; text-transform:uppercase;">${esc(a.alertType)}</span></td>
+        <td>
+          <strong>${esc(a.patient.name)}</strong>
+          ${a.patient.patientCode ? '<br><code style="font-size:10px;">' + esc(a.patient.patientCode) + '</code>' : ''}
+        </td>
+        <td style="max-width:220px;">
+          <strong style="font-size:12.5px;">${esc(a.title)}</strong>
+          <div style="font-size:11.5px; color:var(--ink-600);">${esc(a.message || '')}</div>
+        </td>
+        <td>${a.sender ? esc(a.sender.name) + ' <small>(' + esc(a.sender.role) + ')</small>' : '—'}</td>
+        <td>${esc(a.recipient.name)} <small>(${esc(a.recipient.role)})</small></td>
+        <td>${statusBadge}</td>
+        <td>${a.responseTimeMinutes ? '<span style="font-weight:700;">' + a.responseTimeMinutes + ' min</span>' + (a.acknowledgedBy ? '<br><small>by ' + esc(a.acknowledgedBy) + '</small>' : '') : '<span style="color:var(--ink-400);">—</span>'}</td>
+        <td><small>${esc(String(a.createdAt || '').slice(0, 19))}</small></td>
+      </tr>`;
+    }).join('');
+  } catch (err) {
+    showToast('Failed to load alert center: ' + err.message, true);
+  }
+}
+
+if ($('btnRefreshAlertCenter')) {
+  $('btnRefreshAlertCenter').addEventListener('click', () => loadAlertCenter());
+}
+
+// ================= 7. CARE CIRCLE MAP =================
+async function loadCareCircleMap() {
+  try {
+    const tbody = $('careMapTableBody');
+    if (!tbody) return;
+
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:32px; color:var(--ink-400);">Compiling care circle relationship matrix...</td></tr>';
+
+    const data = await adminApi('/oversight/care-circle-map');
+    if (!data || !data.map) return;
+
+    if (!data.map.length) {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:32px; color:var(--ink-400);">No patient-caregiver connections found in the system.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = data.map.map(c => {
+      const permissions = [];
+      if (c.canManageMeds) permissions.push('💊 Manage Meds');
+      if (c.canRecordDoses) permissions.push('✅ Record Doses');
+      if (!permissions.length) permissions.push('View Only');
+
+      return `<tr>
+        <td>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <div style="width:24px; height:24px; border-radius:50%; background:${c.patient.avatar || '#0d9488'}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700;">${(c.patient.name || 'P').charAt(0).toUpperCase()}</div>
+            <div>
+              <strong style="font-size:12.5px;">${esc(c.patient.name)}</strong>
+              <div><code style="font-size:10px;">${esc(c.patient.patientCode || '—')}</code></div>
+            </div>
+          </div>
+        </td>
+        <td>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <div style="width:24px; height:24px; border-radius:50%; background:${c.caregiver.avatar || '#4338ca'}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700;">${(c.caregiver.name || 'C').charAt(0).toUpperCase()}</div>
+            <div>
+              <strong style="font-size:12.5px;">${esc(c.caregiver.name)}</strong>
+              <div style="font-size:10px; color:var(--ink-500); text-transform:uppercase; font-weight:700;">${esc(c.caregiver.role)}</div>
+            </div>
+          </div>
+        </td>
+        <td><span style="font-size:12px;">${esc(c.relationship || '—')}</span></td>
+        <td><span style="font-size:11px;">${permissions.join(', ')}</span></td>
+        <td style="text-align:center; font-weight:700;">${c.stats.notesLogged}</td>
+        <td style="text-align:center; font-weight:700;">${c.stats.dosesSignedOff}</td>
+        <td style="text-align:center; font-weight:700;">${c.stats.nudgesSent}</td>
+        <td><small>${esc(String(c.stats.lastActive || 'Never').slice(0, 19))}</small></td>
+      </tr>`;
+    }).join('');
+  } catch (err) {
+    showToast('Failed to load care circle map: ' + err.message, true);
+  }
+}
+
+if ($('btnRefreshCareMap')) {
+  $('btnRefreshCareMap').addEventListener('click', () => loadCareCircleMap());
+}
+
+// ================= 8. DATA ACCESS AUDIT =================
+async function loadDataAccessAudit() {
+  try {
+    const tbody = $('dataAccessAuditTableBody');
+    if (!tbody) return;
+
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:32px; color:var(--ink-400);">Loading data access audit ledger...</td></tr>';
+
+    const params = new URLSearchParams({
+      page: AdminState.accessAuditPage,
+      limit: AdminState.accessAuditLimit
+    });
+
+    const data = await adminApi('/oversight/data-access-audit?' + params.toString());
+    if (!data) return;
+
+    if (!data.accessLogs || !data.accessLogs.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:32px; color:var(--ink-400);">No admin data access records found. Access events are logged when administrators open patient health dossiers.</td></tr>';
+    } else {
+      tbody.innerHTML = data.accessLogs.map(l => `<tr>
+        <td><code>#${l.id}</code></td>
+        <td>
+          <strong>${esc(l.admin_name)}</strong>
+          <div style="font-size:10px; color:var(--ink-400);">${esc(l.admin_email)}</div>
+        </td>
+        <td><span style="background:#fef3c7; color:#92400e; font-weight:700; font-size:11px; padding:2px 7px; border-radius:4px; font-family:monospace;">${esc(l.action)}</span></td>
+        <td><small>${esc(l.target_type || '—')} #${esc(String(l.target_id || '—'))}</small></td>
+        <td style="max-width:300px; font-size:12px;">${esc(l.details || '—')}</td>
+        <td><code style="font-size:10px;">${esc(l.ip_address || '—')}</code></td>
+        <td><small>${esc(String(l.created_at || '').slice(0, 19))}</small></td>
+      </tr>`).join('');
+    }
+
+    // Pagination
+    const p = data.pagination;
+    if ($('accessAuditPaginationInfo')) {
+      const start = (p.page - 1) * p.limit + 1;
+      const end = Math.min(p.total, p.page * p.limit);
+      $('accessAuditPaginationInfo').textContent = p.total > 0 ? `Showing ${start}-${end} of ${p.total} access logs` : 'No access logs';
+    }
+    if ($('accessAuditPageCurrent')) $('accessAuditPageCurrent').textContent = p.page;
+    if ($('btnPrevAccessAuditPage')) $('btnPrevAccessAuditPage').disabled = p.page <= 1;
+    if ($('btnNextAccessAuditPage')) $('btnNextAccessAuditPage').disabled = p.page >= p.pages;
+  } catch (err) {
+    showToast('Failed to load data access audit: ' + err.message, true);
+  }
+}
+
+if ($('btnRefreshAccessAudit')) {
+  $('btnRefreshAccessAudit').addEventListener('click', () => loadDataAccessAudit());
+}
+
+if ($('btnPrevAccessAuditPage')) {
+  $('btnPrevAccessAuditPage').addEventListener('click', () => {
+    if (AdminState.accessAuditPage > 1) {
+      AdminState.accessAuditPage--;
+      loadDataAccessAudit();
+    }
+  });
+}
+
+if ($('btnNextAccessAuditPage')) {
+  $('btnNextAccessAuditPage').addEventListener('click', () => {
+    AdminState.accessAuditPage++;
+    loadDataAccessAudit();
   });
 }
 

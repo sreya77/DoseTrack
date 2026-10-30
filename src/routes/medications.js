@@ -124,11 +124,21 @@ router.post('/', async (req, res, next) => {
     }
 
     await logActivity(req, {
-      action: 'MEDICATION_ADD',
-      targetType: 'medication',
-      targetId: medId,
+      actionType: 'MEDICATION_ADD',
+      entityType: 'medication',
+      entityId: medId,
       patientId: targetPatientId,
-      details: `${Number(userId) !== Number(targetPatientId) ? 'Added on behalf of patient' : 'Added'} medication ${name.trim()} (${dosage.trim()}).`
+      description: `${Number(userId) !== Number(targetPatientId) ? 'Added on behalf of patient' : 'Added'} medication ${name.trim()} (${dosage.trim()}).`,
+      newValue: {
+        name: name.trim(),
+        dosage: dosage.trim(),
+        quantity: quantity?.trim() || null,
+        frequency,
+        instructions: instructions?.trim() || null,
+        startDate,
+        endDate: endDate || null,
+        doseTimes: validTimes
+      }
     });
 
     res.status(201).json({ id: medId, message: 'Medication saved successfully.' });
@@ -154,10 +164,29 @@ router.put('/:id', async (req, res, next) => {
     doseTimes = []
   } = req.body;
 
-  const [existing] = await db.execute('SELECT user_id, name FROM medications WHERE id = ?', [req.params.id]);
+  const [existing] = await db.execute(
+    `SELECT m.*, GROUP_CONCAT(TIME_FORMAT(s.dose_time, '%H:%i') ORDER BY s.dose_time SEPARATOR ',') as dose_times
+     FROM medications m
+     LEFT JOIN schedules s ON s.medication_id = m.id
+     WHERE m.id = ?
+     GROUP BY m.id`,
+    [req.params.id]
+  );
   if (!existing.length) return res.status(404).json({ error: 'Medication not found.' });
 
-  const targetPatientId = existing[0].user_id;
+  const oldMed = existing[0];
+  const oldValue = {
+    name: oldMed.name,
+    dosage: oldMed.dosage,
+    quantity: oldMed.quantity,
+    frequency: oldMed.frequency,
+    instructions: oldMed.instructions,
+    startDate: oldMed.start_date,
+    endDate: oldMed.end_date,
+    doseTimes: oldMed.dose_times ? oldMed.dose_times.split(',') : []
+  };
+
+  const targetPatientId = oldMed.user_id;
   if (!(await canAccessPatient(userId, targetPatientId))) {
     return res.status(403).json({ error: 'Not authorized to modify this medication.' });
   }
@@ -194,12 +223,25 @@ router.put('/:id', async (req, res, next) => {
 
     await conn.commit();
 
+    const newValue = {
+      name: name.trim(),
+      dosage: dosage.trim(),
+      quantity: quantity?.trim() || null,
+      frequency,
+      instructions: instructions?.trim() || null,
+      startDate,
+      endDate: endDate || null,
+      doseTimes: validTimes
+    };
+
     await logActivity(req, {
-      action: 'MEDICATION_UPDATE',
-      targetType: 'medication',
-      targetId: req.params.id,
+      actionType: 'MEDICATION_EDIT',
+      entityType: 'medication',
+      entityId: req.params.id,
       patientId: targetPatientId,
-      details: `Updated medication ${name.trim()} (${dosage.trim()}).`
+      description: `Updated medication ${name.trim()} (${dosage.trim()}).`,
+      oldValue,
+      newValue
     });
 
     res.json({ message: 'Medication updated successfully.' });
@@ -215,7 +257,7 @@ router.put('/:id', async (req, res, next) => {
 router.delete('/:id', async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const [existing] = await db.execute('SELECT user_id, name FROM medications WHERE id = ?', [req.params.id]);
+    const [existing] = await db.execute('SELECT * FROM medications WHERE id = ?', [req.params.id]);
     if (!existing.length) return res.status(404).json({ error: 'Medication not found.' });
 
     const targetPatientId = existing[0].user_id;
@@ -223,14 +265,25 @@ router.delete('/:id', async (req, res, next) => {
       return res.status(403).json({ error: 'Not authorized to delete this medication.' });
     }
 
+    const oldValue = {
+      id: existing[0].id,
+      name: existing[0].name,
+      dosage: existing[0].dosage,
+      frequency: existing[0].frequency,
+      instructions: existing[0].instructions,
+      startDate: existing[0].start_date,
+      endDate: existing[0].end_date
+    };
+
     await db.execute('DELETE FROM medications WHERE id = ?', [req.params.id]);
 
     await logActivity(req, {
-      action: 'MEDICATION_DELETE',
-      targetType: 'medication',
-      targetId: req.params.id,
+      actionType: 'MEDICATION_DELETE',
+      entityType: 'medication',
+      entityId: req.params.id,
       patientId: targetPatientId,
-      details: `Deleted medication ${existing[0].name}.`
+      description: `Deleted medication ${existing[0].name} (${existing[0].dosage}).`,
+      oldValue
     });
 
     res.json({ message: 'Medication deleted.' });
