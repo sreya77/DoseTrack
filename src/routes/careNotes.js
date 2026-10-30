@@ -7,6 +7,8 @@ router.use(requireAuth);
 // Helper to check access to patient data
 async function canAccessPatient(userId, patientId) {
   if (Number(userId) === Number(patientId)) return true;
+  const [u] = await db.execute('SELECT role FROM users WHERE id = ?', [userId]);
+  if (u[0]?.role === 'admin') return true;
   const [rows] = await db.execute(
     'SELECT id FROM patient_connections WHERE patient_id = ? AND member_id = ?',
     [patientId, userId]

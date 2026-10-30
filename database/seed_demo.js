@@ -76,7 +76,33 @@ async function seed() {
   const [[caretaker]] = await db.query(`SELECT id FROM users WHERE email = 'caretaker@dosetrack.com'`);
   const caretakerId = caretaker.id;
 
-  // 4. Update the legacy demo account to also be a patient
+  // 4. Admin: Dr. Alexander Wright
+  await db.query(
+    `INSERT INTO users (full_name, role, patient_code, email, phone, emergency_contact, avatar_color, is_active, password_hash)
+     VALUES (?, ?, NULL, ?, ?, NULL, ?, 1, ?)
+     ON DUPLICATE KEY UPDATE 
+       full_name = VALUES(full_name),
+       role = VALUES(role),
+       phone = VALUES(phone),
+       avatar_color = VALUES(avatar_color),
+       is_active = 1,
+       password_hash = VALUES(password_hash)`,
+    [
+      'Dr. Alexander Wright (Admin)',
+      'admin',
+      'admin@dosetrack.com',
+      '(555) 000-ADMIN',
+      '#f59e0b',
+      hash
+    ]
+  );
+  const [[adminUser]] = await db.query(`SELECT id FROM users WHERE email = 'admin@dosetrack.com'`);
+  const adminId = adminUser?.id;
+
+  // Ensure is_active is 1 on existing users
+  await db.query(`UPDATE users SET is_active = 1 WHERE is_active IS NULL OR is_active = 0`);
+
+  // 5. Update the legacy demo account to also be a patient
   await db.query(
     `UPDATE users SET role = 'patient', patient_code = 'DT-PT-9999' WHERE email = 'demo@dosetrack.com'`
   );
@@ -275,6 +301,78 @@ async function seed() {
      VALUES (?, ?, ?, 'dose_taken', 'Dose Completed', 'Eleanor Vance took morning Lisinopril 10mg on time.')`,
     [patientId, patientId, guardianId]
   );
+
+  // 11. Second Patient (At-Risk Adherence Demo): Robert Fox
+  await db.query(
+    `INSERT INTO users (full_name, role, patient_code, email, phone, emergency_contact, avatar_color, is_active, password_hash)
+     VALUES (?, 'patient', 'DT-PT-1002', ?, ?, ?, '#f97316', 1, ?)
+     ON DUPLICATE KEY UPDATE 
+       full_name = VALUES(full_name),
+       role = 'patient',
+       patient_code = 'DT-PT-1002',
+       phone = VALUES(phone),
+       is_active = 1,
+       password_hash = VALUES(password_hash)`,
+    [
+      'Robert Fox',
+      'robert.fox@dosetrack.com',
+      '(555) 789-1234',
+      'Clara Fox (Daughter) - (555) 654-3210',
+      hash
+    ]
+  );
+  const [[robert]] = await db.query(`SELECT id FROM users WHERE email = 'robert.fox@dosetrack.com'`);
+  const robertId = robert.id;
+
+  // Medications for Robert
+  let [[existingAmlodipine]] = await db.query(`SELECT id FROM medications WHERE user_id = ? AND name = 'Amlodipine'`, [robertId]);
+  let amlodipineId;
+  if (!existingAmlodipine) {
+    const [r] = await db.query(
+      `INSERT INTO medications (user_id, name, dosage, quantity, frequency, instructions, start_date)
+       VALUES (?, 'Amlodipine', '5mg', '1 tablet', 'Once daily', 'Take once daily in the evening', '2026-01-01')`,
+      [robertId]
+    );
+    amlodipineId = r.insertId;
+  } else {
+    amlodipineId = existingAmlodipine.id;
+  }
+
+  await db.query(
+    `INSERT INTO schedules (medication_id, user_id, dose_time, active)
+     VALUES (?, ?, '18:00:00', 1)
+     ON DUPLICATE KEY UPDATE active = 1`,
+    [amlodipineId, robertId]
+  );
+
+  const [[robertSched]] = await db.query(`SELECT id FROM schedules WHERE user_id = ? AND medication_id = ?`, [robertId, amlodipineId]);
+  if (robertSched) {
+    // Seed 7 days for Robert with majority MISSED so his adherence is ~40% (At Risk)
+    for (let i = 1; i <= 7; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().slice(0, 10);
+      const status = (i % 3 === 0) ? 'taken' : 'missed'; // 2 taken, 5 missed = 28.5% adherence
+      const scheduledFor = `${dateStr} 18:00:00`;
+      await db.query(
+        `INSERT INTO dose_events (schedule_id, medication_id, user_id, scheduled_for, status, recorded_by_id)
+         VALUES (?, ?, ?, ?, ?, ?)
+         ON DUPLICATE KEY UPDATE status = VALUES(status)`,
+        [robertSched.id, amlodipineId, robertId, scheduledFor, status, robertId]
+      );
+    }
+  }
+
+  // 12. Seed initial Audit Log entries for Admin
+  if (adminId) {
+    await db.query(
+      `INSERT INTO admin_audit_log (admin_id, action, target_type, target_id, details, ip_address)
+       VALUES 
+         (?, 'SYSTEM_INIT', 'system', '0', 'Clinical portal initialized with HIPAA privacy compliance and adherence tracking.', '127.0.0.1'),
+         (?, 'POLICY_CONFIG', 'app_settings', '1', 'Adherence risk threshold configured to 70%. Grace period set to 30 minutes.', '127.0.0.1')`,
+      [adminId, adminId]
+    );
+  }
 
   console.log('[Seed] Connected demo data seeded successfully!');
 }

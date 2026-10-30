@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f172a">
+  <title>DoseTrack Admin Portal | Clinical Sign In</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body class="admin-auth-body">
+
+  <div class="admin-login-wrapper">
+    <div class="admin-login-card">
+      <div class="admin-login-header">
+        <div class="admin-brand-badge">
+          <span class="brand-cross">✚</span>
+          <span class="brand-title">DoseTrack</span>
+          <span class="admin-tag">ADMIN PORTAL</span>
+        </div>
+        <h1>Clinical Administrator Access</h1>
+        <p>Restricted medical management console. Authenticate with verified administrative credentials.</p>
+      </div>
+
+      <!-- Demo Fill Bar for Viva & Testing -->
+      <div class="demo-box">
+        <div class="demo-box-label">QUICK CREDENTIALS:</div>
+        <div class="demo-box-buttons">
+          <button type="button" class="btn-quick-fill admin-fill" id="btnFillAdmin">
+            <span class="badge-role-admin">ADMIN</span>
+            <span>Dr. Alexander Wright (admin@dosetrack.com)</span>
+          </button>
+          <button type="button" class="btn-quick-fill patient-test-fill" id="btnFillPatient" title="Click to test role-blocking on non-admin accounts">
+            <span class="badge-role-patient">PATIENT</span>
+            <span>Eleanor Vance (Test Role-Block)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Error / Alert Banner -->
+      <div id="loginAlert" class="alert-box hide"></div>
+
+      <form id="adminLoginForm" novalidate>
+        <div class="form-group">
+          <label for="adminEmail">Administrator Email</label>
+          <div class="input-with-icon">
+            <span class="input-icon">✉</span>
+            <input type="email" id="adminEmail" required placeholder="admin@dosetrack.com" autocomplete="email">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="adminPassword">Password</label>
+          <div class="input-with-icon">
+            <span class="input-icon">🔒</span>
+            <input type="password" id="adminPassword" required placeholder="••••••••" autocomplete="current-password">
+          </div>
+        </div>
+
+        <button type="submit" id="btnAdminSubmit" class="btn-admin-primary">
+          <span class="btn-text">Authenticate & Open Admin Console →</span>
+          <span class="btn-spinner hide"></span>
+        </button>
+      </form>
+
+      <div class="admin-login-footer">
+        <a href="/" class="back-link">← Return to Patient / Guardian Portal</a>
+      </div>
+
+      <div class="clinical-disclaimer">
+        ⚖️ <strong>Compliance Notice:</strong> All administrative activities, user updates, and patient record views are permanently logged in the DoseTrack Forensic Audit Trail. DoseTrack does not diagnose, prescribe or provide medical advice. Always consult a licensed clinician.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('adminLoginForm');
+    const alertBox = document.getElementById('loginAlert');
+    const emailInput = document.getElementById('adminEmail');
+    const pwdInput = document.getElementById('adminPassword');
+    const submitBtn = document.getElementById('btnAdminSubmit');
+
+    function showAlert(msg, isError = true) {
+      alertBox.textContent = msg;
+      alertBox.className = 'alert-box ' + (isError ? 'alert-danger' : 'alert-success');
+      alertBox.classList.remove('hide');
+    }
+
+    // Quick Fill Buttons
+    document.getElementById('btnFillAdmin').addEventListener('click', () => {
+      emailInput.value = 'admin@dosetrack.com';
+      pwdInput.value = 'password123';
+      alertBox.classList.add('hide');
+    });
+
+    document.getElementById('btnFillPatient').addEventListener('click', () => {
+      emailInput.value = 'patient@dosetrack.com';
+      pwdInput.value = 'password123';
+      showAlert('Filled Patient credentials. Click Submit to verify role-blocking (403 Forbidden).', false);
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = emailInput.value.trim();
+      const password = pwdInput.value;
+
+      if (!email || !password) {
+        showAlert('Please enter both administrator email and password.');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.querySelector('.btn-text').textContent = 'Authenticating...';
+
+      try {
+        const res = await fetch('/api/admin/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || 'Authentication failed.');
+        }
+
+        // Store admin token & profile
+        localStorage.setItem('dosetrack_admin_token', data.token);
+        localStorage.setItem('dosetrack_admin_user', JSON.stringify(data.user));
+
+        showAlert('Access granted! Redirecting to Admin Console...', false);
+        setTimeout(() => {
+          window.location.href = '/admin';
+        }, 500);
+      } catch (err) {
+        showAlert(err.message, true);
+        submitBtn.disabled = false;
+        submitBtn.querySelector('.btn-text').textContent = 'Authenticate & Open Admin Console →';
+      }
+    });
+
+    // Check if already authenticated
+    (async () => {
+      const existingToken = localStorage.getItem('dosetrack_admin_token');
+      if (existingToken) {
+        try {
+          const res = await fetch('/api/admin/auth/me', {
+            headers: { 'Authorization': `Bearer ${existingToken}` }
+          });
+          if (res.ok) {
+            window.location.href = '/admin';
+          } else {
+            localStorage.removeItem('dosetrack_admin_token');
+          }
+        } catch {}
+      }
+    })();
+  </script>
+</body>
+</html>
+

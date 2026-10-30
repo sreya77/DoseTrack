@@ -52,8 +52,16 @@ app.use('/api/doses', require('./src/routes/doses'));
 app.use('/api/doctors', require('./src/routes/doctors'));
 app.use('/api/dashboard', require('./src/routes/dashboard'));
 
+// Admin API
+app.use('/api/admin', require('./src/routes/admin'));
+
 // Static frontend
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Admin frontend routes
+app.get('/admin/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin', 'login.html')));
+app.get(['/admin', '/admin/*'], (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin', 'index.html')));
+
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 // Global error handler

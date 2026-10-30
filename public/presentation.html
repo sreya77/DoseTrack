@@ -3,122 +3,139 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DoseTrack | Mini Project Evaluation Presentation</title>
+  <title>DoseTrack | Mini Project Presentation — BCA S5</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #090d16;
-      --bg-card: #0f172a;
-      --bg-card-hover: #1e293b;
-      --border: rgba(255, 255, 255, 0.08);
-      --border-accent: rgba(13, 148, 136, 0.3);
+      --bg: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-subtle: #f1f5f9;
+      --border: #e2e8f0;
+      --border-focus: #cbd5e1;
       --primary: #0d9488;
+      --primary-dark: #0f766e;
       --primary-light: #14b8a6;
-      --primary-glow: rgba(20, 184, 166, 0.25);
-      --accent-guardian: #6366f1;
-      --accent-caretaker: #0284c7;
-      --accent-danger: #f43f5e;
-      --accent-warning: #f59e0b;
-      --accent-success: #10b981;
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
-      --text-dim: #64748b;
-      --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
-      --font-heading: 'Outfit', system-ui, sans-serif;
+      --primary-tint: #f0fdfa;
+      --accent-blue: #0284c7;
+      --accent-blue-tint: #f0f9ff;
+      --accent-indigo: #4f46e5;
+      --accent-indigo-tint: #eef2ff;
+      --accent-success: #16a34a;
+      --accent-success-tint: #f0fdf4;
+      --accent-warning: #d97706;
+      --accent-warning-tint: #fffbeb;
+      --accent-danger: #e11d48;
+      --accent-danger-tint: #fff1f2;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --text-dim: #94a3b8;
+      --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --font-heading: 'Outfit', system-ui, -apple-system, sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
+      --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background-color: var(--bg);
+      background-color: #0b1120;
       color: var(--text);
       font-family: var(--font-body);
       overflow: hidden;
       height: 100vh;
       width: 100vw;
+      display: flex;
+      flex-direction: column;
       user-select: none;
     }
 
     /* Ambient background gradient effect */
-    .ambient-glow {
+    .viewport-backdrop {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: radial-gradient(circle at 15% 15%, rgba(13, 148, 136, 0.12) 0%, transparent 40%),
-                  radial-gradient(circle at 85% 85%, rgba(99, 102, 241, 0.1) 0%, transparent 45%),
-                  radial-gradient(circle at 50% 50%, rgba(2, 132, 199, 0.05) 0%, transparent 60%);
-      pointer-events: none;
+      inset: 0;
+      background: radial-gradient(circle at 10% 20%, rgba(13, 148, 136, 0.15) 0%, transparent 40%),
+                  radial-gradient(circle at 90% 80%, rgba(2, 132, 199, 0.15) 0%, transparent 40%),
+                  #0b1329;
       z-index: 0;
+      pointer-events: none;
     }
 
-    /* Presentation Header & Status */
+    /* Presentation Header & Controls */
     header.deck-header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 56px;
+      position: relative;
+      height: 54px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 2rem;
-      background: rgba(15, 23, 42, 0.85);
+      padding: 0 1.75rem;
+      background: rgba(15, 23, 42, 0.95);
       backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       z-index: 100;
+      flex-shrink: 0;
     }
 
     .brand-group {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.85rem;
     }
-    .brand-logo {
+    .brand-logo-badge {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 28px;
-      height: 28px;
-      background: linear-gradient(135deg, var(--primary-light), var(--primary));
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #14b8a6, #0d9488);
       border-radius: 8px;
       color: #fff;
       font-weight: 800;
-      font-size: 1rem;
-      box-shadow: 0 0 16px var(--primary-glow);
+      font-size: 1.1rem;
+      box-shadow: 0 2px 8px rgba(20, 184, 166, 0.4);
     }
     .brand-title {
       font-family: var(--font-heading);
       font-size: 1.15rem;
       font-weight: 700;
+      color: #ffffff;
       letter-spacing: -0.02em;
-      color: #fff;
+    }
+    .brand-sep {
+      color: rgba(255, 255, 255, 0.2);
     }
     .eval-badge {
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      padding: 3px 8px;
-      background: rgba(13, 148, 136, 0.2);
-      border: 1px solid var(--border-accent);
-      color: var(--primary-light);
+      letter-spacing: 0.06em;
+      padding: 3px 9px;
+      background: rgba(20, 184, 166, 0.15);
+      border: 1px solid rgba(20, 184, 166, 0.35);
+      color: #2dd4bf;
       border-radius: 999px;
+    }
+    .college-tag {
+      font-size: 0.8rem;
+      color: #94a3b8;
+      font-weight: 500;
     }
 
     .deck-controls {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.65rem;
     }
     .ctrl-btn {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border);
-      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #cbd5e1;
       padding: 6px 12px;
       border-radius: 6px;
       font-size: 0.8rem;
@@ -128,357 +145,656 @@
       align-items: center;
       gap: 0.4rem;
       transition: all 0.2s ease;
+      font-family: var(--font-body);
     }
     .ctrl-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: #fff;
-      border-color: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.25);
     }
     .ctrl-btn.active {
       background: var(--primary);
-      color: #fff;
+      color: #ffffff;
       border-color: var(--primary-light);
+    }
+    .ctrl-btn.download-btn {
+      background: linear-gradient(135deg, #0d9488, #0284c7);
+      color: #ffffff;
+      border: none;
+      font-weight: 700;
+    }
+    .ctrl-btn.download-btn:hover {
+      box-shadow: 0 2px 10px rgba(13, 148, 136, 0.5);
+    }
+    .key-badge {
+      display: inline-block;
+      padding: 1px 5px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 3px;
+      font-size: 0.7rem;
+      font-family: var(--font-mono);
+      color: #cbd5e1;
     }
 
     .slide-progress-bar {
-      position: fixed;
-      top: 56px;
-      left: 0;
       height: 3px;
-      background: linear-gradient(90deg, var(--primary), var(--accent-guardian));
-      transition: width 0.3s ease;
-      z-index: 101;
-    }
-
-    /* Main Slides Container */
-    main.slides-container {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.1);
       position: relative;
-      width: 100vw;
-      height: calc(100vh - 56px - 44px);
-      margin-top: 56px;
-      z-index: 10;
-      overflow: hidden;
+      z-index: 100;
+      flex-shrink: 0;
+    }
+    .slide-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #14b8a6, #0284c7);
+      transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .slide {
-      position: absolute;
-      top: 0;
-      left: 0;
+    /* Main Slides Stage & 16:9 Canvas */
+    main.stage {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem 2rem;
+      overflow: hidden;
+      z-index: 10;
+    }
+
+    .slide-canvas {
+      position: relative;
       width: 100%;
       height: 100%;
-      padding: 3.5rem 5rem;
+      max-width: 1440px;
+      max-height: 810px;
+      aspect-ratio: 16 / 9;
+      background: var(--bg);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
+      overflow: hidden;
+      display: flex;
+    }
+
+    /* Individual Slide View */
+    .slide {
+      position: absolute;
+      inset: 0;
+      padding: 2.5rem 3.5rem;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start;
       opacity: 0;
       pointer-events: none;
-      transform: translateX(40px) scale(0.98);
-      transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-                  transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      transform: translateX(35px) scale(0.985);
+      transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      background-color: var(--bg);
+      background-image: radial-gradient(circle at 100% 0%, rgba(13, 148, 136, 0.04) 0%, transparent 40%),
+                        radial-gradient(circle at 0% 100%, rgba(2, 132, 199, 0.04) 0%, transparent 40%);
+      overflow-y: auto;
     }
 
     .slide.active {
       opacity: 1;
       pointer-events: auto;
       transform: translateX(0) scale(1);
+      z-index: 5;
     }
 
     .slide.prev {
-      transform: translateX(-40px) scale(0.98);
+      transform: translateX(-35px) scale(0.985);
     }
 
-    /* Slide Content Typography */
-    .slide-tag {
-      font-family: var(--font-mono);
-      font-size: 0.8rem;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--primary-light);
+    /* Slide Header Components */
+    .slide-topbar {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      justify-content: space-between;
       margin-bottom: 0.5rem;
+      flex-shrink: 0;
     }
-    .slide-tag::before {
+    .slide-category {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--primary);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--primary-tint);
+      border: 1px solid rgba(13, 148, 136, 0.2);
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+    .slide-category::before {
       content: '';
-      display: inline-block;
-      width: 8px;
-      height: 8px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
-      background: var(--primary-light);
-      box-shadow: 0 0 10px var(--primary);
+      background: var(--primary);
+    }
+    .slide-watermark {
+      font-family: var(--font-heading);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      letter-spacing: 0.02em;
     }
 
+    .slide-header {
+      margin-bottom: 1.25rem;
+      flex-shrink: 0;
+    }
     .slide-title {
       font-family: var(--font-heading);
-      font-size: 2.5rem;
+      font-size: 2.15rem;
       font-weight: 800;
-      letter-spacing: -0.03em;
+      color: #0f172a;
+      letter-spacing: -0.025em;
       line-height: 1.15;
-      margin-bottom: 0.75rem;
-      color: #fff;
     }
-    .slide-title span.highlight {
-      background: linear-gradient(135deg, #14b8a6, #38bdf8);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+    .slide-title .highlight {
+      color: var(--primary);
+    }
+    .slide-subtitle {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-top: 0.35rem;
+      line-height: 1.45;
+      max-width: 950px;
     }
 
-    .slide-subtitle {
-      font-size: 1.15rem;
+    /* Slide Content Area */
+    .slide-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* Layout Grids */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; width: 100%; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; width: 100%; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.9rem; width: 100%; }
+    .grid-6 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.9rem; width: 100%; }
+
+    /* Modern Light Healthcare Cards */
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.15rem 1.25rem;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--border-focus);
+    }
+
+    .card-accent-teal { border-top: 4px solid var(--primary); }
+    .card-accent-blue { border-top: 4px solid var(--accent-blue); }
+    .card-accent-indigo { border-top: 4px solid var(--accent-indigo); }
+    .card-accent-green { border-top: 4px solid var(--accent-success); }
+    .card-accent-amber { border-top: 4px solid var(--accent-warning); }
+    .card-accent-rose { border-top: 4px solid var(--accent-danger); }
+
+    .card-icon {
+      font-size: 1.4rem;
+      margin-bottom: 0.45rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      background: var(--bg-subtle);
+    }
+    .card-icon.teal { background: var(--primary-tint); color: var(--primary); }
+    .card-icon.blue { background: var(--accent-blue-tint); color: var(--accent-blue); }
+    .card-icon.indigo { background: var(--accent-indigo-tint); color: var(--accent-indigo); }
+    .card-icon.green { background: var(--accent-success-tint); color: var(--accent-success); }
+    .card-icon.amber { background: var(--accent-warning-tint); color: var(--accent-warning); }
+    .card-icon.rose { background: var(--accent-danger-tint); color: var(--accent-danger); }
+
+    .card-title {
+      font-family: var(--font-heading);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 0.35rem;
+      line-height: 1.25;
+    }
+    .card-desc {
+      font-size: 0.85rem;
       color: var(--text-muted);
-      margin-bottom: 2rem;
-      max-width: 900px;
       line-height: 1.5;
     }
 
-    /* Grid Layouts inside slides */
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-      width: 100%;
-    }
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.5rem;
-      width: 100%;
-    }
-    .grid-4 {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1.25rem;
-      width: 100%;
-    }
-
-    /* Presentation Glass Cards */
-    .card {
-      background: rgba(15, 23, 42, 0.7);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.5rem;
-      transition: all 0.25s ease;
-    }
-    .card:hover {
-      border-color: rgba(255, 255, 255, 0.16);
-      transform: translateY(-2px);
-      background: rgba(30, 41, 59, 0.75);
-    }
-    .card-accent-primary { border-top: 3px solid var(--primary-light); }
-    .card-accent-guardian { border-top: 3px solid var(--accent-guardian); }
-    .card-accent-caretaker { border-top: 3px solid var(--accent-caretaker); }
-    .card-accent-success { border-top: 3px solid var(--accent-success); }
-    .card-accent-warning { border-top: 3px solid var(--accent-warning); }
-
-    .card-header-icon {
-      font-size: 1.75rem;
-      margin-bottom: 0.75rem;
-      display: inline-block;
-    }
-    .card-title {
-      font-family: var(--font-heading);
-      font-size: 1.2rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-      color: #fff;
-    }
-    .card-desc {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-      line-height: 1.55;
-    }
-
-    /* Feature Pills and Bullet Items */
-    ul.bullet-list {
+    /* Lists and Bullet items */
+    .feature-list {
       list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 0.4rem;
+    }
+    .feature-list li {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      line-height: 1.45;
+    }
+    .feature-list li strong {
+      color: var(--text);
+    }
+    .feature-list li .bullet-dot {
+      color: var(--primary);
+      font-weight: 800;
+      margin-top: -1px;
+      flex-shrink: 0;
+    }
+    .feature-list li .bullet-check {
+      color: var(--accent-success);
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .feature-list li .bullet-cross {
+      color: var(--accent-danger);
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    /* Process Flow Strips */
+    .flow-strip {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      width: 100%;
+      margin: 0.85rem 0;
+    }
+    .flow-node {
+      flex: 1;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.85rem 0.75rem;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+    }
+    .flow-node.highlighted {
+      background: var(--primary-tint);
+      border-color: rgba(13, 148, 136, 0.4);
+    }
+    .flow-step-num {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .flow-node-title {
+      font-family: var(--font-heading);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 0.2rem 0;
+    }
+    .flow-node-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.3;
+    }
+    .flow-arrow {
+      color: var(--primary);
+      font-size: 1.1rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    /* Hub and Spoke Architecture Diagram */
+    .hub-container {
+      display: grid;
+      grid-template-columns: 1fr 1.25fr 1fr;
+      gap: 1.25rem;
+      align-items: center;
+      width: 100%;
+    }
+    .hub-center {
+      background: linear-gradient(135deg, #0d9488, #0284c7);
+      color: #ffffff;
+      border-radius: var(--radius-lg);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(13, 148, 136, 0.35);
+      position: relative;
+    }
+    .hub-center h3 {
+      font-family: var(--font-heading);
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: #ffffff;
+    }
+    .hub-center p {
+      font-size: 0.85rem;
+      opacity: 0.9;
+      line-height: 1.4;
+    }
+    .hub-side-col {
       display: flex;
       flex-direction: column;
       gap: 0.75rem;
     }
-    ul.bullet-list li {
-      font-size: 0.95rem;
-      color: var(--text);
-      display: flex;
-      align-items: flex-start;
-      gap: 0.75rem;
-      line-height: 1.45;
-    }
-    ul.bullet-list li::before {
-      content: '✓';
-      color: var(--primary-light);
-      font-weight: 800;
-      flex-shrink: 0;
-      margin-top: 1px;
-    }
-
-    /* Code & Technical Blocks */
-    .code-box {
-      background: #060911;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      padding: 1.25rem;
-      font-family: var(--font-mono);
-      font-size: 0.85rem;
-      color: #e2e8f0;
-      line-height: 1.6;
-      overflow-x: auto;
-    }
-    .code-box .token-keyword { color: #f43f5e; font-weight: 700; }
-    .code-box .token-fn { color: #38bdf8; }
-    .code-box .token-str { color: #34d399; }
-    .code-box .token-comment { color: #64748b; font-style: italic; }
-
-    /* Comparison Table */
-    table.data-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.9rem;
-      text-align: left;
-    }
-    table.data-table th, table.data-table td {
-      padding: 10px 14px;
-      border-bottom: 1px solid var(--border);
-    }
-    table.data-table th {
-      background: rgba(255, 255, 255, 0.04);
-      color: var(--text);
-      font-family: var(--font-heading);
-      font-weight: 700;
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    table.data-table td {
-      color: var(--text-muted);
-    }
-    table.data-table tr:hover td {
-      background: rgba(255, 255, 255, 0.02);
-      color: #fff;
-    }
-    .status-check { color: var(--accent-success); font-weight: 800; }
-    .status-cross { color: var(--accent-danger); font-weight: 800; }
-
-    /* Visual Workflow Steps */
-    .workflow-strip {
+    .spoke-item {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem 0.9rem;
       display: flex;
       align-items: center;
-      gap: 1rem;
-      margin-top: 1rem;
-      width: 100%;
+      gap: 0.75rem;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.2s ease;
     }
-    .workflow-step {
-      flex: 1;
-      background: rgba(15, 23, 42, 0.8);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1rem;
-      position: relative;
+    .spoke-item:hover {
+      transform: translateX(3px);
+      border-color: var(--primary-light);
     }
-    .step-number {
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--primary-light);
-      margin-bottom: 0.25rem;
-    }
-    .step-name {
-      font-weight: 700;
-      color: #fff;
-      font-size: 0.95rem;
-      margin-bottom: 0.35rem;
-    }
-    .step-sub {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      line-height: 1.4;
-    }
-    .workflow-arrow {
-      color: var(--primary-light);
-      font-weight: 800;
+    .spoke-icon {
       font-size: 1.25rem;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      background: var(--bg-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .spoke-title {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 0.88rem;
+      color: var(--text);
+    }
+    .spoke-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.3;
     }
 
-    /* Metric Counters */
-    .metric-row {
-      display: flex;
-      gap: 1.5rem;
-      margin-top: 1rem;
-    }
-    .metric-stat {
-      flex: 1;
-      background: rgba(15, 23, 42, 0.7);
+    /* Comparison & Data Tables */
+    table.slide-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      background: var(--bg-surface);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.25rem;
-      text-align: center;
+      box-shadow: var(--shadow-sm);
     }
-    .metric-val {
+    table.slide-table th, table.slide-table td {
+      padding: 0.65rem 0.9rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    table.slide-table th {
+      background: var(--bg-subtle);
       font-family: var(--font-heading);
-      font-size: 2.25rem;
-      font-weight: 800;
-      color: #fff;
-      margin-bottom: 0.25rem;
-    }
-    .metric-val.teal { color: var(--primary-light); }
-    .metric-val.indigo { color: var(--accent-guardian); }
-    .metric-val.emerald { color: var(--accent-success); }
-    .metric-lbl {
-      font-size: 0.8rem;
-      font-weight: 600;
+      font-weight: 700;
+      color: var(--text);
+      font-size: 0.78rem;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: var(--text-dim);
+    }
+    table.slide-table tr:last-child td {
+      border-bottom: none;
+    }
+    table.slide-table tr:hover td {
+      background: rgba(241, 245, 249, 0.5);
+    }
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+    }
+    .badge-status.implemented {
+      background: var(--accent-success-tint);
+      color: var(--accent-success);
+      border: 1px solid rgba(22, 163, 74, 0.25);
     }
 
-    /* Presentation Footer */
-    footer.deck-footer {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 44px;
-      background: rgba(15, 23, 42, 0.9);
-      border-top: 1px solid var(--border);
+    /* Screenshot Frames & Showcase Cards */
+    .screenshot-showcase {
+      display: grid;
+      gap: 1rem;
+      width: 100%;
+      align-items: stretch;
+    }
+    .screenshot-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      transition: all 0.2s ease;
+    }
+    .screenshot-card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--border-focus);
+    }
+    .screenshot-card-img-wrap {
+      background: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.35rem;
+      border-bottom: 1px solid var(--border);
+      max-height: 240px;
+      overflow: hidden;
+    }
+    .screenshot-card-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 4px;
+      display: block;
+    }
+    .screenshot-card-body {
+      padding: 0.75rem 1rem;
+    }
+    .screenshot-card-title {
+      font-family: var(--font-heading);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .screenshot-card-desc {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+      line-height: 1.4;
+    }
+
+    /* Diagram Display Container */
+    .diagram-panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      max-height: 380px;
+      overflow: hidden;
+    }
+    .diagram-panel img {
+      max-width: 100%;
+      max-height: 360px;
+      object-fit: contain;
+    }
+
+    /* Timeline Stepper for Methodology */
+    .timeline-stepper {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.85rem;
+      width: 100%;
+    }
+    .step-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.85rem 0.95rem;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+    }
+    .step-box-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 2rem;
-      font-size: 0.8rem;
-      color: var(--text-dim);
-      z-index: 100;
+      margin-bottom: 0.35rem;
     }
-    .footer-left { display: flex; align-items: center; gap: 1rem; }
-    .footer-center { font-weight: 600; color: var(--text-muted); font-family: var(--font-mono); }
-    .footer-right { display: flex; align-items: center; gap: 0.5rem; }
-    .key-badge {
-      display: inline-block;
-      padding: 2px 6px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 4px;
-      font-size: 0.7rem;
+    .step-index-badge {
       font-family: var(--font-mono);
-      color: var(--text-muted);
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #fff;
+      background: var(--primary);
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
+    .step-phase-name {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: #0f172a;
+    }
+    .step-desc {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    /* Code / Pseudo-logic Box */
+    .logic-box {
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: var(--radius-sm);
+      padding: 0.85rem 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      line-height: 1.5;
+      border: 1px solid #1e293b;
+    }
+    .logic-title {
+      font-family: var(--font-heading);
+      color: #38bdf8;
+      font-weight: 700;
+      font-size: 0.88rem;
+      margin-bottom: 0.35rem;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+    .logic-step {
+      color: #94a3b8;
+      margin-bottom: 0.2rem;
+    }
+    .logic-step strong {
+      color: #f8fafc;
+    }
+    .logic-step em {
+      color: #2dd4bf;
+      font-style: normal;
+      font-weight: 600;
+    }
+
+    /* Highlight Banner Callout */
+    .highlight-callout {
+      background: linear-gradient(135deg, var(--primary-tint), var(--accent-blue-tint));
+      border: 1px solid rgba(13, 148, 136, 0.25);
+      border-radius: var(--radius-sm);
+      padding: 0.85rem 1.25rem;
+      font-size: 0.88rem;
+      color: #0f766e;
+      font-weight: 600;
+      line-height: 1.5;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 0.85rem;
+    }
+    .highlight-callout-icon {
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+
+    /* Slide Footer Controls & Presentation Info */
+    footer.deck-footer {
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.75rem;
+      background: rgba(15, 23, 42, 0.95);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 0.78rem;
+      color: #94a3b8;
+      z-index: 100;
+      flex-shrink: 0;
+    }
+    .footer-left { display: flex; align-items: center; gap: 0.75rem; }
+    .footer-center {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: #e2e8f0;
+      letter-spacing: 0.05em;
+    }
+    .footer-right { display: flex; align-items: center; gap: 0.65rem; }
 
     /* Speaker Notes Drawer */
     #speakerNotesDrawer {
       position: fixed;
-      bottom: 44px;
+      bottom: 42px;
       left: 0;
       right: 0;
-      height: 220px;
-      background: #080d1a;
-      border-top: 2px solid var(--primary);
-      padding: 1.5rem 2.5rem;
+      height: 210px;
+      background: #0f172a;
+      border-top: 3px solid var(--primary);
+      padding: 1.25rem 2.5rem;
       transform: translateY(100%);
       transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      z-index: 90;
-      box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6);
+      z-index: 110;
+      box-shadow: 0 -15px 35px rgba(0, 0, 0, 0.5);
       overflow-y: auto;
+      color: #cbd5e1;
     }
     #speakerNotesDrawer.open {
       transform: translateY(0);
@@ -487,932 +803,1724 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.65rem;
+      padding-bottom: 0.45rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
     .notes-title {
       font-family: var(--font-heading);
       font-size: 0.95rem;
       font-weight: 700;
-      color: var(--primary-light);
+      color: #2dd4bf;
       display: flex;
       align-items: center;
       gap: 0.5rem;
     }
-    .notes-body {
-      font-size: 0.9rem;
+    .notes-content {
+      font-size: 0.88rem;
       line-height: 1.6;
-      color: #cbd5e1;
+      color: #e2e8f0;
     }
-    .notes-body strong { color: #fff; }
-    .notes-body em { color: var(--accent-warning); font-style: normal; font-weight: 600; }
+    .notes-content strong { color: #ffffff; }
+    .notes-content em { color: #f59e0b; font-style: normal; font-weight: 600; }
 
     /* Overview Grid Modal */
     #overviewModal {
       position: fixed;
-      top: 56px;
-      left: 0;
-      width: 100vw;
-      height: calc(100vh - 56px);
-      background: rgba(9, 13, 22, 0.96);
+      inset: 54px 0 42px 0;
+      background: rgba(11, 19, 41, 0.96);
       backdrop-filter: blur(20px);
       z-index: 150;
-      padding: 3rem;
+      padding: 2.5rem 3.5rem;
       overflow-y: auto;
       display: none;
     }
     #overviewModal.open {
       display: block;
     }
+    .overview-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1300px;
+      margin: 0 auto 1.5rem auto;
+      color: #fff;
+    }
+    .overview-modal-title {
+      font-family: var(--font-heading);
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
     .overview-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1.5rem;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1rem;
       max-width: 1300px;
       margin: 0 auto;
     }
     .overview-thumb {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 1rem;
+      background: #1e293b;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-sm);
+      padding: 0.9rem;
       cursor: pointer;
       transition: all 0.2s ease;
-      min-height: 140px;
+      min-height: 120px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      text-align: left;
     }
     .overview-thumb:hover {
       border-color: var(--primary-light);
-      transform: scale(1.03);
+      transform: translateY(-2px);
+      background: #334155;
     }
     .overview-thumb.current {
-      border-color: var(--primary);
-      box-shadow: 0 0 15px var(--primary-glow);
+      border-color: #2dd4bf;
+      box-shadow: 0 0 15px rgba(45, 212, 191, 0.35);
+      background: rgba(13, 148, 136, 0.2);
     }
     .thumb-num {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-family: var(--font-mono);
-      color: var(--primary-light);
+      color: #2dd4bf;
       font-weight: 700;
     }
     .thumb-title {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       font-weight: 700;
       color: #fff;
-      margin-top: 0.5rem;
+      margin-top: 0.4rem;
+      line-height: 1.3;
     }
 
-    /* Live Link Button */
-    .btn-live {
-      background: linear-gradient(135deg, var(--primary), #0284c7);
-      color: #fff;
-      font-weight: 700;
-      font-size: 0.85rem;
-      padding: 6px 14px;
-      border-radius: 8px;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      box-shadow: 0 2px 10px rgba(13, 148, 136, 0.3);
-      transition: all 0.2s ease;
-      border: none;
-      cursor: pointer;
-    }
-    .btn-live:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 16px rgba(13, 148, 136, 0.5);
+    /* Print Styles for Direct PDF Export */
+    @media print {
+      body {
+        background: #ffffff;
+        color: #000000;
+        overflow: visible;
+        height: auto;
+        width: auto;
+      }
+      .viewport-backdrop, header.deck-header, footer.deck-footer, #speakerNotesDrawer, #overviewModal, .slide-progress-bar {
+        display: none !important;
+      }
+      main.stage {
+        padding: 0;
+        display: block;
+        overflow: visible;
+      }
+      .slide-canvas {
+        max-width: none;
+        max-height: none;
+        box-shadow: none;
+        border-radius: 0;
+        overflow: visible;
+        display: block;
+      }
+      .slide {
+        position: relative !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        transform: none !important;
+        page-break-after: always !important;
+        break-after: page !important;
+        height: 100vh !important;
+        width: 100vw !important;
+        padding: 3rem 4rem !important;
+        border-bottom: 2px solid #e2e8f0;
+      }
     }
   </style>
 </head>
 <body>
 
-  <div class="ambient-glow"></div>
+  <div class="viewport-backdrop"></div>
 
-  <!-- Header -->
+  <!-- Header Navigation -->
   <header class="deck-header">
     <div class="brand-group">
-      <div class="brand-logo">✚</div>
+      <div class="brand-logo-badge">✚</div>
       <div class="brand-title">DoseTrack</div>
-      <span class="eval-badge">Mini Project Evaluation</span>
+      <span class="brand-sep">/</span>
+      <span class="eval-badge">Mini Project Presentation</span>
+      <span class="college-tag">KMCT IETM · Dept. of Computer Application</span>
     </div>
 
     <div class="deck-controls">
-      <button class="ctrl-btn" id="btnNotesToggle" title="Toggle Speaker Notes (N)">
-        🎙️ Notes <span class="key-badge">N</span>
+      <button class="ctrl-btn" id="btnNotesToggle" title="Toggle Speaker Notes (Hotkey: N)">
+        🎙️ Speaker Notes <span class="key-badge">N</span>
       </button>
-      <button class="ctrl-btn" id="btnOverviewToggle" title="Grid View (O)">
+      <button class="ctrl-btn" id="btnOverviewToggle" title="Grid Slide View (Hotkey: O)">
         ⊞ Overview <span class="key-badge">O</span>
       </button>
-      <button class="ctrl-btn" id="btnFullscreenToggle" title="Toggle Fullscreen (F)">
+      <button class="ctrl-btn" id="btnFullscreenToggle" title="Toggle Fullscreen (Hotkey: F)">
         ⛶ Fullscreen <span class="key-badge">F</span>
       </button>
-      <a href="/" target="_blank" class="btn-live">
+      <button class="ctrl-btn download-btn" id="btnDownloadPptx" title="Download Official Presentation (.pptx)">
+        📥 Download PPTX
+      </button>
+      <a href="/" target="_blank" class="ctrl-btn" style="background: rgba(255,255,255,0.12); color:#fff; text-decoration:none;">
         🚀 Live App ↗
       </a>
     </div>
   </header>
 
   <!-- Progress Bar -->
-  <div class="slide-progress-bar" id="progressBar" style="width: 8.33%;"></div>
+  <div class="slide-progress-bar">
+    <div class="slide-progress-fill" id="progressBar" style="width: 5.26%;"></div>
+  </div>
 
-  <!-- Slides Container -->
-  <main class="slides-container" id="slidesContainer">
+  <!-- Presentation Stage (16:9 Canvas) -->
+  <main class="stage">
+    <div class="slide-canvas" id="slideCanvas">
 
-    <!-- SLIDE 1: Title & Introduction -->
-    <section class="slide active" data-slide="1" data-notes="Good morning respected evaluators. Today we are presenting DoseTrack: a connected medication care platform designed to synchronize treatment schedules between Patients, Guardians, and Caretakers, integrated with an AI-powered multimodal prescription scanner. In accordance with the evaluation criteria, we will place special emphasis on our project methodology and algorithms, implementation details across modules, and our results with clinical performance analysis.">
-      <div class="slide-tag">Mini Project Final Evaluation · Fall 2026</div>
-      <h1 class="slide-title">DoseTrack <span class="highlight">✚</span><br>Connected Medication Care Triangle</h1>
-      <p class="slide-subtitle">A unified platform integrating Role-Based Care Collaboration, Latin-Prescription AI Vision Parsing, and Real-Time Adherence Tracking.</p>
-
-      <div class="grid-3" style="margin-top: 1rem;">
-        <div class="card card-accent-primary">
-          <div class="card-header-icon">📐</div>
-          <h3 class="card-title">1. Project Methodology</h3>
-          <p class="card-desc">3-Tier client-server model, deterministic care-binding algorithm, multimodal Vision LLM parsing, and adherence evaluation formulas.</p>
-        </div>
-        <div class="card card-accent-guardian">
-          <div class="card-header-icon">⚙️</div>
-          <h3 class="card-title">2. Implementation</h3>
-          <p class="card-desc">Node.js Express REST API, MySQL 8.4 InnoDB schema, JWT auth, cron scheduler, and role-tailored reactive frontend.</p>
-        </div>
-        <div class="card card-accent-caretaker">
-          <div class="card-header-icon">📊</div>
-          <h3 class="card-title">3. Results & Analysis</h3>
-          <p class="card-desc">Extraction accuracy & latency benchmarks, query performance, 97% adherence case study, and comparison with legacy solutions.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 2: Problem Definition & Clinical Motivation -->
-    <section class="slide" data-slide="2" data-notes="Let us first discuss why this project is critical. According to the WHO and CDC, medication non-adherence causes more than 125,000 preventable deaths every single year and imposes over $100 billion in avoidable healthcare overhead. The problem is three-fold: First, patients—especially the elderly—struggle with multi-drug regimens. Second, family guardians lack visibility and live in anxiety. Third, doctor prescriptions are notorious for unreadable handwriting and cryptic Latin abbreviations like Sig, PO, bid, and hs, leading directly to dosage errors. DoseTrack bridges this exact gap.">
-      <div class="slide-tag">Clinical Background & Problem Formulation</div>
-      <h2 class="slide-title">The Problem: <span class="highlight">Adherence Breakdown & Prescription Illegibility</span></h2>
-      <p class="slide-subtitle">Current healthcare management suffers from fragmented communication circles and complex handwritten medical instructions.</p>
-
-      <div class="grid-2">
-        <div class="card card-accent-warning">
-          <h3 class="card-title" style="color: var(--accent-warning);">⚠️ Critical Clinical Challenges</h3>
-          <ul class="bullet-list" style="margin-top: 1rem;">
-            <li><strong>>125,000 Annual Preventable Deaths:</strong> Caused by missed doses, incorrect timings, or unintentional polypharmacy overdoses.</li>
-            <li><strong>Fragmented Care Circle:</strong> Guardians and nurses have zero live visibility into whether an elderly or outpatient actually took their dose.</li>
-            <li><strong>Illegible Latin Prescriptions:</strong> Doctor scripts use cryptic shorthand (<code>PO</code>, <code>qd</code>, <code>bid</code>, <code>tid</code>, <code>hs</code>, <code>prn</code>), causing transcription errors.</li>
-            <li><strong>Legacy App Failures:</strong> Generic phone alarms lack verification, multi-user role synchronization, and vital sign correlations.</li>
-          </ul>
+      <!-- ========================================== -->
+      <!-- SLIDE 1: TITLE SLIDE                       -->
+      <!-- ========================================== -->
+      <section class="slide active" data-slide="1" data-title="Title & Project Overview" data-notes="Respected guide Ms. Ansha MK, coordinator Prof. Kavitha G. Nair, Head of Department Thejas Mon P, and respected evaluators: Good morning. We are presenting our BCA S5 Mini Project titled 'DoseTrack – Medication Reminder & Adherence Monitoring System'. Our project team comprises Mefa Rahiman, Shabana, Sreya S Jeevan, and Gopika Babu from the Department of Computer Application, KMCT Institute of Emerging Technology and Management, affiliated to APJ Abdul Kalam Technological University. DoseTrack is an accessible, web-based healthcare software system designed to eliminate forgotten doses and scattered medication routines.">
+        <div class="slide-topbar">
+          <span class="slide-category">Mini Project Presentation · Final Evaluation</span>
+          <span class="slide-watermark">APJ KTU · October 2026</span>
         </div>
 
-        <div class="card card-accent-success">
-          <h3 class="card-title" style="color: var(--accent-success);">💡 The DoseTrack Solution</h3>
-          <ul class="bullet-list" style="margin-top: 1rem;">
-            <li><strong>Connected Care Triangle:</strong> A unified, synchronized workspace for Patient (daily timeline), Guardian (remote oversight), and Nurse (clinical rounds).</li>
-            <li><strong>AI Prescription Vision Pipeline:</strong> Converts mobile camera photos of doctor handwritten orders into structured medication schedules.</li>
-            <li><strong>Instant SOS & Care Alert Dispatch:</strong> Real-time family nudges, missed dose escalations, and 1-tap emergency broadcasts.</li>
-            <li><strong>Clinical Vitals Logger:</strong> Correlates Blood Pressure, Glucose, and SpO2 with medication adherence history.</li>
-          </ul>
-        </div>
-      </div>
-    </section>
+        <div class="slide-body" style="justify-content: space-between;">
+          <!-- Top Hero -->
+          <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--border); padding-bottom: 1.25rem;">
+            <div>
+              <div style="display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--font-mono); font-size: 0.8rem; font-weight: 700; color: var(--primary); text-transform: uppercase; margin-bottom: 0.4rem;">
+                <span>✚</span> KMCT Institute of Emerging Technology & Management
+              </div>
+              <h1 style="font-family: var(--font-heading); font-size: 2.85rem; font-weight: 800; color: #0f172a; line-height: 1.1; letter-spacing: -0.03em;">
+                DoseTrack
+              </h1>
+              <h2 style="font-family: var(--font-heading); font-size: 1.35rem; font-weight: 600; color: var(--primary); margin-top: 0.25rem;">
+                Medication Reminder &amp; Adherence Monitoring System
+              </h2>
+              <p style="font-size: 0.92rem; color: var(--text-muted); margin-top: 0.45rem;">
+                A centralized digital platform for dosage scheduling, automated timely reminders, compliance tracking, and physician contact access.
+              </p>
+            </div>
+            <div style="background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0.75rem 1.25rem; display: flex; align-items: center; gap: 1rem; box-shadow: var(--shadow-sm);">
+              <img src="images/logo_kmct.png" alt="KMCT Emblem" style="height: 68px; object-fit: contain;">
+              <div style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.4;">
+                <strong style="color: #0f172a; display: block; font-size: 0.85rem;">Department of Computer Application</strong>
+                Bachelor of Computer Application (BCA S5)<br>
+                Mukkam, Kozhikode, Kerala
+              </div>
+            </div>
+          </div>
 
-    <!-- SLIDE 3: Methodology - System Architecture -->
-    <section class="slide" data-slide="3" data-notes="Moving to our first evaluation emphasis: Project Methodology. We engineered DoseTrack as a robust 3-Tier Distributed Architecture. The Presentation Layer is built in Vanilla ES6+ and modern CSS glassmorphism, eliminating heavy virtual-DOM overhead for instant mobile loading. The Application Layer runs an Express REST API with stateless JWT authentication, cron scheduling, and rate-limiting. The Persistence Layer uses MySQL 8.4 with InnoDB, relational foreign keys, and ON DELETE CASCADE constraints. Our Vision AI Pipeline leverages Google Gemini 1.5/2.0 Flash Vision with in-memory Base64 processing to maintain zero-disk HIPAA-grade privacy.">
-      <div class="slide-tag">Emphasis 1: Project Methodology · Architecture</div>
-      <h2 class="slide-title">3-Tier Distributed <span class="highlight">System Architecture</span></h2>
-      <p class="slide-subtitle">Engineered for low-latency synchronization, role isolation, and HIPAA-friendly ephemeral data pipelines.</p>
+          <!-- Middle Value Pillars -->
+          <div class="grid-3" style="margin: 0.85rem 0;">
+            <div class="card card-accent-teal" style="padding: 1rem;">
+              <div class="card-icon teal">💊</div>
+              <div class="card-title">Medication Management</div>
+              <div class="card-desc">Centralized cabinet to organize medicine names, dosage units, frequency, intake instructions, and duration.</div>
+            </div>
+            <div class="card card-accent-blue" style="padding: 1rem;">
+              <div class="card-icon blue">⏰</div>
+              <div class="card-title">Automated Reminders</div>
+              <div class="card-desc">Scheduled notification alerts triggered precisely when doses become due, preventing missed or delayed intakes.</div>
+            </div>
+            <div class="card card-accent-green" style="padding: 1rem;">
+              <div class="card-icon green">📊</div>
+              <div class="card-title">Adherence Tracking</div>
+              <div class="card-desc">Interactive Taken/Missed logging with persistent MySQL history and an interactive daily overview dashboard.</div>
+            </div>
+          </div>
 
-      <div class="grid-3">
-        <div class="card card-accent-primary">
-          <div class="card-header-icon">💻</div>
-          <h3 class="card-title">1. Presentation Tier</h3>
-          <p class="card-desc" style="margin-bottom: 0.75rem;"><strong>Vanilla ES6+ SPA Architecture</strong></p>
-          <ul class="bullet-list">
-            <li>Zero framework bundle bloat (&lt;95KB total footprint).</li>
-            <li>Role-tailored dynamic view state management.</li>
-            <li>Camera capture API (<code>capture="environment"</code>).</li>
-            <li>Responsive micro-animations & live metric timers.</li>
-          </ul>
+          <!-- Bottom Metadata Bar -->
+          <div style="display: grid; grid-template-columns: 1.4fr 1.2fr 0.8fr; gap: 1rem; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.85rem 1.25rem; box-shadow: var(--shadow-sm);">
+            <div>
+              <div style="font-size: 0.7rem; font-family: var(--font-mono); font-weight: 700; color: var(--primary); text-transform: uppercase;">Project Team (BCA S5)</div>
+              <div style="font-weight: 700; color: #0f172a; font-size: 0.88rem; margin-top: 0.2rem;">
+                Mefa Rahiman &nbsp;•&nbsp; Shabana &nbsp;•&nbsp; Sreya S Jeevan &nbsp;•&nbsp; Gopika Babu
+              </div>
+            </div>
+            <div>
+              <div style="font-size: 0.7rem; font-family: var(--font-mono); font-weight: 700; color: var(--accent-blue); text-transform: uppercase;">Faculty Guidance</div>
+              <div style="font-size: 0.85rem; color: #0f172a; margin-top: 0.2rem;">
+                <strong>Guide:</strong> Ms. Ansha MK &nbsp;|&nbsp; <strong>Coord:</strong> Prof. Kavitha G. Nair
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 0.7rem; font-family: var(--font-mono); font-weight: 700; color: var(--text-dim); text-transform: uppercase;">Academic Session</div>
+              <div style="font-weight: 700; color: #0f172a; font-size: 0.85rem; margin-top: 0.2rem;">October 2026</div>
+            </div>
+          </div>
         </div>
+      </section>
 
-        <div class="card card-accent-guardian">
-          <div class="card-header-icon">⚙️</div>
-          <h3 class="card-title">2. Application Engine</h3>
-          <p class="card-desc" style="margin-bottom: 0.75rem;"><strong>Node.js & Express REST Core</strong></p>
-          <ul class="bullet-list">
-            <li>Stateless JWT with RBAC authorization middleware.</li>
-            <li>Rate limiting & Helmet security headers.</li>
-            <li>Vision AI Gateway (Gemini Flash / OpenAI / Heuristic).</li>
-            <li><code>node-cron</code> background reminder evaluator.</li>
-          </ul>
+      <!-- ========================================== -->
+      <!-- SLIDE 2: ABSTRACT                          -->
+      <!-- ========================================== -->
+      <section class="slide" data-slide="2" data-title="Project Abstract" data-notes="Slide 2 presents our Project Abstract. Medication adherence remains one of the greatest day-to-day challenges in modern healthcare. Patients—particularly elderly individuals and those with chronic conditions—struggle to keep track of multiple medicines, exact timings, and differing dosages. Traditional methods like memory, handwritten paper notes, or disjointed mobile phone alarms fail because they do not provide a centralized record or adherence audit trail. DoseTrack solves this by providing a unified web-based platform built with HTML5, CSS3, JavaScript, and MySQL that seamlessly manages medications, schedules doses, delivers reminders, records taken/missed statuses, and stores doctor contact information.">
+        <div class="slide-topbar">
+          <span class="slide-category">Project Overview</span>
+          <span class="slide-watermark">Slide 02 / 19</span>
         </div>
-
-        <div class="card card-accent-caretaker">
-          <div class="card-header-icon">🗄️</div>
-          <h3 class="card-title">3. Persistence Tier</h3>
-          <p class="card-desc" style="margin-bottom: 0.75rem;"><strong>MySQL 8.4 Enterprise Relational</strong></p>
-          <ul class="bullet-list">
-            <li>InnoDB engine with relational foreign keys.</li>
-            <li>Indexed lookups on <code>(user_id, scheduled_for)</code>.</li>
-            <li>JSON schema support for flexible clinical vitals.</li>
-            <li>Self-healing auto-migration and startup seeding.</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="workflow-strip" style="margin-top: 1.5rem;">
-        <div class="workflow-step">
-          <div class="step-number">CLIENT LAYER</div>
-          <div class="step-name">SPA Browser / Mobile</div>
-          <div class="step-sub">HTML5, CSS3, ES6 Fetch, Web Storage</div>
-        </div>
-        <div class="workflow-arrow">⇄</div>
-        <div class="workflow-step">
-          <div class="step-number">GATEWAY LAYER</div>
-          <div class="step-name">Express REST API</div>
-          <div class="step-sub">JWT Verification, RBAC, Rate Limiting</div>
-        </div>
-        <div class="workflow-arrow">⇄</div>
-        <div class="workflow-step">
-          <div class="step-number">AI PIPELINE</div>
-          <div class="step-name">Multimodal Vision LLM</div>
-          <div class="step-sub">Gemini 1.5/2.0 Flash / In-memory Heuristic</div>
-        </div>
-        <div class="workflow-arrow">⇄</div>
-        <div class="workflow-step">
-          <div class="step-number">DATA LAYER</div>
-          <div class="step-name">MySQL 8 Relational DB</div>
-          <div class="step-sub">InnoDB, Cascade Constraints, Indexes</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 4: Methodology - Algorithms & Mathematical Model -->
-    <section class="slide" data-slide="4" data-notes="Now let us look at the core algorithms and mathematical formulations powering DoseTrack. First is our Care-Binding Collision-Avoidance Algorithm: each patient is assigned a deterministic alphanumeric code DT-PT-XXXX with a retry-based collision resolver. Second is our AI Latin Extraction and Confidence Scoring Heuristic: we feed multimodal prompts with standard Latin pharmacological mapping and calculate a confidence score between 0.0 and 1.0. If confidence is greater than or equal to 0.75, it auto-fills with a green badge; if below 0.75, it signals user verification. Third is our Adherence Evaluation Formula, which computes adherence as the ratio of verified taken doses to total scheduled doses across temporal windows.">
-      <div class="slide-tag">Emphasis 1: Project Methodology · Algorithms & Logic</div>
-      <h2 class="slide-title">Core Algorithms & <span class="highlight">Mathematical Formulations</span></h2>
-      <p class="slide-subtitle">Algorithmic rigor in patient identity resolution, Latin abbreviation translation, and adherence scoring.</p>
-
-      <div class="grid-2">
-        <div class="card card-accent-primary">
-          <h3 class="card-title">Algorithm 1: Patient Code Collision Resolver</h3>
-          <p class="card-desc" style="margin-bottom: 0.75rem;">Guarantees unique, human-readable patient binding keys without leaking database autoincrement IDs:</p>
-          <div class="code-box">
-<span class="token-keyword">async function</span> <span class="token-fn">generatePatientCode</span>() {
-  <span class="token-keyword">for</span> (<span class="token-keyword">let</span> i = 0; i &lt; 10; i++) {
-    <span class="token-keyword">const</span> code = <span class="token-str">'DT-PT-'</span> + Math.<span class="token-fn">floor</span>(1000 + Math.<span class="token-fn">random</span>() * 9000);
-    <span class="token-keyword">const</span> [rows] = <span class="token-keyword">await</span> db.<span class="token-fn">execute</span>(
-      <span class="token-str">'SELECT id FROM users WHERE patient_code = ?'</span>, [code]
-    );
-    <span class="token-keyword">if</span> (!rows.length) <span class="token-keyword">return</span> code; <span class="token-comment">// Collision-free</span>
-  }
-  <span class="token-keyword">return</span> <span class="token-str">'DT-PT-'</span> + Date.<span class="token-fn">now</span>().<span class="token-fn">toString</span>().<span class="token-fn">slice</span>(-4);
-}</div>
+        <div class="slide-header">
+          <h2 class="slide-title">Project <span class="highlight">Abstract</span></h2>
+          <p class="slide-subtitle">Centralized digital medication management, scheduled alerts, and adherence audit history.</p>
         </div>
 
-        <div class="card card-accent-guardian">
-          <h3 class="card-title">Algorithm 2: Latin Abbreviation & Confidence Logic</h3>
-          <p class="card-desc" style="margin-bottom: 0.75rem;">Maps pharmacological Latin shorthand into structured temporal slots with confidence thresholds:</p>
-          <table class="data-table">
+        <div class="slide-body">
+          <div class="grid-2" style="margin-bottom: 0.85rem;">
+            <!-- Core Purpose -->
+            <div class="card card-accent-teal">
+              <div class="card-icon teal">🎯</div>
+              <div class="card-title">What is DoseTrack?</div>
+              <p class="card-desc" style="margin-bottom: 0.6rem;">
+                A smart web-based digital healthcare system engineered to streamline daily medication regimens into a structured, unified workflow:
+              </p>
+              <ul class="feature-list">
+                <li><span class="bullet-dot">✓</span> <span><strong>Medication Management:</strong> Store medicine names, dosages, quantity, instructions, and duration.</span></li>
+                <li><span class="bullet-dot">✓</span> <span><strong>Schedule Configuration:</strong> Configure exact dose timings (e.g., 08:00 AM, 08:00 PM) and daily frequency.</span></li>
+                <li><span class="bullet-dot">✓</span> <span><strong>Automated Reminders:</strong> Real-time alerts notified at specified times to prevent forgotten intakes.</span></li>
+                <li><span class="bullet-dot">✓</span> <span><strong>Adherence Monitoring:</strong> Record whether each dose was Taken or Missed with timestamps.</span></li>
+                <li><span class="bullet-dot">✓</span> <span><strong>Doctor-Contact Access:</strong> Access stored doctor profiles, specializations, and clinic contact options.</span></li>
+              </ul>
+            </div>
+
+            <!-- Problem with Traditional Approaches -->
+            <div class="card card-accent-rose">
+              <div class="card-icon rose">⚠️</div>
+              <div class="card-title">Limitations of Traditional Approaches</div>
+              <p class="card-desc" style="margin-bottom: 0.6rem;">
+                Traditional non-centralized methods commonly used by patients introduce serious vulnerabilities in treatment consistency:
+              </p>
+              <ul class="feature-list">
+                <li><span class="bullet-cross">✗</span> <span><strong>Memory-Based Tracking:</strong> High risk of human error, forgotten doses, or unintended double-dosing.</span></li>
+                <li><span class="bullet-cross">✗</span> <span><strong>Scattered Alarms &amp; Paper Notes:</strong> Disconnected phone alarms lack medicine details, dosage, and special instructions.</span></li>
+                <li><span class="bullet-cross">✗</span> <span><strong>Multi-Drug Complexity:</strong> Managing varying timings and frequencies across 3+ medicines causes confusion.</span></li>
+                <li><span class="bullet-cross">✗</span> <span><strong>No Centralized History:</strong> Patients and doctors have no reliable log to verify past medication adherence.</span></li>
+                <li><span class="bullet-cross">✗</span> <span><strong>Isolated Contacts:</strong> Emergency clinic numbers are kept on papers or separate phonebooks.</span></li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Flow Strip -->
+          <div style="background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.85rem 1.25rem; box-shadow: var(--shadow-sm);">
+            <div style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--primary); text-transform: uppercase; margin-bottom: 0.35rem;">
+              Core System Information Flow
+            </div>
+            <div class="flow-strip" style="margin: 0;">
+              <div class="flow-node">
+                <div class="flow-step-num">Step 1</div>
+                <div class="flow-node-title">Medication Entry</div>
+                <div class="flow-node-sub">Name, dosage &amp; instructions</div>
+              </div>
+              <div class="flow-arrow">→</div>
+              <div class="flow-node">
+                <div class="flow-step-num">Step 2</div>
+                <div class="flow-node-title">Schedule Config</div>
+                <div class="flow-node-sub">Dose times &amp; frequency</div>
+              </div>
+              <div class="flow-arrow">→</div>
+              <div class="flow-node">
+                <div class="flow-step-num">Step 3</div>
+                <div class="flow-node-title">Automated Reminder</div>
+                <div class="flow-node-sub">Triggered at due time</div>
+              </div>
+              <div class="flow-arrow">→</div>
+              <div class="flow-node">
+                <div class="flow-step-num">Step 4</div>
+                <div class="flow-node-title">Dose Status</div>
+                <div class="flow-node-sub">Marked Taken / Missed</div>
+              </div>
+              <div class="flow-arrow">→</div>
+              <div class="flow-node highlighted">
+                <div class="flow-step-num">Step 5</div>
+                <div class="flow-node-title">Adherence History</div>
+                <div class="flow-node-sub">MySQL audit log &amp; dashboard</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- SLIDE 3: PROBLEM STATEMENT                 -->
+      <!-- ========================================== -->
+      <section class="slide" data-slide="3" data-title="Problem Statement" data-notes="Moving to Slide 3: The Problem Statement. In daily healthcare routines, forgetting medication timings is a widespread issue, particularly for elderly individuals and chronic patients taking multiple medications. Scattered sticky notes or basic clock alarms fail to provide unified management. Users cannot look back and see what was taken and what was missed. Furthermore, doctor contact information is often kept elsewhere, creating friction during emergencies. Therefore, there is an urgent need for an accessible, centralized system that unifies medication details, schedules, reminders, basic tracking, and doctor contacts in one place.">
+        <div class="slide-topbar">
+          <span class="slide-category">Problem Definition</span>
+          <span class="slide-watermark">Slide 03 / 19</span>
+        </div>
+        <div class="slide-header">
+          <h2 class="slide-title">Problem <span class="highlight">Statement</span></h2>
+          <p class="slide-subtitle">Challenges in manual medication tracking and scattered health routines.</p>
+        </div>
+
+        <div class="slide-body">
+          <div class="grid-3" style="margin-bottom: 0.85rem;">
+            <div class="card card-accent-rose">
+              <div class="card-icon rose">🧠</div>
+              <div class="card-title">Forgetfulness &amp; Delayed Doses</div>
+              <div class="card-desc">Patients frequently forget prescribed timings due to busy daily schedules, age-related memory lapses, or routine disruptions.</div>
+            </div>
+            <div class="card card-accent-amber">
+              <div class="card-icon amber">💊</div>
+              <div class="card-title">Multiple Medicines Complexity</div>
+              <div class="card-desc">Different prescriptions require distinct dosages, frequencies (once/twice daily), meal relations (before/after food), and durations.</div>
+            </div>
+            <div class="card card-accent-indigo">
+              <div class="card-icon indigo">⏰</div>
+              <div class="card-title">Scattered Reminders</div>
+              <div class="card-desc">Relying on memory, handwritten notes, or generic mobile alarms leaves data scattered with no contextual medicine information.</div>
+            </div>
+            <div class="card card-accent-teal">
+              <div class="card-icon teal">📋</div>
+              <div class="card-title">No Centralized History</div>
+              <div class="card-desc">Patients have no simple way to verify what has been taken and what has been missed, hindering clinical progress evaluations.</div>
+            </div>
+            <div class="card card-accent-blue">
+              <div class="card-icon blue">🏥</div>
+              <div class="card-title">Isolated Healthcare Contacts</div>
+              <div class="card-desc">Physician profiles, clinic consultation hours, and emergency contact details are maintained separately from daily medicine routines.</div>
+            </div>
+            <div class="card card-accent-green">
+              <div class="card-icon green">📉</div>
+              <div class="card-title">Health Complications</div>
+              <div class="card-desc">Irregular medicine intake and skipped doses compromise therapy consistency, leading to preventable health deterioration.</div>
+            </div>
+          </div>
+
+          <!-- The Core Need Box -->
+          <div class="highlight-callout">
+            <span class="highlight-callout-icon">💡</span>
+            <div>
+              <strong>The Identified System Need:</strong>
+              “There is an imperative need for a simple, accessible, and centralized web-based system that consolidates medication details, flexible schedules, automated reminders, dose-status recording, and doctor contact information into a single unified platform.”
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- SLIDE 4: OBJECTIVES                        -->
+      <!-- ========================================== -->
+      <section class="slide" data-slide="4" data-title="Project Objectives" data-notes="Slide 4 outlines the six primary objectives of DoseTrack as formulated in Chapter 2 of our project report. First, efficient medication management: allowing users to add, update, delete, and view comprehensive drug records. Second, automated reminders: notifying patients when doses become due based on predefined timings. Third, adherence monitoring: recording Taken or Missed status and maintaining a complete history in MySQL. Fourth, a user-friendly dashboard: presenting today's routine and adherence status at a glance. Fifth, doctor-contact access: providing easy access to stored physician profiles and clinic details. Sixth, secure and organized data management: using a structured MySQL database to manage user accounts, medications, schedules, and logs safely.">
+        <div class="slide-topbar">
+          <span class="slide-category">System Goals</span>
+          <span class="slide-watermark">Slide 04 / 19</span>
+        </div>
+        <div class="slide-header">
+          <h2 class="slide-title">Project <span class="highlight">Objectives</span></h2>
+          <p class="slide-subtitle">Six distinct technical and functional goals defined in the project scope.</p>
+        </div>
+
+        <div class="slide-body">
+          <div class="grid-3" style="gap: 1rem;">
+            <!-- Objective 1 -->
+            <div class="card card-accent-teal">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div class="card-icon teal">📦</div>
+                <span style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--primary);">OBJ 01</span>
+              </div>
+              <div class="card-title">Efficient Medication Management</div>
+              <div class="card-desc">
+                Create a centralized platform where patients can add, update, delete, and manage medication records including names, dosages, quantity, instructions, and duration.
+              </div>
+            </div>
+
+            <!-- Objective 2 -->
+            <div class="card card-accent-blue">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div class="card-icon blue">⏰</div>
+                <span style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--accent-blue);">OBJ 02</span>
+              </div>
+              <div class="card-title">Automated Medication Reminders</div>
+              <div class="card-desc">
+                Implement a reliable reminder mechanism that notifies patients when their scheduled dose is due based on predefined dosage timings and frequencies.
+              </div>
+            </div>
+
+            <!-- Objective 3 -->
+            <div class="card card-accent-green">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div class="card-icon green">📊</div>
+                <span style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--accent-success);">OBJ 03</span>
+              </div>
+              <div class="card-title">Monitor &amp; Track Adherence</div>
+              <div class="card-desc">
+                Record each scheduled dose as Taken or Missed, store events in a database, and provide a chronological history enabling users to review adherence patterns.
+              </div>
+            </div>
+
+            <!-- Objective 4 -->
+            <div class="card card-accent-indigo">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div class="card-icon indigo">💻</div>
+                <span style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--accent-indigo);">OBJ 04</span>
+              </div>
+              <div class="card-title">User-Friendly Dashboard</div>
+              <div class="card-desc">
+                Deliver an intuitive, centralized dashboard displaying upcoming medication doses, completed doses, missed medications, and recent adherence activities.
+              </div>
+            </div>
+
+            <!-- Objective 5 -->
+            <div class="card card-accent-amber">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div class="card-icon amber">🩺</div>
+                <span style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--accent-warning);">OBJ 05</span>
+              </div>
+              <div class="card-title">Easy Doctor-Contact Access</div>
+              <div class="card-desc">
+                Provide a dedicated doctor-contact module storing names, specializations, clinic details, availability hours, and communication options for prompt medical guidance.
+              </div>
+            </div>
+
+            <!-- Objective 6 -->
+            <div class="card card-accent-rose">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div class="card-icon rose">🗄️</div>
+                <span style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--accent-danger);">OBJ 06</span>
+              </div>
+              <div class="card-title">Organized Data Management</div>
+              <div class="card-desc">
+                Develop a structured MySQL database ensuring secure storage of patient profiles, medication entries, dosage schedules, adherence history, and doctor contacts.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- SLIDE 5: LITERATURE SURVEY                 -->
+      <!-- ========================================== -->
+      <section class="slide" data-slide="5" data-title="Literature Survey" data-notes="Slide 5 reviews existing approaches from Chapter 4 of our project report. Moshnyaga et al. (2016) proposed a Kinect-sensor system for dementia patients that gives vocal guidance and monitors physical movement, but specialized sensing hardware adds high cost and complexity. Rajan et al. (2021) developed an IoT smart pill box with Arduino and GSM using the Blynk app; while automated, hardware pill dispensers require physical maintenance, electrical connectivity, and hardware setup. Srinivas et al. (2018) added vital-sign sensors to an IoT medicine box to alert guardians, but this also increases implementation complexity. Mason et al. (2022) conducted an extensive review of electronic pill boxes, bottles, and patient-reported tracking, noting that sensor activity logs do not guarantee true consumption. This motivated DoseTrack: an accessible, software-based solution combining reminders, tracking, and doctor contacts without requiring specialized hardware.">
+        <div class="slide-topbar">
+          <span class="slide-category">Background Research</span>
+          <span class="slide-watermark">Slide 05 / 19</span>
+        </div>
+        <div class="slide-header">
+          <h2 class="slide-title">Literature Survey &amp; <span class="highlight">Existing Approaches</span></h2>
+          <p class="slide-subtitle">Analysis of existing adherence systems and motivation for a software-based platform.</p>
+        </div>
+
+        <div class="slide-body">
+          <table class="slide-table" style="margin-bottom: 0.85rem;">
             <thead>
-              <tr><th>Latin Term</th><th>Meaning</th><th>Temporal Mapping</th></tr>
+              <tr>
+                <th style="width: 25%;">Study / Approach</th>
+                <th style="width: 25%;">Technology Used</th>
+                <th style="width: 25%;">Key Strengths</th>
+                <th style="width: 25%;">Limitations Identified</th>
+              </tr>
             </thead>
             <tbody>
-              <tr><td><code>PO</code></td><td>Per Os (Oral)</td><td>Route: Oral Administration</td></tr>
-              <tr><td><code>qd / od</code></td><td>Once Daily</td><td>08:00 AM</td></tr>
-              <tr><td><code>bid</code></td><td>Twice Daily</td><td>08:00 AM, 08:00 PM</td></tr>
-              <tr><td><code>tid</code></td><td>Three Times Daily</td><td>08:00 AM, 02:00 PM, 08:00 PM</td></tr>
-              <tr><td><code>hs</code></td><td>Hora Somni</td><td>21:00 PM (Bedtime)</td></tr>
+              <tr>
+                <td><strong>Moshnyaga et al. (2016)</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">Dementia Adherence Monitoring</span></td>
+                <td>Kinect sensor, vocal guidance &amp; caregiver alerts</td>
+                <td>Actively monitors medication-taking activities rather than relying solely on alarms.</td>
+                <td>Specialized sensing equipment increases cost and deployment complexity.</td>
+              </tr>
+              <tr>
+                <td><strong>Rajan et al. (2021)</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">Smart Pill Box with Auto-Fill</span></td>
+                <td>Arduino, GSM communication, IoT &amp; Blynk App</td>
+                <td>Automated physical pill alerts and medicine supply monitoring.</td>
+                <td>Requires dedicated hardware equipment, continuous connectivity, and maintenance.</td>
+              </tr>
+              <tr>
+                <td><strong>Srinivas et al. (2018)</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">Intelligent Medicine Box</span></td>
+                <td>IoT hardware, vital sign sensors &amp; Android app</td>
+                <td>Combines adherence reminders with abnormal vital sign alerts to guardians.</td>
+                <td>Sensor-based systems increase hardware dependencies and maintenance overhead.</td>
+              </tr>
+              <tr>
+                <td><strong>Mason et al. (2022)</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">Adherence Technology Review</span></td>
+                <td>Electronic pill boxes, bottles, sensors &amp; self-reporting</td>
+                <td>Comprehensive review of usability, cost, and implementation factors.</td>
+                <td>Recording hardware activity does not always confirm actual medicine consumption.</td>
+              </tr>
             </tbody>
           </table>
-          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">
-            <strong>Verification Rule:</strong> $\text{Confidence} \ge 0.75 \rightarrow \text{Green Auto-Accept}$, $\text{Confidence} &lt; 0.75 \rightarrow \text{Amber Review Required}$.
-          </p>
-        </div>
-      </div>
 
-      <div class="card card-accent-caretaker" style="margin-top: 1rem;">
-        <h3 class="card-title">Algorithm 3: Real-Time Adherence Scoring Model</h3>
-        <p class="card-desc">Adherence rate $A(t)$ evaluated over a rolling window $W = [t - 7\text{ days}, t]$:</p>
-        <p style="font-family: var(--font-mono); font-size: 1.1rem; color: var(--primary-light); margin: 0.4rem 0;">
-          $$A = \left( \frac{\sum_{i=1}^{N} \mathbb{I}(\text{status}_i = \text{'taken'})}{N_{\text{scheduled}}} \right) \times 100\%$$
-        </p>
-        <p style="font-size: 0.85rem; color: var(--text-muted);">
-          Where $\mathbb{I}$ is the indicator function, status is updated upon patient click or nurse round confirmation, and missed doses trigger automatic care alert escalations.
-        </p>
-      </div>
-    </section>
+          <div class="highlight-callout">
+            <span class="highlight-callout-icon">💡</span>
+            <div>
+              <strong>Motivation for DoseTrack:</strong>
+              “To develop an accessible, cost-effective, and practical software-based web application that centralizes medication records, scheduled reminders, adherence tracking, and doctor-contact information in one platform—without requiring expensive specialized monitoring hardware.”
+            </div>
+          </div>
+        </div>
+      </section>
 
-    <!-- SLIDE 5: Methodology - System Workflow -->
-    <section class="slide" data-slide="5" data-notes="Here is the complete end-to-end operational workflow of DoseTrack. It begins with Prescription Ingestion—the user takes a photo or uploads an image. The AI Vision service parses Latin abbreviations and outputs structured medications. Next, the user reviews and confirms the schedule, which dynamically populates daily dose slots in MySQL. During the day, the cron evaluator monitors schedules. When a dose is taken, the patient or nurse marks it; if missed, an alert is asynchronously broadcast to the family guardian. Caretakers also log vitals, which are immediately reflected on the guardian's oversight dashboard.">
-      <div class="slide-tag">Emphasis 1: Project Methodology · Workflow Lifecycle</div>
-      <h2 class="slide-title">End-to-End <span class="highlight">Clinical Workflow</span></h2>
-      <p class="slide-subtitle">Traceability from image capture to database persistence and multi-role synchronization.</p>
-
-      <div class="workflow-strip">
-        <div class="workflow-step card-accent-primary">
-          <div class="step-number">PHASE 01</div>
-          <div class="step-name">Capture & Scan</div>
-          <div class="step-sub">Patient or caretaker captures prescription via camera. Base64 buffer streamed to Vision API.</div>
+      <!-- ========================================== -->
+      <!-- SLIDE 6: PROPOSED SYSTEM                   -->
+      <!-- ========================================== -->
+      <section class="slide" data-slide="6" data-title="Proposed System Architecture" data-notes="Slide 6 presents our Proposed System: DoseTrack. To address the limitations of scattered tools and costly hardware, DoseTrack acts as a unified hub connecting seven essential modules: User Management for secure account access; Medication Management for storing detailed medicine information; Schedule Management for configuring dosage times and frequencies; the Reminder System for generating timely notifications; Adherence Tracking for recording Taken and Missed doses; a Central Dashboard displaying upcoming doses and adherence rates; and the Doctor-Contact Module for quick access to physician profiles and appointment requests.">
+        <div class="slide-topbar">
+          <span class="slide-category">System Architecture</span>
+          <span class="slide-watermark">Slide 06 / 19</span>
         </div>
-        <div class="workflow-arrow">➔</div>
-        <div class="workflow-step card-accent-guardian">
-          <div class="step-number">PHASE 02</div>
-          <div class="step-name">AI Extraction</div>
-          <div class="step-sub">LLM translates abbreviations, determines dosage, and returns confidence rating.</div>
-        </div>
-        <div class="workflow-arrow">➔</div>
-        <div class="workflow-step card-accent-caretaker">
-          <div class="step-number">PHASE 03</div>
-          <div class="step-name">Verification</div>
-          <div class="step-sub">User inspects autofilled cards. High confidence confirmed in 1 tap; low confidence edited.</div>
-        </div>
-        <div class="workflow-arrow">➔</div>
-        <div class="workflow-step card-accent-success">
-          <div class="step-number">PHASE 04</div>
-          <div class="step-name">Live Execution</div>
-          <div class="step-sub">Scheduled doses appear on patient dashboard. Cron checks timestamps every minute.</div>
-        </div>
-        <div class="workflow-arrow">➔</div>
-        <div class="workflow-step card-accent-warning">
-          <div class="step-number">PHASE 05</div>
-          <div class="step-name">Alert & Sync</div>
-          <div class="step-sub">Dose confirmation, missed alerts, and nurse vitals broadcast across the Care Circle.</div>
-        </div>
-      </div>
-
-      <div class="grid-2" style="margin-top: 1.5rem;">
-        <div class="card">
-          <h4 class="card-title" style="font-size: 1rem;">🔒 Security & HIPAA Privacy Safeguards</h4>
-          <p class="card-desc">Images are never persisted to disk or cloud buckets; they exist purely as in-memory Base64 buffers during inference and are garbage collected immediately. All passwords salted with bcrypt (10 rounds).</p>
-        </div>
-        <div class="card">
-          <h4 class="card-title" style="font-size: 1rem;">⚡ Resilient Graceful Degradation</h4>
-          <p class="card-desc">If external cloud vision APIs experience latency or rate limits, the system seamlessly falls back to the intelligent offline clinical heuristic engine without crashing or blocking the user.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 6: Implementation - Technology Stack -->
-    <section class="slide" data-slide="6" data-notes="Now we turn to Emphasis 2: Implementation. Our technology stack was deliberately selected for maximum performance, minimal dependency bloat, and enterprise stability. On the backend, we run Node.js with Express.js, JWT authentication, bcrypt, helmet security headers, and node-cron. On the database tier, we utilize MySQL 8.4 with relational InnoDB tables, foreign key constraints, and cascade deletions. For AI, we integrated Google Gemini 1.5/2.0 Flash Vision REST API and OpenAI GPT-4o. On the frontend, we built an ultra-responsive Vanilla ES6+ SPA with custom CSS glassmorphism—providing 100% control over DOM rendering and zero framework overhead.">
-      <div class="slide-tag">Emphasis 2: Implementation · Technologies Used</div>
-      <h2 class="slide-title">Technology Stack & <span class="highlight">Implementation Architecture</span></h2>
-      <p class="slide-subtitle">Modern, lean engineering stack chosen for speed, reliability, and security compliance.</p>
-
-      <div class="grid-4">
-        <div class="card card-accent-primary">
-          <div class="card-header-icon">🌐</div>
-          <h3 class="card-title">Frontend Stack</h3>
-          <ul class="bullet-list" style="font-size: 0.85rem;">
-            <li><strong>HTML5 Semantic</strong> UI structure</li>
-            <li><strong>Vanilla JavaScript (ES6+)</strong></li>
-            <li><strong>CSS3 Custom Variables</strong></li>
-            <li><strong>Glassmorphic System</strong></li>
-            <li><strong>HTML5 Camera Capture API</strong></li>
-          </ul>
+        <div class="slide-header">
+          <h2 class="slide-title">Proposed System – <span class="highlight">DoseTrack</span></h2>
+          <p class="slide-subtitle">Centralized hub-and-spoke model integrating all medication management functions.</p>
         </div>
 
-        <div class="card card-accent-guardian">
-          <div class="card-header-icon">⚡</div>
-          <h3 class="card-title">Backend API</h3>
-          <ul class="bullet-list" style="font-size: 0.85rem;">
-            <li><strong>Node.js (v20+)</strong> Runtime</li>
-            <li><strong>Express.js (REST Engine)</strong></li>
-            <li><strong>jsonwebtoken (JWT)</strong></li>
-            <li><strong>bcryptjs (Salting)</strong></li>
-            <li><strong>express-rate-limit</strong></li>
-          </ul>
+        <div class="slide-body">
+          <div class="hub-container">
+            <!-- Left Spokes -->
+            <div class="hub-side-col">
+              <div class="spoke-item">
+                <div class="spoke-icon">👤</div>
+                <div>
+                  <div class="spoke-title">User Management</div>
+                  <div class="spoke-sub">Registration, secure authentication &amp; profile data</div>
+                </div>
+              </div>
+              <div class="spoke-item">
+                <div class="spoke-icon">💊</div>
+                <div>
+                  <div class="spoke-title">Medication Management</div>
+                  <div class="spoke-sub">CRUD for medicine names, dosages &amp; instructions</div>
+                </div>
+              </div>
+              <div class="spoke-item">
+                <div class="spoke-icon">📅</div>
+                <div>
+                  <div class="spoke-title">Schedule Management</div>
+                  <div class="spoke-sub">Dose timings, frequency &amp; treatment dates</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Central Hub -->
+            <div class="hub-center">
+              <div style="font-size: 2rem; margin-bottom: 0.35rem;">✚</div>
+              <h3>DoseTrack Core</h3>
+              <p>Unified Web Application &amp; Relational MySQL Backend</p>
+              <div style="display: inline-flex; gap: 0.4rem; margin-top: 0.85rem;">
+                <span style="font-size: 0.7rem; background: rgba(255,255,255,0.2); padding: 3px 8px; border-radius: 4px;">Automated Engine</span>
+                <span style="font-size: 0.7rem; background: rgba(255,255,255,0.2); padding: 3px 8px; border-radius: 4px;">Relational DB</span>
+              </div>
+            </div>
+
+            <!-- Right Spokes -->
+            <div class="hub-side-col">
+              <div class="spoke-item">
+                <div class="spoke-icon">🔔</div>
+                <div>
+                  <div class="spoke-title">Reminder Engine</div>
+                  <div class="spoke-sub">Automated alerts when scheduled doses become due</div>
+                </div>
+              </div>
+              <div class="spoke-item">
+                <div class="spoke-icon">✅</div>
+                <div>
+                  <div class="spoke-title">Adherence Tracking</div>
+                  <div class="spoke-sub">Taken / Missed status logging &amp; 30-day history</div>
+                </div>
+              </div>
+              <div class="spoke-item">
+                <div class="spoke-icon">📊</div>
+                <div>
+                  <div class="spoke-title">Interactive Dashboard</div>
+                  <div class="spoke-sub">Daily routine overview, vitals snapshot &amp; metrics</div>
+                </div>
+              </div>
+              <div class="spoke-item">
+                <div class="spoke-icon">🩺</div>
+                <div>
+                  <div class="spoke-title">Doctor-Contact Access</div>
+                  <div class="spoke-sub">Physician profiles, clinic hours &amp; contact options</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- SLIDE 7: PROJECT METHODOLOGY               -->
+      <!-- ========================================== -->
+      <section class="slide" data-slide="7" data-title="Project Methodology" data-notes="Slide 7 outlines our structured Project Methodology. We followed an eight-stage engineering lifecycle as described in Section 6.1 of our report: First, Requirement Analysis to understand patient routines, multi-drug needs, and existing reminder gaps. Second, System Design, establishing our 3-layer architecture. Third, Database Design, creating normalized MySQL schemas for users, medications, schedules, and adherence events. Fourth, Frontend Development using HTML5, CSS3, and JavaScript. Fifth, Application Logic for routing, session validation, and CRUD operations. Sixth, Reminder & Adherence Implementation for matching scheduled times and recording dose status. Seventh, Testing across all functional modules. And eighth, Final Integration into a cohesive, deployment-ready prototype.">
+        <div class="slide-topbar">
+          <span class="slide-category">Development Lifecycle</span>
+          <span class="slide-watermark">Slide 07 / 19</span>
+        </div>
+        <div class="slide-header">
+          <h2 class="slide-title">Project <span class="highlight">Methodology</span></h2>
+          <p class="slide-subtitle">Eight-stage sequential engineering approach followed throughout project development.</p>
         </div>
 
-        <div class="card card-accent-caretaker">
-          <div class="card-header-icon">🗄️</div>
-          <h3 class="card-title">Database Engine</h3>
-          <ul class="bullet-list" style="font-size: 0.85rem;">
-            <li><strong>MySQL 8.4 Enterprise</strong></li>
-            <li><strong>InnoDB Storage Engine</strong></li>
-            <li><strong>Foreign Keys (ON DELETE CASCADE)</strong></li>
-            <li><strong>Connection Pooling (10 conns)</strong></li>
-            <li><strong>Self-Healing Schema Auto-Init</strong></li>
-          </ul>
+        <div class="slide-body">
+          <div class="timeline-stepper" style="margin-bottom: 0.85rem;">
+            <!-- Phase 1 -->
+            <div class="step-box">
+              <div class="step-box-header">
+                <span class="step-index-badge">1</span>
+                <span style="font-size:0.7rem; font-family:var(--font-mono); color:var(--primary); font-weight:700;">STAGE 01</span>
+              </div>
+              <div class="step-phase-name">Requirement Analysis</div>
+              <p class="step-desc">Identified challenges in manual medicine tracking, multi-dose routines, and clinical adherence needs.</p>
+            </div>
+
+            <!-- Phase 2 -->
+            <div class="step-box">
+              <div class="step-box-header">
+                <span class="step-index-badge">2</span>
+                <span style="font-size:0.7rem; font-family:var(--font-mono); color:var(--primary); font-weight:700;">STAGE 02</span>
+              </div>
+              <div class="step-phase-name">System Design</div>
+              <p class="step-desc">Architected the 3-layer structure (Presentation, Logic, Data) and defined module interactions.</p>
+            </div>
+
+            <!-- Phase 3 -->
+            <div class="step-box">
+              <div class="step-box-header">
+                <span class="step-index-badge">3</span>
+                <span style="font-size:0.7rem; font-family:var(--font-mono); color:var(--primary); font-weight:700;">STAGE 03</span>
+              </div>
+              <div class="step-phase-name">Database Design</div>
+              <p class="step-desc">Modeled relational MySQL schema with users, medications, schedules, dose_events, and doctors.</p>
+            </div>
+
+            <!-- Phase 4 -->
+            <div class="step-box">
+              <div class="step-box-header">
+                <span class="step-index-badge">4</span>
+                <span style="font-size:0.7rem; font-family:var(--font-mono); color:var(--primary); font-weight:700;">STAGE 04</span>
+              </div>
+              <div class="step-phase-name">Frontend Development</div>
+              <p class="step-desc">Implemented clean, responsive healthcare interfaces using semantic HTML5, CSS3, and JavaScript.</p>
+            </div>
+
+            <!-- Phase 5 -->
+            <div class="step-box">
+              <div class="step-box-header">
+                <span class="step-index-badge">5</span>
+                <span style="font-size:0.7rem; font-family:var(--font-mono); color:var(--primary); font-weight:700;">STAGE 05</span>
+              </div>
+              <div class="step-phase-name">Application Logic</div>
+              <p class="step-desc">Programmed backend route handlers, authentication verification, and medication CRUD business logic.</p>
+            </div>
+
+            <!-- Phase 6 -->
+            <div class="step-box">
+              <div class="step-box-header">
+                <span class="step-index-badge">6</span>
+                <span style="font-size:0.7rem; font-family:var(--font-mono); color:var(--primary); font-weight:700;">STAGE 06</span>
+              </div>
+              <div class="step-phase-name">Reminders &amp; Adherence</div>
+              <p class="step-desc">Engineered automated schedule-checking, reminder dispatching, and Taken/Missed status persistence.</p>
+            </div>
+
+            <!-- Phase 7 -->
+            <div class="step-box">
+              <div class="step-box-header">
+                <span class="step-index-badge">7</span>
+                <span style="font-size:0.7rem; font-family:var(--font-mono); color:var(--primary); font-weight:700;">STAGE 07</span>
+              </div>
+              <div class="step-phase-name">Testing &amp; Verification</div>
+              <p class="step-desc">Conducted functional testing of user authentication, CRUD operations, schedule triggers, and database links.</p>
+            </div>
+
+            <!-- Phase 8 -->
+            <div class="step-box">
+              <div class="step-box-header">
+                <span class="step-index-badge">8</span>
+                <span style="font-size:0.7rem; font-family:var(--font-mono); color:var(--primary); font-weight:700;">STAGE 08</span>
+              </div>
+              <div class="step-phase-name">Final Integration</div>
+              <p class="step-desc">Integrated presentation, logic, and database tiers into a seamless, accessible healthcare platform.</p>
+            </div>
+          </div>
+
+          <div style="background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.65rem 1.25rem; font-size: 0.82rem; color: var(--text-muted); display: flex; align-items: center; justify-content: space-between;">
+            <span><strong>Development Principle:</strong> Modular architecture ensuring each stage passes verified data to subsequent modules.</span>
+            <span style="color: var(--primary); font-family: var(--font-mono); font-weight: 700;">Chapter 6.1 Report Methodology</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- SLIDE 8: SYSTEM ARCHITECTURE               -->
+      <!-- ========================================== -->
+      <section class="slide" data-slide="8" data-title="System Architecture" data-notes="Slide 8 details our 3-Layer System Architecture directly from Figure 5.1 in Chapter 6. The Presentation Layer consists of HTML5, CSS3, and JavaScript frontend forms, the daily overview dashboard, and interactive components. The Application Layer contains backend logic and validation, checking every incoming user request before touching persistent storage; it handles user authentication, medication management, scheduling logic, and adherence recording. The Data Layer is a structured MySQL relational database storing user records, medications, dosage schedules, adherence event logs, and settings. Users interact seamlessly from any standard browser or mobile device.">
+        <div class="slide-topbar">
+          <span class="slide-category">Technical Architecture</span>
+          <span class="slide-watermark">Slide 08 / 19</span>
+        </div>
+        <div class="slide-header">
+          <h2 class="slide-title">System <span class="highlight">Architecture</span></h2>
+          <p class="slide-subtitle">Three-layer architecture separating presentation, business logic, and relational storage.</p>
         </div>
 
-        <div class="card card-accent-success">
-          <div class="card-header-icon">🧠</div>
-          <h3 class="card-title">AI & Infrastructure</h3>
-          <ul class="bullet-list" style="font-size: 0.85rem;">
-            <li><strong>Gemini 1.5/2.0 Flash Vision</strong></li>
-            <li><strong>OpenAI GPT-4o Vision API</strong></li>
-            <li><strong>Offline Heuristic Engine</strong></li>
-            <li><strong>node-cron Task Daemon</strong></li>
-            <li><strong>Render Cloud Container Deploy</strong></li>
-          </ul>
+        <div class="slide-body">
+          <div class="grid-2" style="align-items: center;">
+            <!-- Report Diagram Visual -->
+            <div class="diagram-panel" style="flex-direction: column;">
+              <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--primary); font-weight: 700; text-transform: uppercase; margin-bottom: 0.4rem;">
+                Figure 5.1: Layered Architecture of DoseTrack
+              </div>
+              <img src="images/fig_5_1_architecture.png" alt="Figure 5.1 Layered Architecture">
+            </div>
+
+            <!-- Technical Layer Breakdown -->
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+              <div class="card card-accent-teal" style="padding: 0.85rem 1.15rem;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.25rem;">
+                  <strong style="color: #0f172a; font-family: var(--font-heading); font-size: 0.95rem;">Layer 1: Presentation Layer</strong>
+                  <span style="font-size: 0.7rem; font-family: var(--font-mono); background: var(--primary-tint); color: var(--primary); padding: 2px 6px; border-radius: 4px; font-weight: 700;">HTML5 · CSS3 · JS</span>
+                </div>
+                <p class="card-desc">Frontend forms, responsive dashboard, medication modal dialogs, schedule configuration forms, real-time alert banners, and doctor contact cards.</p>
+              </div>
+
+              <div class="card card-accent-blue" style="padding: 0.85rem 1.15rem;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.25rem;">
+                  <strong style="color: #0f172a; font-family: var(--font-heading); font-size: 0.95rem;">Layer 2: Application / Logic Layer</strong>
+                  <span style="font-size: 0.7rem; font-family: var(--font-mono); background: var(--accent-blue-tint); color: var(--accent-blue); padding: 2px 6px; border-radius: 4px; font-weight: 700;">Node.js / PHP</span>
+                </div>
+                <p class="card-desc">Backend business logic, request validation, authentication &amp; session verification, medication CRUD operations, schedule matching algorithms, and adherence logging.</p>
+              </div>
+
+              <div class="card card-accent-green" style="padding: 0.85rem 1.15rem;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.25rem;">
+                  <strong style="color: #0f172a; font-family: var(--font-heading); font-size: 0.95rem;">Layer 3: Data Layer</strong>
+                  <span style="font-size: 0.7rem; font-family: var(--font-mono); background: var(--accent-success-tint); color: var(--accent-success); padding: 2px 6px; border-radius: 4px; font-weight: 700;">MySQL Database</span>
+                </div>
+                <p class="card-desc">Relational storage managing `users`, `medications`, `schedules`, `dose_events` (adherence log), `doctors`, and user notification settings with foreign key integrity.</p>
+              </div>
+
+              <div style="background: var(--bg-subtle); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.55rem 0.85rem; font-size: 0.78rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem;">
+                <span>🌐</span> <span><strong>Client Tier:</strong> Accessed through standard web browsers on desktop and mobile devices via secure HTTP requests.</span>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <div class="card" style="margin-top: 1.25rem; background: rgba(13, 148, 136, 0.08); border-color: var(--border-accent);">
-        <p style="font-size: 0.9rem; color: #fff;">
-          <strong>Deployment Status:</strong> Live and operational at <a href="https://dosetrack-5mat.onrender.com" target="_blank" style="color: var(--primary-light); text-decoration: underline;">https://dosetrack-5mat.onrender.com</a> backed by Cloud MySQL 8.4 and continuous deployment via GitHub.
-        </p>
-      </div>
-    </section>
-
-    <!-- SLIDE 7: Implementation - Modules Developed -->
-    <section class="slide" data-slide="7" data-notes="We structured the implementation into five core decoupled modules. Module 1 is Authentication and RBAC, handling registration with unique patient codes and role-scoped JWT tokens. Module 2 is the AI Prescription Vision Scanner, implementing image validation, MIME detection, and multimodal prompt piping. Module 3 is the Dynamic Medication and Dose Scheduler, which computes dosage slots and tracks taken versus missed statuses. Module 4 is the Clinical Vitals and Observation Logger, storing JSON vitals like Blood Pressure, Glucose, and SpO2. Module 5 is the Real-time Care Alerts and SOS Dispatcher, which broadcasts notifications across linked accounts.">
-      <div class="slide-tag">Emphasis 2: Implementation · Modular Decomposition</div>
-      <h2 class="slide-title">Core Modules <span class="highlight">Developed</span></h2>
-      <p class="slide-subtitle">Modular, decoupled micro-architecture ensuring single-responsibility principle across services.</p>
-
-      <div class="grid-3">
-        <div class="card card-accent-primary">
-          <div class="card-title" style="font-size: 1.05rem;">M1: Multi-Role Auth & RBAC</div>
-          <p class="card-desc" style="font-size: 0.85rem; margin-top: 0.4rem;">
-            Files: <code>src/routes/auth.js</code>, <code>middleware/auth.js</code><br>
-            • Role partitioning: Patient, Guardian, Caretaker.<br>
-            • DT-PT-XXXX unique code generator.<br>
-            • Stateless JWT tokens signed with 7-day expiry.<br>
-            • Bcrypt password hashing (10 salt rounds).
-          </p>
+      <!-- ========================================== -->
+      <!-- SLIDE 9: APPLICATION WORKFLOW              -->
+      <!-- ========================================== -->
+      <section class="slide" data-slide="9" data-title="Application Workflow" data-notes="Slide 9 illustrates the Application Workflow directly from Figure 5.3 in Chapter 6. The core user journey is structured and sequential: First, user registers or logs in. Second, they access the Dashboard to review today's schedule. Third, they add or edit a medication. Fourth, they configure dosage timings, frequency, and treatment dates. Fifth, when a scheduled dose time matches the system clock, an automated reminder is generated. Sixth, the patient responds by marking the dose as Taken or Missed. Seventh, the recorded status is committed to the MySQL database history. And eighth, the dashboard counters and adherence compliance percentages update instantly.">
+        <div class="slide-topbar">
+          <span class="slide-category">System Flowchart</span>
+          <span class="slide-watermark">Slide 09 / 19</span>
         </div>
-
-        <div class="card card-accent-guardian">
-          <div class="card-title" style="font-size: 1.05rem;">M2: AI Vision OCR Engine</div>
-          <p class="card-desc" style="font-size: 0.85rem; margin-top: 0.4rem;">
-            Files: <code>routes/prescriptionScanner.js</code>, <code>services/prescriptionVisionService.js</code><br>
-            • Multimodal prompt engineering.<br>
-            • In-memory Base64 payload validation (max 15MB).<br>
-            • Latin pharmacopeia mapping engine.<br>
-            • Multi-medication card detector with confidence badges.
-          </p>
-        </div>
-
-        <div class="card card-accent-caretaker">
-          <div class="card-title" style="font-size: 1.05rem;">M3: Medication & Dose Engine</div>
-          <p class="card-desc" style="font-size: 0.85rem; margin-top: 0.4rem;">
-            Files: <code>routes/medications.js</code>, <code>routes/doses.js</code><br>
-            • Relational CRUD for drug regimens.<br>
-            • Dynamic schedule generator with time slot parsing.<br>
-            • 1-tap dose verification (status = taken / missed).<br>
-            • <code>node-cron</code> background daemon for reminders.
-          </p>
-        </div>
-      </div>
-
-      <div class="grid-2" style="margin-top: 1.25rem;">
-        <div class="card card-accent-success">
-          <div class="card-title" style="font-size: 1.05rem;">M4: Clinical Vitals & Observation Logger</div>
-          <p class="card-desc" style="font-size: 0.85rem; margin-top: 0.4rem;">
-            Files: <code>src/routes/careNotes.js</code>, <code>database/schema.sql</code><br>
-            • Stores nurse clinical observations with structured JSON payload for Blood Pressure (mmHg), Heart Rate (bpm), Blood Glucose (mg/dL), and SpO2 (%).<br>
-            • Linked directly to patient ID with foreign key cascade protection.
-          </p>
+        <div class="slide-header">
+          <h2 class="slide-title">Application <span class="highlight">Workflow</span></h2>
+          <p class="slide-subtitle">Sequential user journey from login to medication scheduling, reminder alerts, and adherence logging.</p>
         </div>
 
-        <div class="card card-accent-warning">
-          <div class="card-title" style="font-size: 1.05rem;">M5: Emergency SOS & Nudge Dispatcher</div>
-          <p class="card-desc" style="font-size: 0.85rem; margin-top: 0.4rem;">
-            Files: <code>src/routes/alerts.js</code>, <code>src/routes/careTeam.js</code><br>
-            • 1-tap SOS Emergency button immediately broadcasts alerts to all linked family guardians and caretakers.<br>
-            • Guardians can dispatch gentle hydration and meal nudges with custom or preset messages.
-          </p>
-        </div>
-      </div>
-    </section>
+        <div class="slide-body">
+          <div class="grid-2" style="align-items: center;">
+            <!-- Report Diagram Preview -->
+            <div class="diagram-panel" style="flex-direction: column;">
+              <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--primary); font-weight: 700; text-transform: uppercase; margin-bottom: 0.4rem;">
+                Figure 5.3: Workflow of DoseTrack
+              </div>
+              <img src="images/fig_5_3_workflow.png" alt="Figure 5.3 Workflow Flowchart" style="max-height: 330px;">
+            </div>
 
-    <!-- SLIDE 8: Implementation - Key Functionalities & Live Demos -->
-    <section class="slide" data-slide="8" data-notes="Now we demonstrate the key functionalities developed for the three distinct workspaces. For the Patient, Eleanor Vance, the workspace displays a high-contrast daily timeline with large 1-tap buttons for taking or skipping doses, along with an Emergency SOS broadcast button. For the Guardian, David Vance, the dashboard provides remote adherence monitoring, past 7 days compliance, vitals review, and gentle nudging. For Nurse Sarah Miller, the caretaker workspace provides multi-patient roster management, dose administration sign-offs, and clinical vitals recording. Finally, the AI prescription scanner allows taking a picture of a handwritten script and immediately populating verified medication cards.">
-      <div class="slide-tag">Emphasis 2: Implementation · Workspace Functionality</div>
-      <h2 class="slide-title">Role-Tailored Workspaces & <span class="highlight">Key Functionalities</span></h2>
-      <p class="slide-subtitle">Distinct, purpose-built interfaces customized to each actor in the care ecosystem.</p>
+            <!-- Workflow Steps Breakdown -->
+            <div style="display: flex; flex-direction: column; gap: 0.45rem;">
+              <div class="card" style="padding: 0.6rem 0.9rem;">
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                  <span style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: #fff; background: var(--primary); width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">1</span>
+                  <strong style="font-size: 0.85rem; color: #0f172a;">User Registration / Login</strong>
+                </div>
+                <p style="font-size: 0.76rem; color: var(--text-muted); margin-left: 1.85rem;">Authenticate securely into personalized account workspace.</p>
+              </div>
 
-      <div class="grid-3">
-        <div class="card card-accent-primary">
-          <div class="card-title" style="color: var(--primary-light);">👤 1. Patient Workspace</div>
-          <p style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.5rem;">Eleanor Vance · DT-PT-1001</p>
-          <ul class="bullet-list" style="font-size: 0.85rem;">
-            <li>High-contrast daily routine schedule.</li>
-            <li>Large 1-tap <strong>"✓ Take Dose"</strong> & <strong>"Skip"</strong>.</li>
-            <li>🚨 <strong>Instant Emergency SOS</strong> button.</li>
-            <li>Unique shareable Patient Code.</li>
-            <li>Doctor directory and upcoming reminders.</li>
-          </ul>
+              <div class="card" style="padding: 0.6rem 0.9rem;">
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                  <span style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: #fff; background: var(--primary); width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">2</span>
+                  <strong style="font-size: 0.85rem; color: #0f172a;">Dashboard Daily Routine</strong>
+                </div>
+                <p style="font-size: 0.76rem; color: var(--text-muted); margin-left: 1.85rem;">View today's scheduled doses, completed doses, and vitals snapshot.</p>
+              </div>
+
+              <div class="card" style="padding: 0.6rem 0.9rem;">
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                  <span style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: #fff; background: var(--primary); width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">3</span>
+                  <strong style="font-size: 0.85rem; color: #0f172a;">Add or Edit Medication &amp; Set Schedule</strong>
+                </div>
+                <p style="font-size: 0.76rem; color: var(--text-muted); margin-left: 1.85rem;">Input drug name, dosage, frequency, and exact dose timings (e.g., 08:30 AM).</p>
+              </div>
+
+              <div class="card card-accent-teal" style="padding: 0.6rem 0.9rem;">
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                  <span style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: #fff; background: var(--primary); width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">4</span>
+                  <strong style="font-size: 0.85rem; color: #0f172a;">Reminder Triggered at Scheduled Time</strong>
+                </div>
+                <p style="font-size: 0.76rem; color: var(--text-muted); margin-left: 1.85rem;">System detects due dose time and notifies patient on the dashboard.</p>
+              </div>
+
+              <div class="card card-accent-green" style="padding: 0.6rem 0.9rem;">
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                  <span style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: #fff; background: var(--accent-success); width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">5</span>
+                  <strong style="font-size: 0.85rem; color: #0f172a;">User Action: Mark Taken / Missed</strong>
+                </div>
+                <p style="font-size: 0.76rem; color: var(--text-muted); margin-left: 1.85rem;">Event recorded in MySQL database history and dashboard statistics refreshed.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- SLIDE 10: ALGORITHMS & CORE LOGIC          -->
+      <!-- ========================================== -->
+      <section class="slide" data-slide="10" data-title="Algorithms & Core Logic" data-notes="Slide 10 explains the deterministic, rule-based algorithms powering DoseTrack. As required by our project report, DoseTrack relies on robust rule-based logic rather than unverified AI: First, Authentication Logic validates credentials, hashes passwords, and isolates sessions. Second, Medication CRUD Logic enforces data validation, prevents duplicate entries, and cleanly associates records with the user ID. Third, Reminder Logic periodically compares the current system time with configured schedules to dispatch notifications. Fourth, Adherence Logic captures user actions, writes immutable audit timestamps to the database, and calculates real-time compliance percentages.">
+        <div class="slide-topbar">
+          <span class="slide-category">Core Logic</span>
+          <span class="slide-watermark">Slide 10 / 19</span>
+        </div>
+        <div class="slide-header">
+          <h2 class="slide-title">Algorithms &amp; <span class="highlight">Core Logic</span></h2>
+          <p class="slide-subtitle">Deterministic rule-based workflows powering authentication, CRUD, reminders, and adherence monitoring.</p>
         </div>
 
-        <div class="card card-accent-guardian">
-          <div class="card-title" style="color: var(--accent-guardian);">🛡️ 2. Guardian Workspace</div>
-          <p style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.5rem;">David Vance · Primary Guardian</p>
-          <ul class="bullet-list" style="font-size: 0.85rem;">
-            <li>Real-time adherence percentage (97%).</li>
-            <li>Live medication compliance event feed.</li>
-            <li>💬 <strong>Gentle Reminders (Nudges)</strong> dispatch.</li>
-            <li>Review nurse-logged vitals & clinical notes.</li>
-            <li>Book doctor appointments for patient.</li>
-          </ul>
+        <div class="slide-body">
+          <div class="grid-2" style="gap: 1rem;">
+            <!-- Logic 1: Auth & CRUD -->
+            <div class="logic-box">
+              <div class="logic-title"><span>🔐</span> 1. Authentication &amp; Session Logic</div>
+              <div class="logic-step"><strong>Input:</strong> User email &amp; password credentials</div>
+              <div class="logic-step"><strong>Step 1:</strong> Query <em>users</em> table for matching unique email</div>
+              <div class="logic-step"><strong>Step 2:</strong> Verify password against stored secure hash</div>
+              <div class="logic-step"><strong>Step 3:</strong> If match: Initialize authenticated session with user ID</div>
+              <div class="logic-step"><strong>Step 4:</strong> Else: Return invalid credentials error response</div>
+
+              <div class="logic-title" style="margin-top: 0.75rem;"><span>💊</span> 2. Medication CRUD Logic</div>
+              <div class="logic-step"><strong>Create:</strong> Insert into <em>medications</em> (user_id, name, dosage, frequency, dates)</div>
+              <div class="logic-step"><strong>Read:</strong> Select active medicines where <em>start_date &le; NOW() &le; end_date</em></div>
+              <div class="logic-step"><strong>Update:</strong> Validate input parameters and commit changes to DB</div>
+              <div class="logic-step"><strong>Delete:</strong> Remove record with cascading cleanup of associated schedules</div>
+            </div>
+
+            <!-- Logic 2: Reminder & Adherence -->
+            <div class="logic-box">
+              <div class="logic-title"><span>⏰</span> 3. Reminder Triggering Logic</div>
+              <div class="logic-step"><strong>Input:</strong> Active medication schedules <em>S = {dose_time, active}</em></div>
+              <div class="logic-step"><strong>Step 1:</strong> Evaluate current system clock <em>T_now</em> against <em>dose_time</em></div>
+              <div class="logic-step"><strong>Step 2:</strong> Check if an event already exists for today's date in <em>dose_events</em></div>
+              <div class="logic-step"><strong>Step 3:</strong> If <em>T_now &ge; dose_time</em> and <em>status == PENDING</em>:</div>
+              <div class="logic-step">&nbsp;&nbsp;&nbsp;&nbsp;&rarr; Display visual alert prompt &amp; reminder notification on dashboard</div>
+
+              <div class="logic-title" style="margin-top: 0.75rem;"><span>📊</span> 4. Adherence Evaluation Logic</div>
+              <div class="logic-step"><strong>User Action:</strong> Patient clicks <em>'Taken'</em> or <em>'Missed'</em></div>
+              <div class="logic-step"><strong>Commit:</strong> Insert into <em>dose_events</em> (schedule_id, user_id, status, timestamp)</div>
+              <div class="logic-step"><strong>Adherence Metric Formula:</strong></div>
+              <div class="logic-step" style="color: #38bdf8; font-weight: 700;">
+                Adherence Rate (%) = (Total Doses Taken &divide; Total Scheduled Doses) &times; 100%
+              </div>
+              <div class="logic-step"><strong>Update:</strong> Refresh daily counter (e.g., 2/4 doses) and 30-day percentage.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- SLIDE 11: MODULES DEVELOPED                -->
+      <!-- ========================================== -->
+      <section class="slide" data-slide="11" data-title="Modules Developed" data-notes="Slide 11 reviews the core modules developed in DoseTrack as specified in Table 5.1 and Figure 5.2 of our report. The application is divided into seven interconnected modules: User Management handles registration, login, and profile isolation. Medication Management handles adding, editing, and deleting drug details. Schedule Management configures dose timings, dates, and frequency. The Reminder System handles timely notifications. Adherence Tracking captures Taken or Missed responses. The Dashboard provides an overview of upcoming and recent activity. And Settings holds reminder preferences. In addition, our Doctor-Contact module connects patients directly with stored doctor profiles and appointment options.">
+        <div class="slide-topbar">
+          <span class="slide-category">Module Architecture</span>
+          <span class="slide-watermark">Slide 11 / 19</span>
+        </div>
+        <div class="slide-header">
+          <h2 class="slide-title">Modules <span class="highlight">Developed</span></h2>
+          <p class="slide-subtitle">Seven core interconnected functional modules documented in Table 5.1 of the project report.</p>
         </div>
 
-        <div class="card card-accent-caretaker">
-          <div class="card-title" style="color: var(--accent-caretaker);">🩺 3. Caretaker / Nurse</div>
-          <p style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.5rem;">Nurse Sarah Miller, RN · Home Health</p>
-          <ul class="bullet-list" style="font-size: 0.85rem;">
-            <li>📋 <strong>Medication Administration Rounds</strong>.</li>
-            <li>Multi-patient roster and room management.</li>
-            <li>📊 <strong>Clinical Vitals Logger</strong> (BP, HR, Glucose, O2).</li>
-            <li>Administer doses on behalf of patient.</li>
-            <li>Record clinical notes for the family.</li>
-          </ul>
-        </div>
-      </div>
+        <div class="slide-body">
+          <div class="grid-2" style="align-items: center;">
+            <!-- Left: Module Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem;">
+              <div class="card" style="padding: 0.75rem;">
+                <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">1. User Management</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">Account registration, secure login, session context &amp; profile records.</div>
+              </div>
+              <div class="card" style="padding: 0.75rem;">
+                <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">2. Medication Module</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">Add, edit, view, and delete medication records and dosage instructions.</div>
+              </div>
+              <div class="card" style="padding: 0.75rem;">
+                <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">3. Schedule Module</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">Configure dosage timings, daily frequencies, and treatment date bounds.</div>
+              </div>
+              <div class="card" style="padding: 0.75rem;">
+                <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">4. Reminder System</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">Automated engine dispatching visual notifications when doses become due.</div>
+              </div>
+              <div class="card" style="padding: 0.75rem;">
+                <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">5. Tracking Module</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">Record dose Taken or Missed status and persist event timestamps.</div>
+              </div>
+              <div class="card" style="padding: 0.75rem;">
+                <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">6. Dashboard Module</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">Consolidated graphical view of upcoming doses and adherence metrics.</div>
+              </div>
+              <div class="card" style="padding: 0.75rem;">
+                <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">7. Settings Module</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">Reminder preference configurations and display customization.</div>
+              </div>
+              <div class="card card-accent-teal" style="padding: 0.75rem;">
+                <div style="font-weight: 700; font-size: 0.85rem; color: var(--primary);">8. Doctor-Contact Module</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">Access doctor profiles, specialties, clinic hours &amp; contact options.</div>
+              </div>
+            </div>
 
-      <div class="card" style="margin-top: 1.25rem;">
-        <h4 class="card-title" style="font-size: 1rem;">✨ AI Doctor Prescription Scanner Demo</h4>
-        <div class="grid-4" style="margin-top: 0.5rem; font-size: 0.85rem;">
-          <div><strong>1. Camera Input:</strong> Native mobile photo or file upload</div>
-          <div><strong>2. Vision LLM:</strong> Decodes handwriting & abbreviations</div>
-          <div><strong>3. Verification:</strong> Confidence badges ($\ge 75\%$ verified)</div>
-          <div><strong>4. Schedule Generation:</strong> 1-click schedule creation</div>
+            <!-- Right: Original Module Interactions Diagram -->
+            <div class="diagram-panel" style="flex-direction: column;">
+              <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--primary); font-weight: 700; text-transform: uppercase; margin-bottom: 0.4rem;">
+                Figure 5.2: Module Interactions of DoseTrack
+              </div>
+              <img src="images/fig_5_2_module_interactions.png" alt="Figure 5.2 Module Interactions" style="max-height: 290px;">
+            </div>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- SLIDE 9: Results & Analysis - Performance & Metrics -->
-    <section class="slide" data-slide="9" data-notes="Moving to Emphasis 3: Results and Analysis. We evaluated our system across several key dimensions: extraction accuracy, processing latency, database performance, and clinical adherence tracking. The AI vision pipeline achieves an average extraction latency of 1.15 seconds on cloud API and under 150 milliseconds on the heuristic engine. In handwriting accuracy tests across Latin abbreviations, we attained an 88% overall precision on messy scripts and 98% on printed pharmacy labels. On the database tier, indexed MySQL lookups on dose events execute in under 6 milliseconds. In our clinical adherence test case with Eleanor Vance, 29 taken doses out of 30 scheduled yielded an adherence rate of 97%, with real-time feedback to guardians.">
-      <div class="slide-tag">Emphasis 3: Results & Analysis · Performance Evaluation</div>
-      <h2 class="slide-title">System Performance & <span class="highlight">Empirical Evaluation</span></h2>
-      <p class="slide-subtitle">Quantitative benchmarks measuring extraction accuracy, query latency, and adherence tracking.</p>
+      <!-- ========================================== -->
+      <!-- SLIDE 12: TECHNOLOGY STACK                 -->
+      <!-- ========================================== -->
+      <section class="slide" data-slide="12" data-title="Technology Stack" data-notes="Slide 12 presents the Technology Stack. DoseTrack is built on standard, verified web technologies as documented in our project report. On the frontend, we use HTML5 for semantic page layout and modal forms, CSS3 for our responsive clinical styling, cards, and animations, and JavaScript for client-side interactivity, DOM updates, and asynchronous API calls. On the backend, Node.js and Express (along with PHP reference) power our routing, validation, and scheduling logic. For persistent storage, we utilize MySQL, providing relational integrity, ACID compliance, and foreign key constraints. Git was used for version control, and documentation was referenced from MDN Web Docs and MySQL Reference Manuals.">
+        <div class="slide-topbar">
+          <span class="slide-category">Tools &amp; Environment</span>
+          <span class="slide-watermark">Slide 12 / 19</span>
+        </div>
+        <div class="slide-header">
+          <h2 class="slide-title">Technology <span class="highlight">Stack</span></h2>
+          <p class="slide-subtitle">Proven web and database technologies referenced in the project report.</p>
+        </div>
 
-      <div class="metric-row">
-        <div class="metric-stat">
-          <div class="metric-val teal">1.15s</div>
-          <div class="metric-lbl">Avg AI Vision Latency</div>
-        </div>
-        <div class="metric-stat">
-          <div class="metric-val emerald">97%</div>
-          <div class="metric-lbl">Demonstrated Adherence</div>
-        </div>
-        <div class="metric-stat">
-          <div class="metric-val indigo">&lt; 6ms</div>
-          <div class="metric-lbl">Indexed Query Latency</div>
-        </div>
-        <div class="metric-stat">
-          <div class="metric-val" style="color: #38bdf8;">0 KB</div>
-          <div class="metric-lbl">Disk Footprint (HIPAA Clean)</div>
-        </div>
-      </div>
+        <div class="slide-body">
+          <div class="grid-3" style="gap: 1rem;">
+            <!-- Frontend Card -->
+            <div class="card card-accent-teal">
+              <div class="card-icon teal">🎨</div>
+              <div class="card-title">Frontend Tier</div>
+              <p class="card-desc" style="margin-bottom: 0.5rem;">User interface &amp; interactive presentation</p>
+              <ul class="feature-list">
+                <li><span class="bullet-dot">✓</span> <span><strong>HTML5:</strong> Semantic page structure, modal dialogs, and accessible input forms.</span></li>
+                <li><span class="bullet-dot">✓</span> <span><strong>CSS3:</strong> Responsive layout grids, healthcare color tokens, status badges, and smooth transitions.</span></li>
+                <li><span class="bullet-dot">✓</span> <span><strong>JavaScript:</strong> Dynamic DOM rendering, asynchronous fetch API communication, and client-side validation.</span></li>
+              </ul>
+            </div>
 
-      <div class="grid-2" style="margin-top: 1.5rem;">
-        <div class="card">
-          <h4 class="card-title" style="font-size: 1rem;">AI Extraction Accuracy by Prescription Type</h4>
-          <table class="data-table" style="margin-top: 0.5rem;">
+            <!-- Backend Card -->
+            <div class="card card-accent-blue">
+              <div class="card-icon blue">⚙️</div>
+              <div class="card-title">Application / Logic Tier</div>
+              <p class="card-desc" style="margin-bottom: 0.5rem;">Server-side logic &amp; API orchestration</p>
+              <ul class="feature-list">
+                <li><span class="bullet-dot">✓</span> <span><strong>Node.js / Express:</strong> Lightweight, event-driven RESTful API endpoints and middleware routing.</span></li>
+                <li><span class="bullet-dot">✓</span> <span><strong>PHP Support:</strong> Server-side logic execution and script verification cited in Chapter 6.</span></li>
+                <li><span class="bullet-dot">✓</span> <span><strong>Authentication:</strong> Secure password hashing and session management.</span></li>
+              </ul>
+            </div>
+
+            <!-- Database & Tools Card -->
+            <div class="card card-accent-green">
+              <div class="card-icon green">🗄️</div>
+              <div class="card-title">Database &amp; Tooling</div>
+              <p class="card-desc" style="margin-bottom: 0.5rem;">Persistent storage &amp; version control</p>
+              <ul class="feature-list">
+                <li><span class="bullet-dot">✓</span> <span><strong>MySQL:</strong> Relational DBMS managing tables, foreign keys, and indexed queries.</span></li>
+                <li><span class="bullet-dot">✓</span> <span><strong>Git:</strong> Distributed version control for source code tracking and collaboration.</span></li>
+                <li><span class="bullet-dot">✓</span> <span><strong>Standards:</strong> MDN Web Docs standards compliance and MySQL Reference Manual.</span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- SLIDE 13: DATABASE MANAGEMENT              -->
+      <!-- ========================================== -->
+      <section class="slide" data-slide="13" data-title="Database & Data Management" data-notes="Slide 13 explains our Database Design. DoseTrack utilizes MySQL to organize application data into structured, relational entities. The core tables include: 'users' storing account credentials and profiles; 'medications' storing drug names, dosages, frequencies, and instructions; 'schedules' storing exact dose times linked to medications; 'dose_events' recording each Taken or Missed occurrence with exact timestamps; and 'doctors' storing physician details, clinic locations, and consultation availability. We enforce foreign key relationships with cascading deletes so that removing a medication cleanly removes its associated schedules and alerts, ensuring zero orphan records.">
+        <div class="slide-topbar">
+          <span class="slide-category">Data Architecture</span>
+          <span class="slide-watermark">Slide 13 / 19</span>
+        </div>
+        <div class="slide-header">
+          <h2 class="slide-title">Database &amp; <span class="highlight">Data Management</span></h2>
+          <p class="slide-subtitle">Relational MySQL schema ensuring structured storage, integrity, and audit logging.</p>
+        </div>
+
+        <div class="slide-body">
+          <div class="grid-2" style="align-items: stretch;">
+            <!-- Conceptual ERD Table Cards -->
+            <div style="display: flex; flex-direction: column; gap: 0.55rem;">
+              <div class="card" style="padding: 0.65rem 0.95rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <strong style="font-family: var(--font-heading); font-size: 0.88rem; color: #0f172a;">users</strong>
+                  <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--primary);">Primary User Entity</span>
+                </div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); margin-top: 0.2rem;">
+                  id (PK), full_name, email (UQ), phone, password_hash, created_at
+                </div>
+              </div>
+
+              <div class="card" style="padding: 0.65rem 0.95rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <strong style="font-family: var(--font-heading); font-size: 0.88rem; color: #0f172a;">medications</strong>
+                  <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent-blue);">FK &rarr; users.id</span>
+                </div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); margin-top: 0.2rem;">
+                  id (PK), user_id (FK), name, dosage, quantity, frequency, instructions, start_date, end_date
+                </div>
+              </div>
+
+              <div class="card" style="padding: 0.65rem 0.95rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <strong style="font-family: var(--font-heading); font-size: 0.88rem; color: #0f172a;">schedules</strong>
+                  <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent-indigo);">FK &rarr; medications.id</span>
+                </div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); margin-top: 0.2rem;">
+                  id (PK), medication_id (FK), user_id (FK), dose_time, active
+                </div>
+              </div>
+
+              <div class="card card-accent-green" style="padding: 0.65rem 0.95rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <strong style="font-family: var(--font-heading); font-size: 0.88rem; color: var(--accent-success);">dose_events</strong>
+                  <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent-success);">Adherence Log</span>
+                </div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); margin-top: 0.2rem;">
+                  id (PK), schedule_id (FK), medication_id (FK), user_id (FK), scheduled_for, status ('taken'|'missed'), recorded_at
+                </div>
+              </div>
+
+              <div class="card" style="padding: 0.65rem 0.95rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <strong style="font-family: var(--font-heading); font-size: 0.88rem; color: #0f172a;">doctors</strong>
+                  <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent-warning);">Doctor Contact Info</span>
+                </div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); margin-top: 0.2rem;">
+                  id (PK), user_id (FK), name, specialization, clinic_name, phone, email, availability, clinic_address
+                </div>
+              </div>
+            </div>
+
+            <!-- Database Features & Benefits -->
+            <div class="card card-accent-teal" style="justify-content: space-between;">
+              <div>
+                <div class="card-icon teal">💾</div>
+                <div class="card-title">Relational Data Benefits</div>
+                <ul class="feature-list" style="margin-top: 0.6rem;">
+                  <li><span class="bullet-dot">✓</span> <span><strong>Centralized Storage:</strong> Eliminates scattered paper notes and uncoordinated alarms.</span></li>
+                  <li><span class="bullet-dot">✓</span> <span><strong>Cascading Integrity:</strong> Deleting a medicine automatically removes associated schedules and reminder logs (`ON DELETE CASCADE`).</span></li>
+                  <li><span class="bullet-dot">✓</span> <span><strong>Adherence Audit Trail:</strong> Each dose marked as Taken or Missed is stored with an immutable timestamp for physician reviews.</span></li>
+                  <li><span class="bullet-dot">✓</span> <span><strong>Indexed Queries:</strong> Optimized database indexes (`idx_med_user_dates`, `idx_schedule_user_active`) ensure instant dashboard rendering.</span></li>
+                </ul>
+              </div>
+
+              <div style="background: var(--bg-subtle); border-radius: var(--radius-sm); padding: 0.65rem 0.9rem; font-size: 0.78rem; color: var(--text-muted); margin-top: 0.75rem;">
+                <strong>Entity Hierarchy:</strong> User &rarr; Medication &rarr; Schedule &rarr; Dose Events &amp; Reminders
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- SLIDE 14: CORE USER INTERFACES             -->
+      <!-- ========================================== -->
+      <section class="slide" data-slide="14" data-title="Core Patient Interfaces" data-notes="Slide 14 showcases the actual implemented user interfaces directly from the appendices of our project report. On the left, Screenshot 01 shows our clean Login and Workspace Authentication page. In the center, Screenshot 02 shows the Daily Overview Dashboard, featuring active medication counts, today's dose counter showing 2 out of 4 doses completed, the 30-day adherence rate of 97%, and today's schedule with real-time 'Taken' confirmation badges. On the right, Screenshot 04 displays the Medication Cabinet, where patients organize their prescriptions—including Lisinopril, Metformin, and Atorvastatin—with dosage details, instructions, ongoing dates, and Edit/Delete controls.">
+        <div class="slide-topbar">
+          <span class="slide-category">System Screenshots · Part 1</span>
+          <span class="slide-watermark">Slide 14 / 19</span>
+        </div>
+        <div class="slide-header">
+          <h2 class="slide-title">Application Interfaces – <span class="highlight">Patient Core</span></h2>
+          <p class="slide-subtitle">Actual interface screenshots from Appendices (Pages 21–22) of the DoseTrack project report.</p>
+        </div>
+
+        <div class="slide-body">
+          <div class="screenshot-showcase" style="grid-template-columns: repeat(3, 1fr);">
+            <!-- Screenshot 1 -->
+            <div class="screenshot-card">
+              <div class="screenshot-card-img-wrap">
+                <img src="images/screen_01_login.png" alt="01_Login_Page">
+              </div>
+              <div class="screenshot-card-body">
+                <div class="screenshot-card-title">01. Login &amp; Authentication</div>
+                <div class="screenshot-card-desc">Secure role-aware entry point with account credentials validation and session initialization.</div>
+              </div>
+            </div>
+
+            <!-- Screenshot 2 -->
+            <div class="screenshot-card">
+              <div class="screenshot-card-img-wrap">
+                <img src="images/screen_02_dashboard.png" alt="02_Daily_Overview_Dashboard">
+              </div>
+              <div class="screenshot-card-body">
+                <div class="screenshot-card-title">02. Daily Overview Dashboard</div>
+                <div class="screenshot-card-desc">Active medicines counter, today's doses (2/4), 30-day compliance (97%), and dose Taken actions.</div>
+              </div>
+            </div>
+
+            <!-- Screenshot 3 -->
+            <div class="screenshot-card">
+              <div class="screenshot-card-img-wrap">
+                <img src="images/screen_04_medication_cabinet.png" alt="04_Medication_Cabinet">
+              </div>
+              <div class="screenshot-card-body">
+                <div class="screenshot-card-title">03. Medication Cabinet</div>
+                <div class="screenshot-card-desc">Comprehensive medication list cards with dosages, ongoing dates, frequencies, and Edit/Delete controls.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- SLIDE 15: ADHERENCE & CARE INTERFACES      -->
+      <!-- ========================================== -->
+      <section class="slide" data-slide="15" data-title="Adherence & Healthcare Interfaces" data-notes="Slide 15 highlights the adherence monitoring and healthcare access interfaces. On the left, Screenshot 05 presents the 30-Day Adherence History audit trail, displaying each dose event, medication name, dosage strength, scheduled time, and Taken/Missed status badge. In the center, Screenshot 07 shows the Physician & Clinic Contacts directory, presenting doctor profiles such as Dr. Emily Watson in Endocrinology and Dr. Robert Chen in Cardiology, with consultation timings, clinic addresses, phone, and appointment inquiry buttons. On the right, Screenshot 06 shows the My Care Circle interface, connecting family guardians and caretakers for collaborative care.">
+        <div class="slide-topbar">
+          <span class="slide-category">System Screenshots · Part 2</span>
+          <span class="slide-watermark">Slide 15 / 19</span>
+        </div>
+        <div class="slide-header">
+          <h2 class="slide-title">Application Interfaces – <span class="highlight">Adherence &amp; Care</span></h2>
+          <p class="slide-subtitle">Audit logging, physician directory, and care collaboration screens from Report Appendices.</p>
+        </div>
+
+        <div class="slide-body">
+          <div class="screenshot-showcase" style="grid-template-columns: repeat(3, 1fr);">
+            <!-- Screenshot 4 -->
+            <div class="screenshot-card">
+              <div class="screenshot-card-img-wrap">
+                <img src="images/screen_05_adherence_history.png" alt="05_Patient_Adherence_History">
+              </div>
+              <div class="screenshot-card-body">
+                <div class="screenshot-card-title">04. 30-Day Adherence History</div>
+                <div class="screenshot-card-desc">Detailed audit trail recording medication, dosage, scheduled times, and verified Taken/Missed status.</div>
+              </div>
+            </div>
+
+            <!-- Screenshot 5 -->
+            <div class="screenshot-card">
+              <div class="screenshot-card-img-wrap">
+                <img src="images/screen_07_doctor_contacts.png" alt="07_Doctors_and_Clinic_Contacts">
+              </div>
+              <div class="screenshot-card-body">
+                <div class="screenshot-card-title">05. Doctor &amp; Clinic Contacts</div>
+                <div class="screenshot-card-desc">Physician directory with specialties, consultation days, phone numbers, and appointment requests.</div>
+              </div>
+            </div>
+
+            <!-- Screenshot 6 -->
+            <div class="screenshot-card">
+              <div class="screenshot-card-img-wrap">
+                <img src="images/screen_06_care_circle.png" alt="06_My_Care_Circle">
+              </div>
+              <div class="screenshot-card-body">
+                <div class="screenshot-card-title">06. Care Circle Collaboration</div>
+                <div class="screenshot-card-desc">Linked family guardian and caretaker profiles to facilitate supportive adherence oversight.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- SLIDE 16: IMPLEMENTATION & FUNCTIONALITY   -->
+      <!-- ========================================== -->
+      <section class="slide" data-slide="16" data-title="Implementation & Functionalities" data-notes="Slide 16 summarizes the key functionalities implemented in the project. Every core requirement outlined in our project proposal has been successfully realized: User login and registration securely associates patient records; Medication Cabinet manages active medicines with full CRUD capabilities; Schedule Configuration enables precise dosing times and frequencies; the Reminder Engine automatically generates alerts when doses become due; Adherence Tracking lets users mark doses as Taken or Missed with timestamps; the 30-Day History provides an auditable log; the Overview Dashboard displays daily metrics; Doctor Contact Access provides quick access to clinic details; and MySQL maintains data integrity throughout.">
+        <div class="slide-topbar">
+          <span class="slide-category">Implementation Summary</span>
+          <span class="slide-watermark">Slide 16 / 19</span>
+        </div>
+        <div class="slide-header">
+          <h2 class="slide-title">Implementation &amp; <span class="highlight">Key Functionalities</span></h2>
+          <p class="slide-subtitle">Checklist of fully developed functional capabilities verified in the working prototype.</p>
+        </div>
+
+        <div class="slide-body">
+          <div class="grid-2" style="gap: 1.25rem;">
+            <!-- Column 1 -->
+            <div style="display: flex; flex-direction: column; gap: 0.65rem;">
+              <div class="card" style="padding: 0.85rem 1rem;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <strong style="color: #0f172a; font-size: 0.9rem;">1. User Registration &amp; Authentication</strong>
+                  <span class="badge-status implemented">✓ Implemented</span>
+                </div>
+                <p class="card-desc" style="margin-top: 0.25rem;">Secure account signup, login verification, password hashing, and personalized session isolation.</p>
+              </div>
+
+              <div class="card" style="padding: 0.85rem 1rem;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <strong style="color: #0f172a; font-size: 0.9rem;">2. Medication Record Management</strong>
+                  <span class="badge-status implemented">✓ Implemented</span>
+                </div>
+                <p class="card-desc" style="margin-top: 0.25rem;">Centralized CRUD operations for medicine names, dosage strengths, frequency, duration, and instructions.</p>
+              </div>
+
+              <div class="card" style="padding: 0.85rem 1rem;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <strong style="color: #0f172a; font-size: 0.9rem;">3. Medication Schedule Configuration</strong>
+                  <span class="badge-status implemented">✓ Implemented</span>
+                </div>
+                <p class="card-desc" style="margin-top: 0.25rem;">Configurable dosage timings (e.g., 08:00 AM, 08:30 PM), daily intake frequency, and active schedule flags.</p>
+              </div>
+
+              <div class="card" style="padding: 0.85rem 1rem;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <strong style="color: #0f172a; font-size: 0.9rem;">4. Automated Medication Reminders</strong>
+                  <span class="badge-status implemented">✓ Implemented</span>
+                </div>
+                <p class="card-desc" style="margin-top: 0.25rem;">Real-time notification engine alerting patients when scheduled medication timings become due.</p>
+              </div>
+            </div>
+
+            <!-- Column 2 -->
+            <div style="display: flex; flex-direction: column; gap: 0.65rem;">
+              <div class="card" style="padding: 0.85rem 1rem;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <strong style="color: #0f172a; font-size: 0.9rem;">5. Taken / Missed Dose Tracking</strong>
+                  <span class="badge-status implemented">✓ Implemented</span>
+                </div>
+                <p class="card-desc" style="margin-top: 0.25rem;">Interactive action buttons allowing users to record dose outcomes with real-time database updates.</p>
+              </div>
+
+              <div class="card" style="padding: 0.85rem 1rem;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <strong style="color: #0f172a; font-size: 0.9rem;">6. Adherence History &amp; Audit Trail</strong>
+                  <span class="badge-status implemented">✓ Implemented</span>
+                </div>
+                <p class="card-desc" style="margin-top: 0.25rem;">Complete historical log of scheduled times, actual recorded times, and dose compliance records.</p>
+              </div>
+
+              <div class="card" style="padding: 0.85rem 1rem;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <strong style="color: #0f172a; font-size: 0.9rem;">7. Daily Overview Dashboard</strong>
+                  <span class="badge-status implemented">✓ Implemented</span>
+                </div>
+                <p class="card-desc" style="margin-top: 0.25rem;">At-a-glance visualization of daily dose count, adherence percentage, and upcoming alarms.</p>
+              </div>
+
+              <div class="card" style="padding: 0.85rem 1rem;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <strong style="color: #0f172a; font-size: 0.9rem;">8. Doctor Contacts &amp; MySQL Storage</strong>
+                  <span class="badge-status implemented">✓ Implemented</span>
+                </div>
+                <p class="card-desc" style="margin-top: 0.25rem;">Physician contact directory, clinic timings, appointment inquiry, and relational MySQL persistence.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- SLIDE 17: RESULTS & FUNCTIONAL ANALYSIS    -->
+      <!-- ========================================== -->
+      <section class="slide" data-slide="17" data-title="Results & Functional Analysis" data-notes="Slide 17 presents our Results and Functional Analysis. In accordance with academic honesty and our project report, we present results based on functional outcomes and verified system implementation rather than invented numerical benchmarks. As shown in the outcome matrix, all eight target capabilities—from centralized medication management to adherence tracking and doctor contact access—were successfully realized and verified. Our functional analysis confirms that the developed prototype successfully demonstrates the end-to-end workflow of medication management, scheduled reminders, dose-status recording, and adherence history tracking, effectively replacing scattered traditional notes with an organized web solution.">
+        <div class="slide-topbar">
+          <span class="slide-category">Evaluation &amp; Results</span>
+          <span class="slide-watermark">Slide 17 / 19</span>
+        </div>
+        <div class="slide-header">
+          <h2 class="slide-title">Results &amp; <span class="highlight">Functional Analysis</span></h2>
+          <p class="slide-subtitle">Verification of implemented outcomes against project objectives and functional analysis.</p>
+        </div>
+
+        <div class="slide-body">
+          <table class="slide-table" style="margin-bottom: 0.85rem;">
             <thead>
-              <tr><th>Prescription Category</th><th>Field Accuracy</th><th>Latency</th><th>Confidence Rating</th></tr>
+              <tr>
+                <th style="width: 32%;">Expected Outcome (Objectives)</th>
+                <th style="width: 48%;">Implemented Result in DoseTrack</th>
+                <th style="width: 20%; text-align: center;">Verification Status</th>
+              </tr>
             </thead>
             <tbody>
-              <tr><td>Pharmacy Printed Labels</td><td><strong>98.4%</strong></td><td>0.98s</td><td>0.95 - 0.99 (High)</td></tr>
-              <tr><td>Standard Doctor Orders</td><td><strong>93.2%</strong></td><td>1.12s</td><td>0.85 - 0.92 (High)</td></tr>
-              <tr><td>Messy Doctor Handwriting</td><td><strong>86.5%</strong></td><td>1.34s</td><td>0.68 - 0.78 (Review)</td></tr>
-              <tr><td>Multi-Drug Script (3+ meds)</td><td><strong>91.0%</strong></td><td>1.45s</td><td>0.82 - 0.90 (High)</td></tr>
+              <tr>
+                <td><strong>Centralized Medication Management</strong></td>
+                <td>Stores medicine details, dosage, frequency, and instructions in one unified cabinet.</td>
+                <td style="text-align: center;"><span class="badge-status implemented">✓ Implemented</span></td>
+              </tr>
+              <tr>
+                <td><strong>Medication Scheduling</strong></td>
+                <td>Allows configuring custom dose timings and frequencies linked directly to medicines.</td>
+                <td style="text-align: center;"><span class="badge-status implemented">✓ Implemented</span></td>
+              </tr>
+              <tr>
+                <td><strong>Automated Reminders</strong></td>
+                <td>Reminder engine triggers visual alert notifications when dose times become due.</td>
+                <td style="text-align: center;"><span class="badge-status implemented">✓ Implemented</span></td>
+              </tr>
+              <tr>
+                <td><strong>Dose Adherence Tracking</strong></td>
+                <td>Allows patients to record whether scheduled doses were Taken or Missed.</td>
+                <td style="text-align: center;"><span class="badge-status implemented">✓ Implemented</span></td>
+              </tr>
+              <tr>
+                <td><strong>Adherence History Log</strong></td>
+                <td>Maintains an auditable 30-day chronological record of dose events in MySQL.</td>
+                <td style="text-align: center;"><span class="badge-status implemented">✓ Implemented</span></td>
+              </tr>
+              <tr>
+                <td><strong>Interactive Dashboard</strong></td>
+                <td>Centralizes today's medication routine, progress counter, and compliance percentage.</td>
+                <td style="text-align: center;"><span class="badge-status implemented">✓ Implemented</span></td>
+              </tr>
+              <tr>
+                <td><strong>Doctor-Contact Access</strong></td>
+                <td>Provides stored doctor profiles, clinic hours, phone numbers, and appointment options.</td>
+                <td style="text-align: center;"><span class="badge-status implemented">✓ Implemented</span></td>
+              </tr>
             </tbody>
           </table>
+
+          <div class="highlight-callout">
+            <span class="highlight-callout-icon">📋</span>
+            <div>
+              <strong>Report Functional Analysis:</strong>
+              “The developed prototype successfully demonstrates the core workflow of medication management, scheduled reminders, dose-status recording, and adherence history tracking. The system organizes medication tasks into a reliable digital routine, supporting better compliance without requiring specialized hardware.”
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- SLIDE 18: LIMITATIONS & FUTURE SCOPE       -->
+      <!-- ========================================== -->
+      <section class="slide" data-slide="18" data-title="Limitations & Future Scope" data-notes="Slide 18 discusses Limitations and Future Scope as identified in Chapter 7 of our report. On the left: Our system currently relies on accurate user input for medicine details; notification delivery depends on active browser and device settings; dose adherence is self-reported and cannot physically confirm pill ingestion; and DoseTrack does not diagnose, prescribe, or provide medical advice. On the right: Future enhancements include developing a dedicated mobile application with background push notifications; QR or barcode scanning to auto-enter medicines from packaging; automated refill alerts when supply runs low; caregiver and family access to assist elderly patients; exportable clinical PDF reports for doctor consultations; and integration with pharmacy services.">
+        <div class="slide-topbar">
+          <span class="slide-category">Critical Reflection &amp; Vision</span>
+          <span class="slide-watermark">Slide 18 / 19</span>
+        </div>
+        <div class="slide-header">
+          <h2 class="slide-title">Limitations &amp; <span class="highlight">Future Scope</span></h2>
+          <p class="slide-subtitle">Current operational boundaries and planned technical enhancements from Chapter 7.</p>
         </div>
 
-        <div class="card">
-          <h4 class="card-title" style="font-size: 1rem;">Database Query Benchmarks (MySQL 8.4 InnoDB)</h4>
-          <table class="data-table" style="margin-top: 0.5rem;">
-            <thead>
-              <tr><th>Query Operation</th><th>Index Used</th><th>Execution Time</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>Dose Timeline Lookup</td><td><code>idx_events_user_date</code></td><td><strong>2.8 ms</strong></td></tr>
-              <tr><td>Guardian Dashboard Summary</td><td><code>idx_schedule_user_active</code></td><td><strong>5.4 ms</strong></td></tr>
-              <tr><td>Nurse Care Notes & Vitals</td><td><code>idx_notes_patient</code></td><td><strong>3.1 ms</strong></td></tr>
-              <tr><td>Care Alert Fan-Out</td><td><code>idx_alerts_user</code></td><td><strong>4.2 ms</strong></td></tr>
-            </tbody>
-          </table>
+        <div class="slide-body">
+          <div class="grid-2" style="gap: 1.25rem;">
+            <!-- Current Limitations -->
+            <div class="card card-accent-amber">
+              <div class="card-icon amber">⚠️</div>
+              <div class="card-title">Current Limitations</div>
+              <p class="card-desc" style="margin-bottom: 0.5rem;">Identified constraints in the Phase 1 web implementation:</p>
+              <ul class="feature-list">
+                <li><span class="bullet-cross">✗</span> <span><strong>User Input Dependency:</strong> System relies on the user entering correct medicine details, dosages, and timings.</span></li>
+                <li><span class="bullet-cross">✗</span> <span><strong>Notification Environment:</strong> Reminder delivery depends on active device settings, browser permissions, and device sound.</span></li>
+                <li><span class="bullet-cross">✗</span> <span><strong>Self-Reported Adherence:</strong> Dose status is recorded by user input; system cannot physically verify chemical ingestion.</span></li>
+                <li><span class="bullet-cross">✗</span> <span><strong>Non-Diagnostic Scope:</strong> DoseTrack does not diagnose, prescribe, or give medical advice; medical decisions remain with doctors.</span></li>
+                <li><span class="bullet-cross">✗</span> <span><strong>Deployment Boundary:</strong> Currently deployed as a responsive web system with scope for broader mobile deployment.</span></li>
+              </ul>
+            </div>
+
+            <!-- Future Scope -->
+            <div class="card card-accent-teal">
+              <div class="card-icon teal">🚀</div>
+              <div class="card-title">Future Scope &amp; Enhancements</div>
+              <p class="card-desc" style="margin-bottom: 0.5rem;">Planned features for subsequent development phases:</p>
+              <ul class="feature-list">
+                <li><span class="bullet-dot">✓</span> <span><strong>Mobile App with Push Alerts:</strong> Dedicated Android &amp; iOS application with native system-level alarm daemons.</span></li>
+                <li><span class="bullet-dot">✓</span> <span><strong>QR / Barcode Medicine Entry:</strong> Scan pharmaceutical packaging or prescription QR codes for automated entry.</span></li>
+                <li><span class="bullet-dot">✓</span> <span><strong>Medicine Refill Alerts:</strong> Automated inventory tracking alerting patients when medicine stock is running low.</span></li>
+                <li><span class="bullet-dot">✓</span> <span><strong>Caregiver / Family Access:</strong> Real-time alerts sent to designated family members when a critical dose is missed.</span></li>
+                <li><span class="bullet-dot">✓</span> <span><strong>Exportable Adherence Reports:</strong> One-click PDF generation of 30-day compliance reports for clinical consultations.</span></li>
+              </ul>
+            </div>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- SLIDE 10: Results & Analysis - Comparison with Expected Outcomes -->
-    <section class="slide" data-slide="10" data-notes="In this slide, we present a comparative analysis between traditional approaches, existing generic reminder apps, and DoseTrack against our expected project outcomes. As you can see, traditional pill organizers provide zero digital synchronization and no emergency alert capabilities. Existing mobile apps like Medisafe or generic phone alarms only notify the patient in isolation—they do not feature a connected tripartite model with guardians and caretakers, nor do they integrate AI-based Latin prescription handwriting extraction or clinical vitals logging. DoseTrack successfully fulfilled all expected project outcomes with 100% compliance.">
-      <div class="slide-tag">Emphasis 3: Results & Analysis · Comparative Study</div>
-      <h2 class="slide-title">Comparison with <span class="highlight">Expected Outcomes</span></h2>
-      <p class="slide-subtitle">Benchmarking DoseTrack against legacy solutions and standard commercial medication apps.</p>
-
-      <table class="data-table" style="margin-top: 1rem;">
-        <thead>
-          <tr>
-            <th>Key Evaluation Dimension</th>
-            <th>Traditional Pillbox</th>
-            <th>Generic Phone Alarms</th>
-            <th>Commercial Apps (e.g. Medisafe)</th>
-            <th style="color: var(--primary-light);">DoseTrack (Our Solution)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>Connected Care Triangle</strong><br><small>Patient + Guardian + Nurse</small></td>
-            <td><span class="status-cross">✗</span> Isolated</td>
-            <td><span class="status-cross">✗</span> Single-User</td>
-            <td><span class="status-cross">✗</span> Limited SMS ping</td>
-            <td><span class="status-check">✓</span> <strong>Full 3-Way Real-time Sync</strong></td>
-          </tr>
-          <tr>
-            <td><strong>AI Prescription Scanning</strong><br><small>Handwriting & Latin Translation</small></td>
-            <td><span class="status-cross">✗</span> None</td>
-            <td><span class="status-cross">✗</span> None</td>
-            <td><span class="status-cross">✗</span> Manual typing only</td>
-            <td><span class="status-check">✓</span> <strong>Multimodal Vision LLM + Heuristics</strong></td>
-          </tr>
-          <tr>
-            <td><strong>Clinical Vitals Correlation</strong><br><small>BP, Glucose, Heart Rate, SpO2</small></td>
-            <td><span class="status-cross">✗</span> None</td>
-            <td><span class="status-cross">✗</span> None</td>
-            <td><span class="status-cross">✗</span> Separate paywalled app</td>
-            <td><span class="status-check">✓</span> <strong>Built-in Nurse Vitals Logger</strong></td>
-          </tr>
-          <tr>
-            <td><strong>Emergency SOS Broadcast</strong><br><small>Immediate Care Circle Alert</small></td>
-            <td><span class="status-cross">✗</span> None</td>
-            <td><span class="status-cross">✗</span> None</td>
-            <td><span class="status-cross">✗</span> Manual call</td>
-            <td><span class="status-check">✓</span> <strong>1-Tap Instant Circle Broadcast</strong></td>
-          </tr>
-          <tr>
-            <td><strong>Data Privacy & Footprint</strong><br><small>HIPAA Compliance Architecture</small></td>
-            <td>N/A (Physical)</td>
-            <td>Local only</td>
-            <td>Third-party ad tracking</td>
-            <td><span class="status-check">✓</span> <strong>Ephemeral in-memory buffers</strong></td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div class="card card-accent-success" style="margin-top: 1.5rem;">
-        <p style="font-size: 0.9rem; color: #fff;">
-          <strong>Conclusion on Expected Outcomes:</strong> All primary objectives—including multi-role synchronization, Latin OCR translation, dose verification, and adherence analytics—have been fully implemented, validated, and deployed to production.
-        </p>
-      </div>
-    </section>
-
-    <!-- SLIDE 11: Future Enhancements & Scalability -->
-    <section class="slide" data-slide="11" data-notes="Looking towards future work and scalability: We have architected DoseTrack to easily expand into four high-impact clinical areas. First is IoT Smart Pill Dispenser integration using MQTT/Bluetooth Low Energy. Second is a Drug-Drug Interaction Safety Engine using national pharmacological databases to flag adverse interactions before saving. Third is Multilingual Audio Reminders for visually impaired or elderly patients. Fourth is FHIR and EHR interoperability to directly synchronize prescriptions from hospital records.">
-      <div class="slide-tag">Future Scope & System Roadmap</div>
-      <h2 class="slide-title">Future Enhancements & <span class="highlight">Research Directions</span></h2>
-      <p class="slide-subtitle">Extending DoseTrack into hardware IoT, pharmacology safety intelligence, and hospital EHR integration.</p>
-
-      <div class="grid-2">
-        <div class="card card-accent-primary">
-          <div class="card-header-icon">💊</div>
-          <h3 class="card-title">1. IoT Smart Pill Dispenser Integration</h3>
-          <p class="card-desc">Integrate MQTT and Bluetooth Low Energy (BLE) protocols with automated physical pill dispensers, enabling hardware-level verification when a compartment lid opens.</p>
+      <!-- ========================================== -->
+      <!-- SLIDE 19: CONCLUSION & THANK YOU           -->
+      <!-- ========================================== -->
+      <section class="slide" data-slide="19" data-title="Conclusion & Discussion" data-notes="In conclusion, DoseTrack demonstrates how fundamental web and database technologies—HTML5, CSS3, JavaScript, and MySQL—can be effectively harnessed to solve the real-world healthcare challenge of medication non-adherence. By uniting medication records, custom schedules, automated reminders, adherence history, and doctor contacts into a centralized platform, DoseTrack eliminates the chaos of scattered notes and unorganized routines. We express our sincere gratitude to our supervisor Ms. Ansha MK, coordinator Prof. Kavitha G. Nair, Head of Department Thejas Mon P, and the Department of Computer Application at KMCT Institute of Emerging Technology & Management. We now warmly invite your valuable questions, feedback, and discussion. Thank you.">
+        <div class="slide-topbar">
+          <span class="slide-category">Conclusion &amp; Evaluation</span>
+          <span class="slide-watermark">Slide 19 / 19</span>
         </div>
 
-        <div class="card card-accent-guardian">
-          <div class="card-header-icon">⚠️</div>
-          <h3 class="card-title">2. Drug-Drug Interaction (DDI) Safety Engine</h3>
-          <p class="card-desc">Incorporate NIH / RxNorm clinical APIs to run automated cross-checking between multiple prescribed medications, issuing immediate warnings if contradictory compounds are detected.</p>
+        <div class="slide-body" style="justify-content: space-between;">
+          <!-- Top Conclusion Summary Card -->
+          <div class="card card-accent-teal" style="padding: 1.25rem 1.75rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.4rem;">
+              <span style="font-size: 1.5rem;">🏆</span>
+              <h3 style="font-family: var(--font-heading); font-size: 1.35rem; font-weight: 700; color: #0f172a;">
+                Project Conclusion
+              </h3>
+            </div>
+            <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.55;">
+              DoseTrack successfully delivers a centralized, accessible digital solution that resolves the persistent challenges of forgotten medication doses and scattered health routines. By harmonizing medication scheduling, automated reminders, real-time Taken/Missed dose recording, adherence audit history, and direct doctor contact access, the application proves that a practical web-based system can significantly improve daily treatment consistency and patient peace of mind.
+            </p>
+          </div>
+
+          <!-- Center Thank You Banner -->
+          <div style="text-align: center; margin: 1rem 0;">
+            <h2 style="font-family: var(--font-heading); font-size: 3rem; font-weight: 800; color: #0f172a; letter-spacing: -0.02em;">
+              THANK YOU
+            </h2>
+            <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--primary-tint); border: 1px solid rgba(13, 148, 136, 0.3); padding: 4px 16px; border-radius: 999px; margin-top: 0.4rem;">
+              <span style="color: var(--primary); font-weight: 800;">💬</span>
+              <span style="font-family: var(--font-heading); font-weight: 700; color: var(--primary); font-size: 1.05rem;">Questions &amp; Discussion</span>
+            </div>
+          </div>
+
+          <!-- Bottom Academic Credentials Box -->
+          <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 1rem; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.85rem 1.25rem; box-shadow: var(--shadow-sm);">
+            <div>
+              <div style="font-size: 0.7rem; font-family: var(--font-mono); font-weight: 700; color: var(--primary); text-transform: uppercase;">Presented By Team Members</div>
+              <div style="font-weight: 700; color: #0f172a; font-size: 0.85rem; margin-top: 0.2rem;">
+                Mefa Rahiman &nbsp;|&nbsp; Shabana &nbsp;|&nbsp; Sreya S Jeevan &nbsp;|&nbsp; Gopika Babu
+              </div>
+              <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.15rem;">
+                Department of Computer Application · BCA S5 (October 2026)
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 0.7rem; font-family: var(--font-mono); font-weight: 700; color: var(--accent-blue); text-transform: uppercase;">Institution &amp; Affiliation</div>
+              <div style="font-weight: 700; color: #0f172a; font-size: 0.85rem; margin-top: 0.2rem;">
+                KMCT Institute of Emerging Technology &amp; Management
+              </div>
+              <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.15rem;">
+                Affiliated to APJ Abdul Kalam Technological University (KTU)
+              </div>
+            </div>
+          </div>
         </div>
+      </section>
 
-        <div class="card card-accent-caretaker">
-          <div class="card-header-icon">🔊</div>
-          <h3 class="card-title">3. Multilingual Audio Reminders</h3>
-          <p class="card-desc">Implement Text-to-Speech (TTS) engine with support for regional languages and voice prompts tailored for elderly, illiterate, or visually impaired patients.</p>
-        </div>
-
-        <div class="card card-accent-success">
-          <div class="card-header-icon">🏥</div>
-          <h3 class="card-title">4. FHIR & Hospital EHR Interoperability</h3>
-          <p class="card-desc">Adopt HL7 FHIR standards to enable seamless bi-directional synchronization between hospital electronic health record systems and home medication logs.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 12: Conclusion & Q&A -->
-    <section class="slide" data-slide="12" data-notes="In conclusion, DoseTrack addresses one of the most persistent and costly challenges in modern healthcare: medication non-adherence and communication breakdown across the care circle. By synthesizing a 3-tier distributed architecture, an AI multimodal prescription scanner, and real-time adherence analytics into a single platform, we deliver a scalable, clinical-grade solution. The application is fully deployed and accessible live. Thank you, and we are now ready to take your questions.">
-      <div class="slide-tag">Conclusion & Defense</div>
-      <h2 class="slide-title">Conclusion & <span class="highlight">Defense Q&A</span></h2>
-      <p class="slide-subtitle">DoseTrack bridges patients, families, and healthcare providers into a synchronized, life-saving care circle.</p>
-
-      <div class="grid-3" style="margin-top: 1rem;">
-        <div class="card card-accent-primary">
-          <div class="card-header-icon">🎯</div>
-          <h3 class="card-title">Key Contributions</h3>
-          <ul class="bullet-list" style="font-size: 0.85rem;">
-            <li>Connected Care Triangle concept.</li>
-            <li>Latin-aware Multimodal AI Scanner.</li>
-            <li>Clinical vitals correlation model.</li>
-            <li>Zero-overhead responsive web app.</li>
-          </ul>
-        </div>
-
-        <div class="card card-accent-guardian">
-          <div class="card-header-icon">🌐</div>
-          <h3 class="card-title">Live Deployment</h3>
-          <p class="card-desc" style="font-size: 0.85rem;">
-            <strong>Live URL:</strong> <a href="https://dosetrack-5mat.onrender.com" target="_blank" style="color: var(--primary-light);">dosetrack-5mat.onrender.com</a><br><br>
-            <strong>Pre-configured Accounts:</strong><br>
-            • Patient: <code>patient@dosetrack.com</code><br>
-            • Guardian: <code>guardian@dosetrack.com</code><br>
-            • Caretaker: <code>caretaker@dosetrack.com</code><br>
-            <em>Password: password123</em>
-          </p>
-        </div>
-
-        <div class="card card-accent-success">
-          <div class="card-header-icon">💬</div>
-          <h3 class="card-title">Open for Questions</h3>
-          <p class="card-desc" style="font-size: 0.85rem;">
-            Ready to discuss:<br>
-            • System architecture & schema design<br>
-            • AI Prompting & Latin parsing rules<br>
-            • Database indexing & query optimization<br>
-            • Clinical adherence formulas
-          </p>
-        </div>
-      </div>
-
-      <div style="text-align: center; margin-top: 2.5rem;">
-        <h3 style="font-family: var(--font-heading); font-size: 1.8rem; color: #fff;">Thank You!</h3>
-        <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 0.4rem;">DoseTrack ✚ Connected Medication Care System · Evaluation Presentation</p>
-      </div>
-    </section>
-
+    </div>
   </main>
 
-  <!-- Footer Navigation -->
+  <!-- Presentation Footer -->
   <footer class="deck-footer">
     <div class="footer-left">
-      <span>DoseTrack Mini Project</span>
-      <span style="opacity: 0.3;">|</span>
-      <span>Use <span class="key-badge">←</span> <span class="key-badge">→</span> or <span class="key-badge">Space</span> to Navigate</span>
+      <span>DoseTrack Presentation</span>
+      <span>•</span>
+      <span id="slideTitleIndicator">Title &amp; Project Overview</span>
     </div>
     <div class="footer-center">
-      <span id="slideCounter">Slide 1 / 12</span>
+      <span id="slideCounter">Slide 1 of 19</span>
     </div>
     <div class="footer-right">
-      <button class="ctrl-btn" id="btnPrevSlide">‹ Prev</button>
-      <button class="ctrl-btn" id="btnNextSlide">Next ›</button>
+      <span>Navigation:</span>
+      <span class="key-badge">←</span>
+      <span class="key-badge">→</span>
+      <span class="key-badge">Space</span>
+      <span style="margin-left: 0.5rem;">Overview:</span>
+      <span class="key-badge">O</span>
+      <span style="margin-left: 0.5rem;">Notes:</span>
+      <span class="key-badge">N</span>
     </div>
   </footer>
 
   <!-- Speaker Notes Drawer -->
   <div id="speakerNotesDrawer">
     <div class="notes-header">
-      <div class="notes-title">🎙️ Speaker Talking Points & Script (For Presenter)</div>
-      <button class="ctrl-btn" id="btnCloseNotes" style="padding: 2px 8px; font-size: 0.75rem;">✕ Close</button>
+      <div class="notes-title">
+        <span>🎙️</span>
+        <span id="notesTitle">Speaker Notes · Slide 1</span>
+      </div>
+      <button id="btnCloseNotes" style="background: none; border: none; color: #94a3b8; font-size: 1.1rem; cursor: pointer;">✕</button>
     </div>
-    <div class="notes-body" id="notesContent">
-      Loading notes...
+    <div class="notes-content" id="notesContent">
+      Good morning respected evaluators...
     </div>
   </div>
 
-  <!-- Overview Modal -->
+  <!-- Overview Grid Modal -->
   <div id="overviewModal">
-    <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1300px; margin: 0 auto 1.5rem auto;">
-      <h3 style="font-family: var(--font-heading); font-size: 1.5rem; color: #fff;">Presentation Overview (12 Slides)</h3>
-      <button class="ctrl-btn" id="btnCloseOverview">✕ Close (Esc)</button>
+    <div class="overview-modal-header">
+      <div class="overview-modal-title">Presentation Slides Overview</div>
+      <button id="btnCloseOverview" class="ctrl-btn">Close Grid <span class="key-badge">ESC</span></button>
     </div>
     <div class="overview-grid" id="overviewGrid">
-      <!-- Injected via JS -->
+      <!-- Generated via JS -->
     </div>
   </div>
 
   <script>
-    // State
-    const slides = Array.from(document.querySelectorAll('.slide'));
-    const totalSlides = slides.length;
-    let currentSlide = 0;
-    let notesOpen = false;
+    (function() {
+      const slides = Array.from(document.querySelectorAll('.slide'));
+      const totalSlides = slides.length;
+      let currentIndex = 0;
 
-    // Elements
-    const progressBar = document.getElementById('progressBar');
-    const slideCounter = document.getElementById('slideCounter');
-    const speakerNotesDrawer = document.getElementById('speakerNotesDrawer');
-    const notesContent = document.getElementById('notesContent');
-    const overviewModal = document.getElementById('overviewModal');
-    const overviewGrid = document.getElementById('overviewGrid');
+      const progressBar = document.getElementById('progressBar');
+      const slideCounter = document.getElementById('slideCounter');
+      const slideTitleIndicator = document.getElementById('slideTitleIndicator');
 
-    function updateSlide(index) {
-      if (index < 0) index = 0;
-      if (index >= totalSlides) index = totalSlides - 1;
+      const notesDrawer = document.getElementById('speakerNotesDrawer');
+      const notesTitle = document.getElementById('notesTitle');
+      const notesContent = document.getElementById('notesContent');
+      const btnNotesToggle = document.getElementById('btnNotesToggle');
+      const btnCloseNotes = document.getElementById('btnCloseNotes');
 
-      slides.forEach((s, idx) => {
-        s.classList.remove('active', 'prev');
-        if (idx === index) {
-          s.classList.add('active');
-        } else if (idx < index) {
-          s.classList.add('prev');
+      const overviewModal = document.getElementById('overviewModal');
+      const overviewGrid = document.getElementById('overviewGrid');
+      const btnOverviewToggle = document.getElementById('btnOverviewToggle');
+      const btnCloseOverview = document.getElementById('btnCloseOverview');
+
+      const btnFullscreenToggle = document.getElementById('btnFullscreenToggle');
+      const btnDownloadPptx = document.getElementById('btnDownloadPptx');
+
+      // Populate Overview Grid
+      slides.forEach((slide, idx) => {
+        const thumb = document.createElement('div');
+        thumb.className = `overview-thumb ${idx === 0 ? 'current' : ''}`;
+        thumb.dataset.index = idx;
+        const title = slide.dataset.title || `Slide ${idx + 1}`;
+        thumb.innerHTML = `
+          <div>
+            <span class="thumb-num">SLIDE ${String(idx + 1).padStart(2, '0')}</span>
+            <div class="thumb-title">${title}</div>
+          </div>
+          <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 0.4rem;">Click to jump &rarr;</div>
+        `;
+        thumb.addEventListener('click', () => {
+          goToSlide(idx);
+          overviewModal.classList.remove('open');
+        });
+        overviewGrid.appendChild(thumb);
+      });
+
+      function updateSlide(newIndex, direction = 1) {
+        if (newIndex < 0 || newIndex >= totalSlides) return;
+
+        slides[currentIndex].classList.remove('active', 'prev');
+        if (direction > 0) {
+          slides[currentIndex].classList.add('prev');
+        }
+
+        currentIndex = newIndex;
+        slides[currentIndex].classList.remove('prev');
+        slides[currentIndex].classList.add('active');
+
+        // Update indicators
+        const progressPct = ((currentIndex + 1) / totalSlides) * 100;
+        progressBar.style.width = `${progressPct}%`;
+        slideCounter.textContent = `Slide ${currentIndex + 1} of ${totalSlides}`;
+        const currentTitle = slides[currentIndex].dataset.title || `Slide ${currentIndex + 1}`;
+        slideTitleIndicator.textContent = currentTitle;
+
+        // Update speaker notes
+        const currentNotes = slides[currentIndex].dataset.notes || 'No speaker notes for this slide.';
+        notesTitle.textContent = `Speaker Notes · Slide ${currentIndex + 1} (${currentTitle})`;
+        notesContent.textContent = currentNotes;
+
+        // Update overview grid current highlight
+        document.querySelectorAll('.overview-thumb').forEach((thumb, idx) => {
+          thumb.classList.toggle('current', idx === currentIndex);
+        });
+      }
+
+      function nextSlide() {
+        if (currentIndex < totalSlides - 1) {
+          updateSlide(currentIndex + 1, 1);
+        }
+      }
+
+      function prevSlide() {
+        if (currentIndex > 0) {
+          updateSlide(currentIndex - 1, -1);
+        }
+      }
+
+      function goToSlide(idx) {
+        const dir = idx > currentIndex ? 1 : -1;
+        updateSlide(idx, dir);
+      }
+
+      // Keyboard navigation
+      window.addEventListener('keydown', (e) => {
+        if (overviewModal.classList.contains('open')) {
+          if (e.key === 'Escape' || e.key === 'o' || e.key === 'O') {
+            overviewModal.classList.remove('open');
+          }
+          return;
+        }
+
+        switch(e.key) {
+          case 'ArrowRight':
+          case 'ArrowDown':
+          case ' ':
+            e.preventDefault();
+            nextSlide();
+            break;
+          case 'ArrowLeft':
+          case 'ArrowUp':
+          case 'Backspace':
+            e.preventDefault();
+            prevSlide();
+            break;
+          case 'Home':
+            e.preventDefault();
+            goToSlide(0);
+            break;
+          case 'End':
+            e.preventDefault();
+            goToSlide(totalSlides - 1);
+            break;
+          case 'n':
+          case 'N':
+            e.preventDefault();
+            notesDrawer.classList.toggle('open');
+            btnNotesToggle.classList.toggle('active');
+            break;
+          case 'o':
+          case 'O':
+            e.preventDefault();
+            overviewModal.classList.toggle('open');
+            break;
+          case 'f':
+          case 'F':
+            e.preventDefault();
+            toggleFullscreen();
+            break;
+          case 'Escape':
+            if (notesDrawer.classList.contains('open')) {
+              notesDrawer.classList.remove('open');
+              btnNotesToggle.classList.remove('active');
+            }
+            break;
         }
       });
 
-      currentSlide = index;
-
-      // Update counter and progress bar
-      slideCounter.textContent = `Slide ${currentSlide + 1} / ${totalSlides}`;
-      const pct = ((currentSlide + 1) / totalSlides) * 100;
-      progressBar.style.width = pct + '%';
-
-      // Update speaker notes
-      const activeSlide = slides[currentSlide];
-      const notes = activeSlide.getAttribute('data-notes') || 'No speaker notes for this slide.';
-      notesContent.innerHTML = notes;
-
-      // Update overview grid selection
-      document.querySelectorAll('.overview-thumb').forEach((thumb, idx) => {
-        thumb.classList.toggle('current', idx === currentSlide);
+      // UI Click Event Handlers
+      btnNotesToggle.addEventListener('click', () => {
+        notesDrawer.classList.toggle('open');
+        btnNotesToggle.classList.toggle('active');
       });
-    }
-
-    function nextSlide() {
-      if (currentSlide < totalSlides - 1) updateSlide(currentSlide + 1);
-    }
-
-    function prevSlide() {
-      if (currentSlide > 0) updateSlide(currentSlide - 1);
-    }
-
-    function toggleNotes() {
-      notesOpen = !notesOpen;
-      speakerNotesDrawer.classList.toggle('open', notesOpen);
-      document.getElementById('btnNotesToggle').classList.toggle('active', notesOpen);
-    }
-
-    function toggleOverview() {
-      const isOpen = overviewModal.classList.contains('open');
-      overviewModal.classList.toggle('open', !isOpen);
-      document.getElementById('btnOverviewToggle').classList.toggle('active', !isOpen);
-    }
-
-    function toggleFullscreen() {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(() => {});
-      } else {
-        if (document.exitFullscreen) document.exitFullscreen();
-      }
-    }
-
-    // Build Overview Grid
-    slides.forEach((s, idx) => {
-      const titleEl = s.querySelector('.slide-title');
-      const title = titleEl ? titleEl.innerText.replace(/[\n\r]/g, ' ') : `Slide ${idx + 1}`;
-      const tagEl = s.querySelector('.slide-tag');
-      const tag = tagEl ? tagEl.innerText : '';
-
-      const thumb = document.createElement('div');
-      thumb.className = 'overview-thumb' + (idx === 0 ? ' current' : '');
-      thumb.innerHTML = `
-        <div>
-          <span class="thumb-num">SLIDE ${idx + 1}</span>
-          <div style="font-size: 0.7rem; color: var(--text-dim); margin-top: 2px;">${tag}</div>
-          <div class="thumb-title">${title}</div>
-        </div>
-      `;
-      thumb.addEventListener('click', () => {
-        updateSlide(idx);
-        toggleOverview();
+      btnCloseNotes.addEventListener('click', () => {
+        notesDrawer.classList.remove('open');
+        btnNotesToggle.classList.remove('active');
       });
-      overviewGrid.appendChild(thumb);
-    });
 
-    // Event Listeners
-    document.getElementById('btnNextSlide').addEventListener('click', nextSlide);
-    document.getElementById('btnPrevSlide').addEventListener('click', prevSlide);
-    document.getElementById('btnNotesToggle').addEventListener('click', toggleNotes);
-    document.getElementById('btnCloseNotes').addEventListener('click', toggleNotes);
-    document.getElementById('btnOverviewToggle').addEventListener('click', toggleOverview);
-    document.getElementById('btnCloseOverview').addEventListener('click', toggleOverview);
-    document.getElementById('btnFullscreenToggle').addEventListener('click', toggleFullscreen);
+      btnOverviewToggle.addEventListener('click', () => {
+        overviewModal.classList.toggle('open');
+      });
+      btnCloseOverview.addEventListener('click', () => {
+        overviewModal.classList.remove('open');
+      });
 
-    // Keyboard Navigation
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
-        nextSlide();
-      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
-        prevSlide();
-      } else if (e.key === 'Home') {
-        updateSlide(0);
-      } else if (e.key === 'End') {
-        updateSlide(totalSlides - 1);
-      } else if (e.key === 'n' || e.key === 'N') {
-        toggleNotes();
-      } else if (e.key === 'o' || e.key === 'O') {
-        toggleOverview();
-      } else if (e.key === 'f' || e.key === 'F') {
-        toggleFullscreen();
-      } else if (e.key === 'Escape') {
-        if (overviewModal.classList.contains('open')) toggleOverview();
-        if (notesOpen) toggleNotes();
+      function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+          document.exitFullscreen().catch(() => {});
+        }
       }
-    });
+      btnFullscreenToggle.addEventListener('click', toggleFullscreen);
 
-    // Touch swipe support for mobile/tablets
-    let touchStartX = 0;
-    window.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
-    window.addEventListener('touchend', (e) => {
-      const touchEndX = e.changedTouches[0].screenX;
-      if (touchEndX < touchStartX - 50) nextSlide();
-      if (touchEndX > touchStartX + 50) prevSlide();
-    }, { passive: true });
+      // Download PPTX Trigger
+      btnDownloadPptx.addEventListener('click', () => {
+        window.location.href = '/DoseTrack_Mini_Project_Presentation.pptx';
+      });
 
-    // Initialize first slide
-    updateSlide(0);
+      // Initial speaker notes setup
+      const initialNotes = slides[0].dataset.notes || '';
+      notesTitle.textContent = `Speaker Notes · Slide 1 (${slides[0].dataset.title})`;
+      notesContent.textContent = initialNotes;
+    })();
   </script>
 </body>
 </html>

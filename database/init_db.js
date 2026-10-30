@@ -9,7 +9,7 @@ async function init() {
     CREATE TABLE IF NOT EXISTS users (
       id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
       full_name VARCHAR(120) NOT NULL,
-      role ENUM('patient', 'guardian', 'caretaker') NOT NULL DEFAULT 'patient',
+      role ENUM('patient', 'guardian', 'caretaker', 'admin') NOT NULL DEFAULT 'patient',
       patient_code VARCHAR(20) UNIQUE NULL,
       email VARCHAR(190) NOT NULL UNIQUE,
       phone VARCHAR(30) NULL,
@@ -162,6 +162,46 @@ async function init() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
 
+  // Admin Audit Log table
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS admin_audit_log (
+      id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+      admin_id BIGINT UNSIGNED NOT NULL,
+      action VARCHAR(100) NOT NULL,
+      target_type VARCHAR(60) NULL,
+      target_id VARCHAR(60) NULL,
+      details TEXT NULL,
+      ip_address VARCHAR(45) NULL,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (admin_id) REFERENCES users(id) ON DELETE CASCADE,
+      INDEX idx_audit_admin (admin_id, created_at),
+      INDEX idx_audit_action (action, created_at)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `);
+
+  // Application Settings table
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS app_settings (
+      id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+      setting_key VARCHAR(80) NOT NULL UNIQUE,
+      setting_value VARCHAR(255) NOT NULL,
+      description VARCHAR(255) NULL,
+      updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `);
+
+  // Default app settings
+  await db.query(`
+    INSERT INTO app_settings (setting_key, setting_value, description)
+    VALUES 
+      ('grace_period_mins', '30', 'Grace period in minutes before a scheduled dose is flagged as missed'),
+      ('snooze_duration_mins', '10', 'Default snooze duration in minutes for patient reminders'),
+      ('default_reminder_channel', 'dashboard', 'Default reminder delivery channel (dashboard, email, sms, push)'),
+      ('adherence_risk_threshold', '70', 'Adherence percentage threshold below which a patient is flagged At Risk'),
+      ('system_announcement', 'Welcome to the DoseTrack Clinical Administration Portal.', 'System banner announcement for clinical staff')
+    ON DUPLICATE KEY UPDATE description = VALUES(description)
+  `);
+
   // 2. Helper to safely add column if missing on legacy/pre-existing tables
   async function ensureColumn(table, column, definition) {
     try {
@@ -179,10 +219,17 @@ async function init() {
   }
 
   // Ensure users columns for legacy schema migrations
-  await ensureColumn('users', 'role', "role ENUM('patient', 'guardian', 'caretaker') NOT NULL DEFAULT 'patient'");
+  await ensureColumn('users', 'role', "role ENUM('patient', 'guardian', 'caretaker', 'admin') NOT NULL DEFAULT 'patient'");
+  try {
+    await db.query("ALTER TABLE users MODIFY COLUMN role ENUM('patient', 'guardian', 'caretaker', 'admin') NOT NULL DEFAULT 'patient'");
+  } catch (err) {
+    console.warn('[Init] Note on users.role ENUM update:', err.message);
+  }
+  await ensureColumn('users', 'is_active', "is_active BOOLEAN NOT NULL DEFAULT TRUE");
   await ensureColumn('users', 'patient_code', "patient_code VARCHAR(20) UNIQUE NULL");
   await ensureColumn('users', 'emergency_contact', "emergency_contact VARCHAR(120) NULL");
   await ensureColumn('users', 'avatar_color', "avatar_color VARCHAR(30) DEFAULT '#0d9488'");
+  await ensureColumn('medications', 'is_active', "is_active BOOLEAN NOT NULL DEFAULT TRUE");
   await ensureColumn('dose_events', 'recorded_by_id', "recorded_by_id BIGINT UNSIGNED NULL");
 
   // 3. Auto-seed demo accounts if database has 0 users

@@ -31,7 +31,7 @@ router.post('/register', async (req, res, next) => {
       return res.status(400).json({ error: 'Name, valid email, and password (at least 8 characters) are required.' });
     }
 
-    const validRoles = ['patient', 'guardian', 'caretaker'];
+    const validRoles = ['patient', 'guardian', 'caretaker', 'admin'];
     const chosenRole = validRoles.includes(role) ? role : 'patient';
     const normalizedEmail = email.trim().toLowerCase();
 
@@ -43,7 +43,7 @@ router.post('/register', async (req, res, next) => {
 
     const hash = await bcrypt.hash(password, 10);
     const assignedPatientCode = chosenRole === 'patient' ? await generatePatientCode() : null;
-    const avatarColor = chosenRole === 'patient' ? '#0d9488' : chosenRole === 'guardian' ? '#6366f1' : '#0284c7';
+    const avatarColor = chosenRole === 'patient' ? '#0d9488' : chosenRole === 'guardian' ? '#6366f1' : chosenRole === 'admin' ? '#f59e0b' : '#0284c7';
 
     const [r] = await db.execute(
       `INSERT INTO users (full_name, role, patient_code, email, phone, emergency_contact, avatar_color, password_hash)
@@ -111,7 +111,7 @@ router.post('/login', async (req, res, next) => {
     }
 
     const [rows] = await db.execute(
-      `SELECT id, full_name, email, phone, role, patient_code, emergency_contact, avatar_color, password_hash 
+      `SELECT id, full_name, email, phone, role, patient_code, emergency_contact, avatar_color, is_active, password_hash 
        FROM users WHERE email = ?`,
       [email]
     );
@@ -121,6 +121,10 @@ router.post('/login', async (req, res, next) => {
     }
 
     const u = rows[0];
+
+    if (u.is_active === 0 || u.is_active === false) {
+      return res.status(403).json({ error: 'Your account has been deactivated. Please contact an administrator.' });
+    }
     const user = {
       id: u.id,
       fullName: u.full_name,
